@@ -10,11 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (_req, res) => res.json({ message: 'OSAMA/>Dev API', version: '1.0.0', status: 'running' }));
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api', movieRoutes);
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
 
 const PORT = process.env.PORT || 5000;
 

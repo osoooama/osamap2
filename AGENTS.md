@@ -312,3 +312,30 @@ After scraping, each piece of content is classified:
 - [x] `src/app/disney/page.tsx` – Blue theme, studio groups (Disney/Pixar/DreamWorks)
 - [x] `src/app/crunchyroll/page.tsx` – Orange/black theme, anime genres (Shonen/Seinen/Slice of Life)
 - [x] Frontend build — no errors (commit `711aa6b`)
+
+### PART 9 – MovieCard + Favorites ✅
+- [x] `src/components/movie/MovieCard.tsx` – TMDB poster, wishlist, hover effects with sound/haptics
+- [x] `src/stores/favorites.ts` – Per-platform favorites store
+- [x] Favorites pages for all 4 platforms
+- [x] Frontend build — no errors (commit `a4690aa`)
+
+### PART 10 – VideoPlayer ✅
+- [x] Install react-player
+- [x] `src/components/movie/VideoPlayer.tsx` – Video player with subtitle support from settings
+- [x] Frontend build — no errors (commit `cf35b3a`)
+
+### PART 11 – Settings Page ✅
+- [x] `src/stores/language.ts` – Language store
+- [x] `src/components/ui/switch.tsx` – Shadcn Switch
+- [x] `src/components/ui/slider.tsx` – Shadcn Slider
+- [x] `src/app/settings/page.tsx` – 3 tabs (general, player, advanced)
+- [x] Frontend build — no errors (commit `ef3c290`)
+
+### PART 12 – Backend API ✅
+- [x] `backend/src/index.ts` – Express server + MongoDB + CORS
+- [x] `backend/src/routes/movie.routes.ts` – Movie routes
+- [x] `backend/src/controllers/movie.controller.ts` – Movie controllers
+- [x] `backend/src/services/deepseek.service.ts` – AI classification via DeepSeek
+- [x] `backend/src/models/Movie.model.ts` – Typed Mongoose schema
+- [x] `backend/src/models/Link.model.ts` – Typed Mongoose schema
+- [x] TypeScript compiles — no errors (commit `8a7e8f4`)

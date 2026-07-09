@@ -339,3 +339,12 @@ After scraping, each piece of content is classified:
 - [x] `backend/src/models/Movie.model.ts` – Typed Mongoose schema
 - [x] `backend/src/models/Link.model.ts` – Typed Mongoose schema
 - [x] TypeScript compiles — no errors (commit `8a7e8f4`)
+
+### PART 13 – Python Scrapers ✅
+- [x] `scrapers/utils/base_scraper.py` – Playwright base class with iframe/TMDB extraction
+- [x] `scrapers/sources.py` – 80+ sites (arabic/foreign/turkish/anime)
+- [x] `scrapers/utils/notifier.py` – Telegram alert sender
+- [x] `scrapers/main.py` – Main scraper loop with MongoDB upsert
+- [x] `scrapers/requirements.txt` – All Python deps installed
+- [x] Playwright chromium browser installed
+- [x] Commit `22d8ef1`

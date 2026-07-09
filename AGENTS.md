@@ -353,8 +353,24 @@ After scraping, each piece of content is classified:
 - [x] `output: "export"` في `next.config.ts` مع `trailingSlash: true`, `images.unoptimized: true`
 - [x] API route `api/search` تم حذفه (لأن static export ما يدعم API routes)
 - [x] Scripts في `package.json` محدثة: `build` + `deploy` (wrangler pages deploy)
-- [x] Frontend build — 14 صفحة static بنجاح
+- [x] Frontend build — 18 صفحة static بنجاح
 - [x] Cloudflare Pages project `osamap2` تم إنشاؤه
 - [x] تم النشر على `https://osamap2.pages.dev` — **يعمل بشكل كامل** ✅
-- [x] جميع الصفحات (Home, Netflix, Shahid, Disney+, Crunchyroll, Favorites, Settings, Auth) تخدم كـ HTML static
-- [ ] **ملاحظة**: API routes غير متوفرة مع static export. Search يعمل client-side مباشر من Firebase/MongoDB عبر Express backend
+- [x] جميع الصفحات (Home, Netflix, Shahid, Disney+, Crunchyroll, Favorites, Settings, Auth, Search) تخدم كـ HTML static
+- [x] **ملاحظة**: API routes غير متوفرة مع static export. Search يعمل client-side مباشر من TMDB API
+
+### PART 15 – GitHub Push & Split Architecture ✅
+- [x] تم إضافة SSH key إلى حساب GitHub
+- [x] تم رفع الكود إلى `github.com/osoooama/osamap2.git` (commit `18c0e09`)
+- [x] Frontend last build: 18 صفحات static
+- [x] Frontend منشور على Cloudflare Pages
+- [ ] Backend يحتاج نشر على Render.com يدوي
+- [ ] GitHub Secrets محتاجة تضاف للـ Actions workflow
+
+## Deployment Architecture
+- **Frontend**: Cloudflare Pages (static export from Next.js)
+- **Backend**: Render.com Web Service (Node.js + Express)
+- **Scrapers**: GitHub Actions (scheduled every 6 hours)
+- **MongoDB**: MongoDB Atlas
+- **Supabase**: Managed cloud
+- **Firebase Auth**: Client-side directly

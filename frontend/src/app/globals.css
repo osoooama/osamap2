@@ -128,3 +128,39 @@
     @apply font-sans;
   }
 }
+
+@utility glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@utility glass-dark {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@utility gold-text {
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:root {
+  --primary: #E50914;
+  --accent: #B81D24;
+}
+
+.theme-netflix { --primary: #E50914; --accent: #B81D24; }
+.theme-shahid { --primary: #FF6700; --accent: #FF8C00; }
+.theme-disney { --primary: #113CCF; --accent: #4A90D9; }
+.theme-crunchyroll { --primary: #F47521; --accent: #FF8C42; }

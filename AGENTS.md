@@ -268,3 +268,12 @@ After scraping, each piece of content is classified:
 - [x] `src/app/(auth)/verify/page.tsx` – 6-digit verification code input
 - [x] `src/app/(auth)/username/page.tsx` – Username selection
 - [x] Frontend build — no errors (commit)
+
+### PART 3 – Theme System (4 Skins) ✅
+- [x] `src/lib/themes.ts` – 4 theme definitions (Netflix, Shahid, Disney+, Crunchyroll)
+- [x] `src/stores/theme.ts` – Zustand persist store for theme
+- [x] `src/components/ui/AmbientBackground.tsx` – 3 animated orbs
+- [x] `src/components/ui/ThemeProvider.tsx` – Client wrapper applying theme class
+- [x] `src/app/globals.css` – CSS variables per theme, glass/gold-text/text-gradient utilities
+- [x] `src/app/layout.tsx` – Updated with ThemeProvider
+- [x] Frontend build — no errors (commit `96050c5`)

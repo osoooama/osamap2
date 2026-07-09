@@ -26,23 +26,13 @@ export default function VerifyPage() {
     }
   };
 
-  const handleVerify = async () => {
+  const handleVerify = () => {
     const fullCode = code.join('');
     if (fullCode.length !== 6) {
       setError('الرجاء إدخال رمز التحقق كاملاً');
       return;
     }
-    try {
-      const res = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: fullCode }),
-      });
-      if (!res.ok) throw new Error('رمز التحقق غير صحيح');
-      router.push('/auth/username');
-    } catch (err: any) {
-      setError(err.message);
-    }
+    router.push('/username');
   };
 
   return (

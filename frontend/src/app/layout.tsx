@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeProvider from "@/components/ui/ThemeProvider";
 import Navbar from "@/components/ui/Navbar";
 import BottomNav from "@/components/ui/BottomNav";
+import { MovieDetailModal } from "@/components/movie/MovieDetailModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1 pt-16 pb-16 md:pb-0">{children}</main>
           <BottomNav />
+          <MovieDetailModal />
         </ThemeProvider>
       </body>
     </html>

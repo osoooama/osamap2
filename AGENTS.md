@@ -348,3 +348,13 @@ After scraping, each piece of content is classified:
 - [x] `scrapers/requirements.txt` – All Python deps installed
 - [x] Playwright chromium browser installed
 - [x] Commit `22d8ef1`
+
+### PART 14 – Cloudflare Pages Static Export ✅
+- [x] `output: "export"` في `next.config.ts` مع `trailingSlash: true`, `images.unoptimized: true`
+- [x] API route `api/search` تم حذفه (لأن static export ما يدعم API routes)
+- [x] Scripts في `package.json` محدثة: `build` + `deploy` (wrangler pages deploy)
+- [x] Frontend build — 14 صفحة static بنجاح
+- [x] Cloudflare Pages project `osamap2` تم إنشاؤه
+- [x] تم النشر على `https://osamap2.pages.dev` — **يعمل بشكل كامل** ✅
+- [x] جميع الصفحات (Home, Netflix, Shahid, Disney+, Crunchyroll, Favorites, Settings, Auth) تخدم كـ HTML static
+- [ ] **ملاحظة**: API routes غير متوفرة مع static export. Search يعمل client-side مباشر من Firebase/MongoDB عبر Express backend

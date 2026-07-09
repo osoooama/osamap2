@@ -1,7 +1,6 @@
 'use client';
 import { useSettingsStore } from '@/stores/settings';
 import { useThemeStore } from '@/stores/theme';
-import { useLanguageStore } from '@/stores/language';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function SettingsPage() {
   const settings = useSettingsStore();
-  const { language, setLanguage } = useLanguageStore();
 
   return (
     <div className="container max-w-2xl mx-auto py-8 px-4">
@@ -28,7 +26,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader><CardTitle>اللغة</CardTitle></CardHeader>
             <CardContent>
-              <Select value={language} onValueChange={(v) => v && setLanguage(v as 'ar' | 'en')}>
+              <Select value={settings.language} onValueChange={(v) => v && settings.setLanguage(v as 'ar' | 'en')}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ar">العربية</SelectItem>

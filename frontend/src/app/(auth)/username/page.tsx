@@ -10,24 +10,15 @@ export default function UsernamePage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (username.length < 3) {
       setError('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
       return;
     }
-    try {
-      const res = await fetch('/api/auth/username', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
-      });
-      if (!res.ok) throw new Error('اسم المستخدم محجوب أو غير متاح');
-      router.push('/');
-    } catch (err: any) {
-      setError(err.message);
-    }
+    localStorage.setItem('osama_username', username);
+    router.push('/');
   };
 
   return (

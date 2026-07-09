@@ -1,6 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
-const MovieSchema = new mongoose.Schema({
+interface IMovie extends Document {
+  tmdb_id: string;
+  title: string;
+  overview: string;
+  poster_path: string;
+  category: 'foreign' | 'arabic' | 'turkish' | 'anime' | 'animation';
+  created_at: Date;
+}
+
+const MovieSchema = new mongoose.Schema<IMovie>({
   tmdb_id: { type: String, unique: true, index: true },
   title: String,
   overview: String,
@@ -9,4 +18,4 @@ const MovieSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now }
 });
 
-export default mongoose.model('Movie', MovieSchema);
+export default mongoose.model<IMovie>('Movie', MovieSchema);

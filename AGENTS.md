@@ -277,3 +277,38 @@ After scraping, each piece of content is classified:
 - [x] `src/app/globals.css` – CSS variables per theme, glass/gold-text/text-gradient utilities
 - [x] `src/app/layout.tsx` – Updated with ThemeProvider
 - [x] Frontend build — no errors (commit `96050c5`)
+
+### PART 4 – Databases ✅
+- [x] `supabase_schema.sql` – Full schema (users, movies, links, favorites, verification_codes) with RLS
+- [x] `backend/src/models/Movie.model.ts` – Mongoose schema
+- [x] `backend/src/models/Link.model.ts` – Mongoose schema
+- [x] `src/lib/supabase/client.ts` – Supabase client
+- [x] Frontend build — no errors (commit `06589ed`)
+
+### PART 5 – Stores & Utilities ✅
+- [x] `src/stores/cart.ts` – Cart with persist
+- [x] `src/stores/wishlist.ts` – Wishlist toggle
+- [x] `src/stores/settings.ts` – 20+ settings (subtitle, audio, display, etc.)
+- [x] `src/lib/sounds.ts` – AudioContext sound system
+- [x] `src/lib/haptics.ts` – Vibration API haptics
+- [x] Frontend build — no errors (commit `669e5fd`)
+
+### PART 6 – Navbar & Homepage ✅
+- [x] `src/components/ui/Navbar.tsx` – Dynamic Island style, scroll hide/show, glass effect
+- [x] `src/components/ui/BottomNav.tsx` – 4 tabs (home, favorites, search, settings)
+- [x] `src/app/layout.tsx` – Updated with Navbar + BottomNav + padding
+- [x] `src/app/page.tsx` – 4 platform buttons with hover effects
+- [x] Frontend build — no errors (commit `f77a19f`)
+
+### PART 7 – IntroVideo + Platform Entry ✅
+- [x] `src/components/ui/IntroVideo.tsx` – Fullscreen video with skip, fade exit
+- [x] Homepage integration – Each platform plays intro video then navigates
+- [x] Crunchyroll confirmation dialog
+- [x] Frontend build — no errors (commit `101d890`)
+
+### PART 8 – 4 Platform Pages ✅
+- [x] `src/app/netflix/page.tsx` – Dark red theme, hero banner, horizontal scroll rows
+- [x] `src/app/shahid/page.tsx` – Purple/gold theme, arabic + turkish sections, badges (مترجم/مدبلج/حصري)
+- [x] `src/app/disney/page.tsx` – Blue theme, studio groups (Disney/Pixar/DreamWorks)
+- [x] `src/app/crunchyroll/page.tsx` – Orange/black theme, anime genres (Shonen/Seinen/Slice of Life)
+- [x] Frontend build — no errors (commit `711aa6b`)

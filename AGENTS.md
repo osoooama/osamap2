@@ -240,3 +240,31 @@ After scraping, each piece of content is classified:
 ## Communication
 - Build commands in English
 - All other communication: **Arabic (العربية)**
+
+---
+
+## Completed Tasks Log
+
+### PART 1 – Project Setup ✅
+- [x] Git init + .gitignore (commit `a303756`)
+- [x] Next.js 15 + TypeScript + Tailwind CSS + App Router
+- [x] Shadcn/ui components: button, card, badge, sheet, drawer, dialog, sonner, input, label, textarea, separator, skeleton, tabs, select, avatar, dropdown-menu
+- [x] Libraries: framer-motion, zustand, @tanstack/react-query, axios, react-player, firebase, @supabase/supabase-js, @supabase/ssr, resend, @sentry/nextjs, posthog-js
+- [x] Backend: Express 5 + Mongoose + Firebase Admin + Playwright + Resend + TypeScript
+- [x] Scrapers: Python 3.11 venv + requirements.txt
+- [x] .env files (frontend/backend/scrapers)
+- [x] Intro videos copied (netflix, shahid, disney, crunchyroll)
+- [x] Profile image copied
+- [x] Frontend build — no errors
+- [x] opencode.json with Playwright MCP + AGENTS.md instructions
+- [x] AGENTS.md (project memory)
+
+### PART 2 – Firebase Auth + Frontend Auth Pages ✅
+- [x] Firebase service account saved (`backend/firebase-service-account.json`)
+- [x] Firebase web SDK config in `.env.local`
+- [x] `src/lib/firebase/client.ts` – Firebase init + Google provider
+- [x] `src/lib/resend.ts` – Resend email client
+- [x] `src/app/(auth)/login/page.tsx` – Login/Register with Email/Password + Google
+- [x] `src/app/(auth)/verify/page.tsx` – 6-digit verification code input
+- [x] `src/app/(auth)/username/page.tsx` – Username selection
+- [x] Frontend build — no errors (commit)

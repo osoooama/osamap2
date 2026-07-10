@@ -13,6 +13,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (_req, res) => res.json({ message: 'OSAMA/>Dev API V2', status: 'running' }));
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.use('/api', movieRoutes);

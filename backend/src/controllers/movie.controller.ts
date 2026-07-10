@@ -55,7 +55,21 @@ export async function getMovieDetails(req: Request, res: Response) {
     }
 
     const links = await Link.find({ tmdb_id, is_active: true });
-    res.json({ ...movie.toObject(), links });
+    const linkUrls = links.length > 0 ? links.map((l: any) => l.embed_url) : [];
+    const existingUrls = movie.embed_urls || [];
+
+    let result: any = { ...movie.toObject(), links };
+    if (!existingUrls.length && !linkUrls.length) {
+      const trailer = await tmdb.getMovieTrailer(tmdb_id);
+      if (trailer) {
+        result.embed_urls = [trailer];
+        result.demo_trailer = true;
+      }
+    } else {
+      result.embed_urls = [...new Set([...existingUrls, ...linkUrls])];
+    }
+
+    res.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to fetch movie details';
     res.status(500).json({ error: message });

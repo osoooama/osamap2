@@ -6,3 +6,5 @@ __pycache__/
 venv/
 *.log
 .env.local
+firebase-service-account.json
+*.sshknown_hosts

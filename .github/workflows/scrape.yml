@@ -1,32 +1,18 @@
-name: Auto Scraper (Backup)
+name: Auto Scraper
 on:
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:
-
 jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          cd scrapers
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          playwright install chromium
-
-      - name: Run Scraper
-        run: |
-          cd scrapers
-          python main.py
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with: { python-version: '3.10' }
+      - run: pip install -r scrapers/requirements.txt
+      - run: playwright install chromium
+      - run: python scrapers/src/main.py
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}

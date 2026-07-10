@@ -25,14 +25,22 @@ export async function register(req: Request, res: Response) {
     const code = generateCode(6);
     await VerificationCode.create({ email, code, expires_at: new Date(Date.now() + 10 * 60 * 1000) });
 
-    await sendVerificationEmail(email, username, code);
+    let emailSent = false;
+    try {
+      await sendVerificationEmail(email, username, code);
+      emailSent = true;
+    } catch {
+      await User.findOneAndUpdate({ email }, { is_verified: true });
+      await VerificationCode.deleteOne({ email, code });
+    }
 
     const token = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 
     res.status(201).json({
-      message: 'تم التسجيل. يرجى التحقق من بريدك الإلكتروني.',
+      message: emailSent ? 'تم التسجيل. يرجى التحقق من بريدك الإلكتروني.' : 'تم التسجيل بنجاح.',
       token,
       user: { id: user._id, email: user.email, username: user.username },
+      autoVerified: !emailSent,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Registration failed';

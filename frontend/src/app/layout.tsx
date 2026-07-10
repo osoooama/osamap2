@@ -1,44 +1,21 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ThemeProvider from "@/components/ui/ThemeProvider";
-import Navbar from "@/components/ui/Navbar";
-import BottomNav from "@/components/ui/BottomNav";
-import { MovieDetailModal } from "@/components/movie/MovieDetailModal";
+import Providers from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "OSAMA/>Dev - Streaming Platform",
-  description: "4-in-1 streaming platform: Netflix, Shahid, Disney+, Crunchyroll",
+  title: "OSAMA/>Dev",
+  description: "منصة البث المتكاملة",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="ar"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <Navbar />
-          <main className="flex-1 pt-16 pb-16 md:pb-0">{children}</main>
-          <BottomNav />
-          <MovieDetailModal />
-        </ThemeProvider>
+    <html lang="ar" className={`${geistSans.variable} ${geistMono.variable} dark h-full`}>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

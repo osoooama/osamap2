@@ -5,14 +5,21 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import movieRoutes from './routes/movie.routes';
+import authRoutes from './routes/auth.routes';
+import scrapeRoutes from './routes/scrape.routes';
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (_req, res) => res.json({ message: 'OSAMA/>Dev API', version: '1.0.0', status: 'running' }));
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
 app.use('/api', movieRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/scrape', scrapeRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

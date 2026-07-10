@@ -1,11 +1,8 @@
 node_modules/
 .env
-.env.local
-.next
-.open-next
-dist
+.next/
+dist/
 __pycache__/
 venv/
 *.log
-firebase-service-account.json
-backend/firebase-service-account.json
+.env.local

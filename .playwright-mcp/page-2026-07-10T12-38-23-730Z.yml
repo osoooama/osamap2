@@ -1,0 +1,6 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading "NETFLIX" [level=1] [ref=e4]
+    - main [ref=e5]
+  - alert [ref=e8]

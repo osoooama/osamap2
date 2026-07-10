@@ -6,7 +6,24 @@ import * as tmdb from '../services/tmdb.service';
 export async function getMoviesByCategory(req: Request, res: Response) {
   try {
     const category = req.params.category as string;
-    const movies = await Movie.find({ category: category as any }).sort({ created_at: -1 }).limit(50);
+    let movies = await Movie.find({ category: category as any }).sort({ created_at: -1 }).limit(50);
+
+    if (movies.length === 0) {
+      const tmdbResults = await tmdb.discoverByCategory(category);
+      const docs = tmdbResults.map((item: any) => ({
+        tmdb_id: String(item.id),
+        title: item.title || item.name || 'Unknown',
+        overview: item.overview || '',
+        poster_path: item.poster_path || '',
+        backdrop_path: item.backdrop_path || '',
+        category,
+        images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
+      }));
+      if (docs.length > 0) {
+        await Movie.insertMany(docs, { ordered: false }).catch(() => {});
+        movies = await Movie.find({ category: category as any }).sort({ created_at: -1 }).limit(50);
+      }
+    }
 
     const enriched = movies.map((m) => {
       const obj = m.toObject();

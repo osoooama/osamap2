@@ -3,7 +3,7 @@ import requests
 import os
 
 from playwright.sync_api import sync_playwright
-from sites.base import save_link, log_result
+from sites.base import save_link, save_all_qualities, log_result
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
@@ -91,9 +91,14 @@ def crawl(site_info):
                                     src = el.get_attribute('src')
                                     if src and src.startswith('http') and not any(ad in src for ad in ['doubleclick', 'googlead', 'popunder', 'dtscout']):
                                         print(f'      STREAM: {src[:120]}...')
-                                        save_link(tid, link, src, category, title)
-                                        found += 1
-                                        total += 1
+                                        if '.m3u8' in src:
+                                            saved = save_all_qualities(tid, link, src, category, title)
+                                            found += saved
+                                            total += saved
+                                        else:
+                                            save_link(tid, link, src, category, title)
+                                            found += 1
+                                            total += 1
                         except:
                             pass
 

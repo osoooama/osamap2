@@ -2,7 +2,7 @@ import time
 import os
 import requests
 from playwright.sync_api import sync_playwright
-from sites.base import save_link, log_result
+from sites.base import save_all_qualities, save_link, log_result
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
@@ -40,7 +40,7 @@ def extract_m3u8_from_xpass(page, xpass_url, retries=3):
             page.goto(xpass_url, wait_until='domcontentloaded', timeout=30000)
             time.sleep(5)
             m3u8 = page.evaluate(
-                "() => performance.getEntriesByType('resource').map(e => e.name).filter(n => n.includes('.m3u8')).slice(0, 5)"
+                "() => performance.getEntriesByType('resource').map(e => e.name).filter(n => n.includes('.m3u8'))"
             )
             if m3u8:
                 return m3u8
@@ -56,7 +56,7 @@ def crawl(site_info):
     base_url = f'https://{name}/watch'
     print(f'[CINEBY] Crawling {name} (category={category})...')
 
-    ids = get_tmdb_popular('movie', 5)
+    ids = get_tmdb_popular('movie', 10)
     print(f'[CINEBY] Got {len(ids)} TMDB IDs')
 
     total = 0
@@ -87,17 +87,14 @@ def crawl(site_info):
                         print(f'    xpass iframe: {xpass_src[:100]}')
                         m3u8_urls = extract_m3u8_from_xpass(page, xpass_src)
                         if m3u8_urls:
-                            master = m3u8_urls[0]
-                            print(f'    STREAM: {master[:100]}')
-                            save_link(tid, watch_url, master, category, title)
-                            total += 1
+                            for m3u8_url in m3u8_urls:
+                                print(f'    M3U8: {m3u8_url[:100]}')
+                                saved = save_all_qualities(tid, watch_url, m3u8_url, category, title)
+                                total += saved
                         else:
                             print(f'    No m3u8 found from xpass')
                     else:
                         print(f'    No xpass iframe found')
-
-                    if total >= 3:
-                        break
 
                 except Exception as e:
                     print(f'    Error: {e}')

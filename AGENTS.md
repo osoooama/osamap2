@@ -43,13 +43,21 @@
 - **قاعدة البيانات:** MongoDB (PyMongo)
 - **الجدولة:** GitHub Actions (cron كل 6 ساعات)
 
-### آلية العمل
-1. **Crawler** يزور كل موقع من الـ 80 موقعاً
-2. يستخرج روابط البث (.m3u8, .mpd, .mp4)
-3. يتجاوز الإعلانات والروابط المختصرة (shortened URLs)
-4. **AI Classifier** يصنف المحتوى عبر DeepSeek API (جودة، فئة، لغة)
+### آلية العمل (الجديدة)
+1. **TMDB API** يحصل على IDs لأشهر الأفلام والمسلسلات
+2. **لكل موقع** crawler مخصص يستخدم Playwright لفتح صفحة المشاهدة
+3. يستخرج رابط البث من iframe المشغل (play.xpass.top أو vid3rb.com)
+4. **ليس هناك حاجة لـ AI Classifier** - التصنيف حسب الموقع
 5. **Notifier** يرسل إشعار تلغرام بالروابط النظيفة
-6. **MongoDB** يحفظ النتائج للرجوع إليها لاحقاً
+6. **MongoDB** يحفظ النتائج
+
+### آلية العمل (الجديدة)
+1. **TMDB API** يحصل على IDs لأشهر الأفلام والمسلسلات
+2. **لكل موقع** crawler مخصص يستخدم Playwright لفتح صفحة المشاهدة
+3. يستخرج رابط البث من iframe المشغل (play.xpass.top أو vid3rb.com)
+4. **ليس هناك حاجة لـ AI Classifier** - التصنيف حسب الموقع
+5. **Notifier** يرسل إشعار تلغرام بالروابط النظيفة
+6. **MongoDB** يحفظ النتائج
 
 ### هيكل المجلدات
 ```
@@ -58,24 +66,29 @@ osamap2/
 ├── frontend/
 ├── scrapers/
 │   ├── src/
-│   │   ├── crawler.py
-│   │   ├── sources.py
+│   │   ├── sites/
+│   │   │   ├── base.py         # دوال مشتركة (حفظ في MongoDB)
+│   │   │   ├── cineby.py       # زاحف cineby.cc + streamex.net (عبر play.xpass.top)
+│   │   │   ├── anime3rb.py     # زاحف anime3rb.com (عبر video.vid3rb.com)
+│   │   │   └── animeslayer.py  # زاحف animeslayer.to
+│   │   ├── crawler.py          # (قديم) احتياطي
+│   │   ├── sources.py          # 4 مواقع فقط
 │   │   ├── ai_classifier.py
 │   │   ├── notifier.py
-│   │   └── main.py
+│   │   ├── run_all.py          # مشغل جميع الزاحفين
+│   │   └── main.py             # نقطة الدخول
 │   ├── requirements.txt
 │   └── .env
-└── .github/workflows/scrape.yml
+└── .github/workflows/
+    ├── scrape.yml
+    └── test-crawl.yml
 ```
 
-### قوائم المواقع (80 موقعاً)
-**أجنبي (20):** cineby.cc, streamex.net, hydrahd.com, nunflix.cc, rivestream.com, watchug.com, vidbox.tv, broflix.org, flickystream.com, mapple.tv, alienflix.com, novastream.to, tubitv.com, plutotv.com, crackle.com, therokuchannel.roku.com, amazon.com/adlp/freevee, peacocktv.com, plex.tv, vudu.com
-
-**عربي (20):** arabseed.ws, akwam.cc, faselplus.cc, mycima.video, cimaclub.com, 3isk.tv, qrmzi.com, watanflix.com, egybest.com, elcinema.com, a.qfilm.tv, r.cimalight.co, shoofdrama.com, laroza.video, hekat-tv.com, dramaturkey.com, hilalplay.com, shahid.mbc.net, starzplay.com, viu.com
-
-**تركي (20):** kayifamily.com, dizipal.com, diziwatch.net, fullhdfilmizle.com, dizigom.net, dizibox.com, turkish123.com, diziyou.com, blutv.com, puhutv.com, turkflix.net, osmanonline.com, dizimania.com, yoturkish.com, serial4u.com, promix.tv, dizistar.com, teknoasian.com, sinemalar.com, hdfilmcehennemi.com
-
-**أنمي (20):** hianime.to, anime-defenders.com, anigo.one, jkanime.net, animeunity.tv, anitaku.to, miruro.tv, aniwave.to, animeyat.net, animeout.xyz, animeblix.com, animixplay.to, witanime.com, anime4up.com, shahiid-anime.net, anime3rb.com, animeslayer.to, animekaizoku.com, animovitch.com, animegon.com
+### قوائم المواقع (4 مواقع مستهدفة)
+1. **cineby.cc** - أفلام أجنبية (عبر play.xpass.top)
+2. **streamex.net** - أفلام أجنبية (عبر play.xpass.top - نفس محرك cineby)
+3. **anime3rb.com** - أنمي عربي (عبر video.vid3rb.com)
+4. **animeslayer.to** - أنمي عربي (عبر مشغل خاص)
 
 ## 🛠️ التقنيات المستخدمة
 - **Frontend:** Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4 + shadcn/ui v4 + Framer Motion + react-player + Clerk → Firebase Auth

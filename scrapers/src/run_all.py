@@ -1,78 +1,53 @@
-import sys, asyncio, time
-sys.path.insert(0, 'src')
-from datetime import datetime, timezone
-import pymongo, os
-from dotenv import load_dotenv
+import os
+import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
 load_dotenv(Path(__file__).resolve().parent.parent.joinpath('.env'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from sources import get_all_sites, SOURCES
-from crawler import StreamCrawler
-from notifier import send_telegram_alert
+from sources import get_all_sites
+from sites.cineby import crawl as crawl_cineby
+from sites.anime3rb import crawl as crawl_anime3rb
+from sites.animeslayer import crawl as crawl_animeslayer
+from sites.arabic_sites import crawl as crawl_arabic
 
-all_sites = get_all_sites()
-results = {'success': 0, 'failed': 0, 'streams_found': 0, 'details': []}
+CRAWLER_MAP = {
+    'cineby.cc': crawl_cineby,
+    'www.streamex.net': crawl_cineby,
+    'anime3rb.com': crawl_anime3rb,
+    'animeslayer.to': crawl_animeslayer,
+    'mycima.video': crawl_arabic,
+    'eegebest.com': crawl_arabic,
+    'fajer.show': crawl_arabic,
+    '3iskk.xyz': crawl_arabic,
+    '7obtv.co': crawl_arabic,
+    'dizipal2085.com': crawl_arabic,
+}
 
-def pick_sites(category, count):
-    return [s for s in all_sites if s['category'] == category][:count]
 
-async def run_batch(category, sites, tmdb_ids, sem):
-    tasks = []
+def run():
+    sites = get_all_sites()
+    print(f'Running {len(sites)} site crawlers...')
+
+    total = 0
     for site in sites:
-        tasks.append(run_site(site, tmdb_ids, sem))
-    await asyncio.gather(*tasks)
-
-async def run_site(site, tmdb_ids, sem):
-    async with sem:
-        cat = site['category']
         name = site['name']
-        base = site['url'].rstrip('/')
-        urls = [f'{base}/search/{tid}' for tid in tmdb_ids]
-        c = StreamCrawler(category=cat, concurrency=min(len(urls), 3))
-        t0 = time.time()
+        crawler_fn = CRAWLER_MAP.get(name)
+        if not crawler_fn:
+            print(f'[SKIP] No crawler for {name}')
+            continue
         try:
-            await c.run(urls)
-            elapsed = time.time() - t0
-            for log in c.log:
-                results['streams_found'] += len(log.get('streams_found', 0))
-            results['success'] += 1
-            results['details'].append({'name': name, 'category': cat, 'status': 'OK', 'time': f'{elapsed:.1f}s'})
-            print(f'  OK  [{cat:8}] {name:25} {elapsed:.1f}s')
+            count = crawler_fn(site)
+            total += count
         except Exception as e:
-            elapsed = time.time() - t0
-            results['failed'] += 1
-            err = str(e)[:40]
-            results['details'].append({'name': name, 'category': cat, 'status': 'FAIL', 'time': f'{elapsed:.1f}s'})
-            print(f'  FAIL [{cat:8}] {name:25} {elapsed:.1f}s - {err}')
+            print(f'[ERROR] {name}: {e}')
+            import traceback
+            traceback.print_exc()
 
-async def main():
-    print(f'Running crawler on ALL 80 sites...')
-    sem = asyncio.Semaphore(4)
-    tmdb_ids = ['550']
-    for cat in ['foreign', 'arabic', 'turkish', 'anime']:
-        sites = [s for s in all_sites if s['category'] == cat]
-        print(f'\n--- {cat.upper()} ({len(sites)} sites) ---')
-        tasks = [run_site(site, tmdb_ids, sem) for site in sites]
-        await asyncio.gather(*tasks)
+    print(f'\n=== All crawlers complete. Total streams: {total} ===')
+    return total
 
-    print('\n' + '=' * 70)
-    print('CATEGORY BREAKDOWN:')
-    for cat in ['foreign', 'arabic', 'turkish', 'anime']:
-        cat_sites = [d for d in results['details'] if d['category'] == cat]
-        ok = sum(1 for d in cat_sites if d['status'] == 'OK')
-        fail = sum(1 for d in cat_sites if d['status'] != 'OK')
-        print(f'  {cat:10}: {ok} OK / {fail} FAIL')
-
-    print(f'\nTOTALS:')
-    print(f'  Total sites: {len(all_sites)}')
-    print(f'  Success: {results["success"]}')
-    print(f'  Failed: {results["failed"]}')
-    print(f'  Streams found: {results["streams_found"]}')
-
-    send_telegram_alert(
-        f'Scraper Report: {results["success"]}/{len(all_sites)} sites OK, {results["streams_found"]} streams',
-        'all', 'report', 'https://github.com/osoooama/osamap2/actions'
-    )
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    run()

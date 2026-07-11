@@ -1,44 +1,41 @@
-import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv(Path(__file__).resolve().parent.parent.joinpath('.env'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from crawler import fetch_page_requests, extract_stream_urls, is_ad_url
-from bs4 import BeautifulSoup
+from sources import get_all_sites
+from sites.cineby import crawl as crawl_cineby
+from sites.anime3rb import crawl as crawl_anime3rb
+from sites.animeslayer import crawl as crawl_animeslayer
 
-TEST_URLS = [
-    ('cineby.cc', 'https://cineby.cc/search/550'),
-    ('faselplus.cc', 'https://faselplus.cc/search/550'),
-    ('kayifamily.com', 'https://kayifamily.com/search/550'),
-    ('hianime.to', 'https://hianime.to/search/550'),
-    ('akwam.cc', 'https://akwam.cc/search/550'),
-    ('mycima.tube', 'https://mycima.tube/search/550'),
-    ('3iskk.xyz', 'https://3iskk.xyz/search/550'),
-    ('dizipal.com', 'https://dizipal.com/search/550'),
-    ('animekaizoku.com', 'https://animekaizoku.com/search/550'),
-    ('shahiid-anime.net', 'https://shahiid-anime.net/search/550'),
-]
+CRAWLER_MAP = {
+    'cineby.cc': crawl_cineby,
+    'www.streamex.net': crawl_cineby,
+    'anime3rb.com': crawl_anime3rb,
+    'animeslayer.to': crawl_animeslayer,
+}
 
+sites = get_all_sites()
 ok = 0
 fail = 0
-found = 0
+total_streams = 0
 
-for name, url in TEST_URLS:
-    print(f'[{name}] {url}')
-    html = fetch_page_requests(url, timeout=20)
-    if html:
-        soup = BeautifulSoup(html, 'lxml')
-        streams = extract_stream_urls(soup)
-        print(f'  [OK] {len(html)} bytes, {len(streams)} streams')
-        if streams:
-            found += 1
-            for s in streams[:2]:
-                print(f'  >>> {s}')
-        ok += 1
-    else:
-        print(f'  [FAIL]')
+for site in sites:
+    name = site['name']
+    crawler = CRAWLER_MAP.get(name)
+    if not crawler:
+        print(f'[SKIP] {name} - no crawler')
+        fail += 1
+        continue
+    try:
+        count = crawler(site)
+        if count > 0:
+            ok += 1
+        else:
+            fail += 1
+        total_streams += count
+    except Exception as e:
+        print(f'[ERROR] {name}: {e}')
         fail += 1
 
-print(f'\n=== RESULTS: {ok}/{len(TEST_URLS)} OK, {found} with streams ===')
+print(f'\n=== RESULTS: {ok}/{len(sites)} OK, {total_streams} streams ===')
 sys.exit(0 if ok > 0 else 1)

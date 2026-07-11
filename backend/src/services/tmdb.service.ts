@@ -66,16 +66,4 @@ export async function discoverByCategory(category: string, page = 1) {
   return [];
 }
 
-export async function getMovieTrailer(tmdb_id: string): Promise<string | null> {
-  try {
-    const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdb_id}/videos`, {
-      params: { api_key: process.env.TMDB_API_KEY, language: 'en' },
-    });
-    const trailer = (data.results || []).find(
-      (v: any) => v.type === 'Trailer' && v.site === 'YouTube' && v.official === true
-    );
-    return trailer ? `https://www.youtube.com/embed/${trailer.key}` : null;
-  } catch {
-    return null;
-  }
-}
+// getMovieTrailer removed - YouTube trailers are not used

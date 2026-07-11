@@ -1,54 +1,45 @@
 import os
 import json
 from openai import OpenAI
+from dotenv import load_dotenv
 
-SYSTEM_PROMPT = """You are a content classifier for streaming links. Given a URL,
-determine:
-  - quality: estimate from URL patterns (4k, 1080p, 720p, 480p, unknown)
-  - type: vod (video on demand) or live
-  - language: ar, en, tr, ja, unknown
-  - is_streamable: true/false (can this be embedded in a web player)
-Return JSON only."""
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
-_client = None
+SYSTEM_PROMPT = (
+    'Classify the following movie into exactly one category from: '
+    'Action, Drama, Comedy, Romance, Sci-Fi, Horror, Adventure, Animation, Documentary. '
+    'Return valid JSON only: {"category": "...", "confidence": 0.0-1.0}'
+)
 
-def _get_client() -> OpenAI:
-    global _client
-    if _client is None:
+
+def extract_category_from_response(text):
+    try:
+        data = json.loads(text)
+        return data.get('category', 'Unknown'), float(data.get('confidence', 0.0))
+    except (json.JSONDecodeError, TypeError, ValueError):
+        return 'Unknown', 0.0
+
+
+class DeepSeekClassifier:
+    def __init__(self):
         api_key = os.getenv('DEEPSEEK_API_KEY')
         if not api_key:
-            raise ValueError('DEEPSEEK_API_KEY not set')
-        _client = OpenAI(api_key=api_key, base_url='https://api.deepseek.com')
-    return _client
+            raise ValueError('DEEPSEEK_API_KEY not found in environment')
+        self.client = OpenAI(api_key=api_key, base_url='https://api.deepseek.com')
 
-
-def classify_url(stream_url: str, page_title: str = '') -> dict:
-    try:
-        client = _get_client()
-        resp = client.chat.completions.create(
-            model='deepseek-chat',
-            messages=[
-                {'role': 'system', 'content': SYSTEM_PROMPT},
-                {'role': 'user', 'content': f'URL: {stream_url}\nTitle: {page_title}'},
-            ],
-            temperature=0.1,
-            max_tokens=150,
-            response_format={'type': 'json_object'},
-        )
-        text = resp.choices[0].message.content
-        return json.loads(text)
-    except Exception as e:
-        return {
-            'quality': 'unknown',
-            'type': 'vod',
-            'language': 'unknown',
-            'is_streamable': True,
-            'error': str(e),
-        }
-
-
-def batch_classify(results: list) -> list:
-    for item in results:
-        for stream in item.get('streams', []):
-            item['classification'] = classify_url(stream)
-    return results
+    def classify(self, title, overview):
+        try:
+            resp = self.client.chat.completions.create(
+                model='deepseek-chat',
+                messages=[
+                    {'role': 'system', 'content': SYSTEM_PROMPT},
+                    {'role': 'user', 'content': f'Title: {title}\nOverview: {overview}'},
+                ],
+                temperature=0.1,
+                max_tokens=100,
+            )
+            content = resp.choices[0].message.content
+            category, confidence = extract_category_from_response(content)
+            return {'category': category, 'confidence': confidence}
+        except Exception as e:
+            return {'category': 'Unknown', 'confidence': 0.0, 'error': str(e)}

@@ -9,3 +9,4 @@ venv/
 firebase-service-account.json
 *.sshknown_hosts
 .playwright-mcp/
+scrapers/storage/

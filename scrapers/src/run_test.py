@@ -21,10 +21,10 @@ async def main():
 
     crawler = PlaywrightCrawler(
         headless=True,
-        max_concurrency=2,
-        max_request_retries=2,
         browser_launch_options={'args': ['--no-sandbox', '--disable-setuid-sandbox']},
     )
+    crawler.max_concurrency = 2
+    crawler.max_request_retries = 1
 
     @crawler.router.default_handler
     async def handler(context: PlaywrightCrawlingContext):

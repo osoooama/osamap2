@@ -1,18 +1,8 @@
 import time
-import re
-import base64
 
 from playwright.sync_api import sync_playwright
 
 from sites.base import save_link, log_result
-
-
-def decode_anime_slayer_href(encoded):
-    try:
-        decoded = base64.b64decode(encoded).decode('utf-8')
-        return decoded
-    except:
-        return encoded
 
 
 def crawl(site_info):
@@ -66,22 +56,35 @@ def crawl(site_info):
                         print(f'    Opening watch: {watch_url}')
                         try:
                             page.goto(watch_url, wait_until='domcontentloaded', timeout=30000)
-                            time.sleep(3)
+                            time.sleep(5)
 
-                            iframe_el = page.query_selector('iframe[src*="player"]')
+                            all_iframes = page.query_selector_all('iframe')
+                            print(f'      iframes on page: {len(all_iframes)}')
+
+                            iframe_el = None
+                            for f in all_iframes:
+                                src = f.get_attribute('src')
+                                if src and ('player' in src.lower() or 'vid' in src.lower() or 'embed' in src.lower() or src.startswith('http')):
+                                    iframe_el = f
+                                    player_src = src
+                                    break
+
                             if iframe_el:
                                 player_src = iframe_el.get_attribute('src')
-                                print(f'      Player: {player_src[:80]}...')
-                                page.goto(player_src, wait_until='domcontentloaded', timeout=30000)
-                                time.sleep(2)
+                                print(f'      Player iframe: {player_src[:100]}...')
+                                try:
+                                    page.goto(player_src, wait_until='domcontentloaded', timeout=30000)
+                                    time.sleep(3)
 
-                                video_el = page.query_selector('video')
-                                if video_el:
-                                    video_src = video_el.get_attribute('src') or video_el.get_attribute('currentSrc')
-                                    if video_src and video_src.startswith('http'):
-                                        print(f'      STREAM: {video_src[:100]}...')
-                                        save_link(None, ep_link, video_src, category)
-                                        total_streams += 1
+                                    video_el = page.query_selector('video')
+                                    if video_el:
+                                        video_src = video_el.get_attribute('src') or video_el.get_attribute('currentSrc')
+                                        if video_src and video_src.startswith('http'):
+                                            print(f'      STREAM: {video_src[:100]}...')
+                                            save_link(None, watch_url, video_src, category)
+                                            total_streams += 1
+                                except Exception as e2:
+                                    print(f'      Player nav error: {e2}')
 
                             sources = page.query_selector_all('source')
                             for source in sources:

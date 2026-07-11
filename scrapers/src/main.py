@@ -1,14 +1,14 @@
-import asyncio
 import os
-import random
+import asyncio
 from datetime import datetime, timezone
 
 import pymongo
 from dotenv import load_dotenv
 
 from sources import SOURCES
-from utils.base_scraper import BaseScraper
-from utils.notifier import send_telegram_alert
+from crawler import StreamingCrawler
+from ai_classifier import batch_classify
+from notifier import send_telegram_alert
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 client = pymongo.MongoClient(os.getenv('MONGODB_URI'))
@@ -21,84 +21,41 @@ TEST_TMDB_IDS = [
     '155', '497', '27205', '15512', '1124',
 ]
 
-MAX_CONCURRENT = 5
-semaphore = asyncio.Semaphore(MAX_CONCURRENT)
 
-
-async def scrape_site(tmdb_id, site_data, category):
-    site_name = site_data['name']
-    search_url = f"{site_data['url']}/search/{tmdb_id}"
-
-    async with semaphore:
-        scraper = BaseScraper()
-        try:
-            html = await scraper.get_page(search_url, use_js=True)
-            if not html:
-                html = await scraper.get_page(search_url)
-
-            if not html:
-                print(f'[{site_name}] No response for TMDB {tmdb_id}')
-                return
-
-            embed_url = scraper.extract_iframe(html)
-            if not embed_url:
-                video_url = scraper.extract_video(html)
-                if video_url:
-                    embed_url = video_url
-
-            if embed_url:
-                now = datetime.now(timezone.utc)
-                movie = movies_col.find_one({'tmdb_id': tmdb_id})
-                if not movie:
-                    movie_id = movies_col.insert_one({
-                        'tmdb_id': tmdb_id,
-                        'title': f'Movie {tmdb_id}',
-                        'category': category,
-                        'created_at': now,
-                    }).inserted_id
-                else:
-                    movie_id = movie['_id']
-
-                links_col.update_one(
-                    {'tmdb_id': tmdb_id, 'source': site_name},
-                    {'$set': {
-                        'embed_url': embed_url,
-                        'source': site_name,
-                        'quality': '1080p',
-                        'is_active': True,
-                        'last_checked': now,
-                    }},
-                    upsert=True,
-                )
-
-                send_telegram_alert(f'{site_name} - TMDB {tmdb_id}', category, '1080p', embed_url)
-                print(f'[{site_name}] Found embed for TMDB {tmdb_id}')
-            else:
-                links_col.update_many(
-                    {'tmdb_id': tmdb_id, 'source': site_name},
-                    {'$set': {'is_active': False}}
-                )
-                print(f'[{site_name}] No embed found for TMDB {tmdb_id}')
-
-            await asyncio.sleep(random.uniform(3, 7))
-
-        except Exception as e:
-            print(f'[{site_name}] Error: {e}')
-            links_col.update_many(
-                {'tmdb_id': tmdb_id, 'source': site_name},
-                {'$set': {'is_active': False}}
+async def process_category(category, sites):
+    print(f'[{category}] Starting crawl of {len(sites)} sites...')
+    crawler = StreamingCrawler(sites, category, TEST_TMDB_IDS)
+    results = await crawler.run()
+    if not results:
+        print(f'[{category}] No results found')
+        return
+    classified = batch_classify(results)
+    for item in classified:
+        now = datetime.now(timezone.utc)
+        for stream in item.get('streams', []):
+            cls = item.get('classification', {})
+            links_col.update_one(
+                {'stream_url': stream, 'category': category},
+                {'$set': {
+                    'stream_url': stream,
+                    'source_url': item['url'],
+                    'category': category,
+                    'quality': cls.get('quality', 'unknown'),
+                    'stream_type': cls.get('type', 'vod'),
+                    'language': cls.get('language', 'unknown'),
+                    'is_active': True,
+                    'last_checked': now,
+                }},
+                upsert=True,
             )
+            q = cls.get('quality', 'unknown')
+            send_telegram_alert(f'Stream from {item["url"]}', category, q, stream)
+        print(f'[{category}] Saved {len(item.get("streams", []))} streams')
 
 
 async def main():
-    print('Starting scraper...')
-    tasks = []
-
-    for category, sites in SOURCES.items():
-        for tmdb_id in TEST_TMDB_IDS:
-            for site in sites:
-                tasks.append(scrape_site(tmdb_id, site, category))
-
+    print('Starting OSAMA/>Dev scraper...')
+    tasks = [process_category(cat, sites) for cat, sites in SOURCES.items()]
     await asyncio.gather(*tasks)
     print('Scraping complete.')
 

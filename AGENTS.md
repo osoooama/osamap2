@@ -1,15 +1,27 @@
-# 🧠 OSAMA/>Dev V2 – AGENTS.md (ملف الذاكرة الدائم)
+# OSAMA/>Dev V2 – AGENTS.md (ملف الذاكرة الدائم)
+
+## SYSTEM PROMPT (ثابت – يُرسل مرة واحدة)
+
+### الدور
+أنت مهندس برمجيات خبير في تطوير أنظمة الزحف Web Crawlers باستخدام Crawlee و Playwright، مع خبرة في استخراج روابط البث (Streaming Links) وتصفية الإعلانات، ودمج الذكاء الاصطناعي DeepSeek API، وإشعارات Telegram.
+مستوى الجودة: Enterprise-Grade مع تركيز على الأداء، الأتمتة، وقابلية التوسع.
+
+### القواعد
+1. اقرأ AGENTS.md أولاً.
+2. لا تفترض أي شيء – تحقق من الملفات قبل التعديل.
+3. اختبر كل جزء قبل الانتقال إلى التالي.
+4. استخدم الأوامر المحددة حرفياً.
+5. عند مواجهة خطأ، أوقف العمل وأبلغ المستخدم.
+6. لا تترك أبداً أخطاء TypeScript أو Python.
+7. التزم بهيكل المشروع المحدد.
+
+---
 
 ## 🏗️ هوية المشروع
-- **الاسم:** OSAMA/>Dev V2  
-- **المطور:** أسامة كريشان (Osama Kreishan)  
-- **الهدف:** منصة بث متكاملة بـ 4 واجهات (نتفليكس، شاهد، ديزني بلس، كرانشي رول) مع مشغل فيديو احترافي وزاحف لـ 80 موقعاً.  
+- **الاسم:** OSAMA/>Dev V2
+- **المطور:** أسامة كريشان (Osama Kreishan)
+- **الهدف:** منصة بث متكاملة بـ 4 واجهات (نتفليكس، شاهد، ديزني بلس، كرانشي رول) مع مشغل فيديو احترافي وزاحف لـ 80 موقعاً.
 - **المسار:** `C:\Users\osama\Documents\osamap2`
-
-## 🧩 المصادر والملفات الأولية
-- **تصميمات الواجهات المستنسخة:** `C:\Users\osama\Desktop\واجهات`  
-  (يحتوي على مجلدات: Netflix, Shahid, Disney, Crunchyroll)
-- **ملفات التصميم:** يتم نسخ الهيكل والألوان والتنسيق فقط، **بدون الصور الثابتة**.
 
 ## 📡 مصادر الصور والبيانات (حسب المنصة)
 | المنصة | المصدر | الفئة |
@@ -19,31 +31,60 @@
 | Shahid | الزاحف (Scraper) + احتياطي TMDB | arabic, turkish |
 | Disney+ | الزاحف (Scraper) + احتياطي TMDB | animation |
 
-## 🎬 المشغل (Video Player)
-- **النوع:** طبقة منبثقة (Overlay) تظهر فوق الصفحة.
-- **المكتبة:** `react-player` مع دعم HLS و MP4.
-- **الأزرار:** تشغيل/إيقاف، ملء الشاشة، اختيار الجودة (4K/1080p/720p)، تفعيل/تعطيل الترجمة.
+## 🕷️ نظام الزحف الجديد (Crawlee + Playwright + DeepSeek)
 
-## 🕷️ نظام الزحف (Scrapers) – 80 موقعاً
-- **اللغة:** Python 3.10+ مع Playwright.
-- **المواقع:** 20 موقعاً لكل فئة (أجنبي، عربي، تركي، أنمي).
-- **آلية العمل:** زيارة كل موقع، استخراج رابط `iframe` أو الفيديو، حفظه في MongoDB مع إشعار تلغرام.
-- **الجدولة:** GitHub Actions كل 6 ساعات.
+### التقنيات
+- **لغة:** Python 3.10+
+- **مكتبة الزحف:** Crawlee (مع Playwright integration)
+- **المتصفح:** Playwright (Chromium headless)
+- **تحليل الصفحات:** BeautifulSoup + lxml
+- **تصنيف المحتوى:** DeepSeek API (OpenAI-compatible)
+- **الإشعارات:** Telegram Bot API
+- **قاعدة البيانات:** MongoDB (PyMongo)
+- **الجدولة:** GitHub Actions (cron كل 6 ساعات)
 
-### قوائم المواقع (80 موقعاً):
+### آلية العمل
+1. **Crawler** يزور كل موقع من الـ 80 موقعاً
+2. يستخرج روابط البث (.m3u8, .mpd, .mp4)
+3. يتجاوز الإعلانات والروابط المختصرة (shortened URLs)
+4. **AI Classifier** يصنف المحتوى عبر DeepSeek API (جودة، فئة، لغة)
+5. **Notifier** يرسل إشعار تلغرام بالروابط النظيفة
+6. **MongoDB** يحفظ النتائج للرجوع إليها لاحقاً
+
+### هيكل المجلدات
+```
+osamap2/
+├── backend/
+├── frontend/
+├── scrapers/
+│   ├── src/
+│   │   ├── crawler.py
+│   │   ├── sources.py
+│   │   ├── ai_classifier.py
+│   │   ├── notifier.py
+│   │   └── main.py
+│   ├── requirements.txt
+│   └── .env
+└── .github/workflows/scrape.yml
+```
+
+### قوائم المواقع (80 موقعاً)
 **أجنبي (20):** cineby.cc, streamex.net, hydrahd.com, nunflix.cc, rivestream.com, watchug.com, vidbox.tv, broflix.org, flickystream.com, mapple.tv, alienflix.com, novastream.to, tubitv.com, plutotv.com, crackle.com, therokuchannel.roku.com, amazon.com/adlp/freevee, peacocktv.com, plex.tv, vudu.com
+
 **عربي (20):** arabseed.ws, akwam.cc, faselplus.cc, mycima.video, cimaclub.com, 3isk.tv, qrmzi.com, watanflix.com, egybest.com, elcinema.com, a.qfilm.tv, r.cimalight.co, shoofdrama.com, laroza.video, hekat-tv.com, dramaturkey.com, hilalplay.com, shahid.mbc.net, starzplay.com, viu.com
+
 **تركي (20):** kayifamily.com, dizipal.com, diziwatch.net, fullhdfilmizle.com, dizigom.net, dizibox.com, turkish123.com, diziyou.com, blutv.com, puhutv.com, turkflix.net, osmanonline.com, dizimania.com, yoturkish.com, serial4u.com, promix.tv, dizistar.com, teknoasian.com, sinemalar.com, hdfilmcehennemi.com
+
 **أنمي (20):** hianime.to, anime-defenders.com, anigo.one, jkanime.net, animeunity.tv, anitaku.to, miruro.tv, aniwave.to, animeyat.net, animeout.xyz, animeblix.com, animixplay.to, witanime.com, anime4up.com, shahiid-anime.net, anime3rb.com, animeslayer.to, animekaizoku.com, animovitch.com, animegon.com
 
 ## 🛠️ التقنيات المستخدمة
-- **Frontend:** Next.js 15 (App Router) + TypeScript + Tailwind CSS + Framer Motion
-- **Backend:** Node.js + Express + TypeScript + MongoDB (Mongoose)
-- **Scrapers:** Python 3.10 + Playwright + BeautifulSoup
-- **Auth:** JWT + bcrypt + Resend (إيميلات)
-- **Deployment:** Cloudflare Pages (Frontend) + Render.com (Backend)
+- **Frontend:** Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4 + shadcn/ui v4 + Framer Motion + react-player + Clerk → Firebase Auth
+- **Backend:** Node.js + Express + TypeScript + MongoDB (Mongoose) + JWT + bcrypt + Resend
+- **Scrapers:** Python 3.10+ + Crawlee + Playwright + BeautifulSoup + DeepSeek API
+- **Auth:** Firebase Auth (Google OAuth) + Clerk (deprecated)
+- **Deployment:** Cloudflare Pages (Frontend) + Render.com (Backend) + GitHub Actions (Scrapers)
 
-## 🔑 متغيرات البيئة (المفاتيح)
+## 🔑 متغيرات البيئة
 ```env
 # Backend (.env في backend/)
 PORT=5000
@@ -58,3 +99,10 @@ FRONTEND_URL=http://localhost:3000
 
 # Frontend (.env.local في frontend/)
 NEXT_PUBLIC_API_URL=http://localhost:5000
+
+# Scrapers (.env في scrapers/)
+MONGODB_URI=mongodb+srv://osamakreshan49_db_user:Osama995AA@cluster0.xiju5ao.mongodb.net/?appName=Cluster0
+TELEGRAM_BOT_TOKEN=8523313590:AAHtdiTZ3XcZbPQ7AROIts2_ZFfhVqugpS4
+TELEGRAM_CHAT_ID=6328505405
+DEEPSEEK_API_KEY=sk-2005ad64c9d54249ae56ee1c2417a7c5
+```

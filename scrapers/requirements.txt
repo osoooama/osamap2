@@ -5,3 +5,6 @@ pymongo
 python-dotenv
 fake-useragent
 lxml
+crawlee[playwright]
+openai
+

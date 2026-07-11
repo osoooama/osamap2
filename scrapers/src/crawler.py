@@ -83,7 +83,12 @@ class StreamCrawler:
         self.category = category
         self.concurrency = concurrency
         self.log = []
-        self._crawler = PlaywrightCrawler(headless=True)
+        self._crawler = PlaywrightCrawler(
+            headless=True,
+            browser_launch_options={
+                'args': ['--no-sandbox', '--disable-setuid-sandbox'],
+            },
+        )
         self._crawler.max_concurrency = concurrency
         self._crawler.max_request_retries = 3
         self._crawler.router.default_handler(self.handle_page)

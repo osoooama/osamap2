@@ -1,55 +1,44 @@
-"""Quick test: 1 site from each category to verify sandbox fix works on GitHub Actions."""
-import asyncio
-import pymongo
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
-from crawlee.crawlers import PlaywrightCrawler, PlaywrightCrawlingContext
-
 load_dotenv(Path(__file__).resolve().parent.parent.joinpath('.env'))
 
+from crawler import fetch_page_requests, extract_stream_urls, is_ad_url
+from bs4 import BeautifulSoup
+
 TEST_URLS = [
-    "https://cineby.cc/search/550",
-    "https://faselplus.cc/search/550",
-    "https://kayifamily.com/search/550",
-    "https://hianime.to/search/550",
+    ('cineby.cc', 'https://cineby.cc/search/550'),
+    ('faselplus.cc', 'https://faselplus.cc/search/550'),
+    ('kayifamily.com', 'https://kayifamily.com/search/550'),
+    ('hianime.to', 'https://hianime.to/search/550'),
+    ('akwam.cc', 'https://akwam.cc/search/550'),
+    ('mycima.tube', 'https://mycima.tube/search/550'),
+    ('3iskk.xyz', 'https://3iskk.xyz/search/550'),
+    ('dizipal.com', 'https://dizipal.com/search/550'),
+    ('animekaizoku.com', 'https://animekaizoku.com/search/550'),
+    ('shahiid-anime.net', 'https://shahiid-anime.net/search/550'),
 ]
 
-async def main():
-    seen = set()
-    found_streams = []
+ok = 0
+fail = 0
+found = 0
 
-    crawler = PlaywrightCrawler(
-        headless=True,
-        browser_launch_options={'args': ['--no-sandbox', '--disable-setuid-sandbox']},
-    )
-    crawler.max_concurrency = 2
-    crawler.max_request_retries = 1
+for name, url in TEST_URLS:
+    print(f'[{name}] {url}')
+    html = fetch_page_requests(url, timeout=20)
+    if html:
+        soup = BeautifulSoup(html, 'lxml')
+        streams = extract_stream_urls(soup)
+        print(f'  [OK] {len(html)} bytes, {len(streams)} streams')
+        if streams:
+            found += 1
+            for s in streams[:2]:
+                print(f'  >>> {s}')
+        ok += 1
+    else:
+        print(f'  [FAIL]')
+        fail += 1
 
-    @crawler.router.default_handler
-    async def handler(context: PlaywrightCrawlingContext):
-        page = context.page
-        html = await page.content()
-        if page.url not in seen:
-            seen.add(page.url)
-            print(f"[OK] Loaded: {page.url} ({len(html)} bytes)")
-        # Check for stream URLs
-        for ext in ['.m3u8', '.mpd', '.mp4', '.ts']:
-            if ext in html:
-                found_streams.append(page.url)
-                print(f"  >>> Found {ext} on {page.url}")
-
-    try:
-        await crawler.run(TEST_URLS)
-    except Exception as e:
-        print(f"[ERROR] {e}")
-
-    print(f"\n=== RESULTS ===")
-    print(f"Total requested: {len(TEST_URLS)}")
-    print(f"Total loaded: {len(seen)}")
-    print(f"Streams found: {len(found_streams)} sites")
-    for s in found_streams:
-        print(f"  - {s}")
-
-if __name__ == '__main__':
-    asyncio.run(main())
+print(f'\n=== RESULTS: {ok}/{len(TEST_URLS)} OK, {found} with streams ===')
+sys.exit(0 if ok > 0 else 1)

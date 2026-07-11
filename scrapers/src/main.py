@@ -1,5 +1,4 @@
 import os
-import asyncio
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -13,11 +12,11 @@ load_dotenv(Path(__file__).resolve().parent.parent.joinpath('.env'))
 TEST_TMDB_IDS = ['550', '680', '13', '278', '238']
 
 
-async def main():
+def main():
     sites = get_all_sites()
     print(f'Loading {len(sites)} sites...')
 
-    crawler = StreamCrawler(category='all', concurrency=5)
+    crawler = StreamCrawler(category='all')
 
     all_urls = []
     for site in sites:
@@ -26,7 +25,7 @@ async def main():
             all_urls.append(f'{base}/search/{tmdb_id}')
 
     print(f'Queuing {len(all_urls)} URLs...')
-    await crawler.run(all_urls)
+    crawler.crawl(all_urls)
     print(f'Crawling complete. Logged {len(crawler.log)} pages.')
 
     send_telegram_alert(
@@ -38,4 +37,4 @@ async def main():
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()

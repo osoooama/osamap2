@@ -56,10 +56,23 @@ export async function getMovieDetails(req: Request, res: Response) {
 
     const links = await Link.find({ tmdb_id, is_active: true });
 
-    const result: any = { ...movie.toObject(), links };
-    result.embed_urls = links.length > 0
-      ? [...new Set(links.map((l: any) => l.embed_url).filter(Boolean))]
-      : [];
+    const qualityRank: Record<string, number> = { '360p': 0, '480p': 1, '720p': 2, '1080p': 3, '2K': 4, '4K': 5 };
+    const sorted = [...links].sort((a: any, b: any) => (qualityRank[b.quality] || 0) - (qualityRank[a.quality] || 0));
+
+    const seen = new Set<string>();
+    const uniqueSources: any[] = [];
+    const allUrls = new Set<string>();
+    for (const l of sorted) {
+      const url = (l as any).embed_url || '';
+      if (url && !seen.has(url)) {
+        seen.add(url);
+        uniqueSources.push(l);
+        allUrls.add(url);
+      }
+    }
+
+    const result: any = { ...movie.toObject(), links: uniqueSources };
+    result.embed_urls = [...allUrls];
 
     res.json(result);
   } catch (err) {

@@ -2,20 +2,22 @@ import time
 import os
 import requests
 from playwright.sync_api import sync_playwright
-from sites.base import save_all_qualities, save_link, log_result
+from sites.base import save_all_qualities, save_link, log_result, verify_stream_url
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
 
 SITES = [
     {'name': 'www.streamex.net', 'category': 'foreign'},
-    {'name': 'cineby.cc', 'category': 'foreign'},
 ]
+
+CLASSIC_IDS = [278, 238, 680, 550, 155, 497, 424, 807, 27205, 157336,
+               550, 1892, 1359, 122, 11, 1891, 4977, 121, 429, 98]
 
 
 def get_tmdb_popular(media_type='movie', count=10):
     ids = []
-    for page in range(1, 3):
+    for page in range(1, 5):
         url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&page={page}'
         try:
             resp = requests.get(url, timeout=10)
@@ -34,16 +36,23 @@ def get_tmdb_popular(media_type='movie', count=10):
     return ids[:count]
 
 
-def extract_m3u8_from_xpass(page, xpass_url, retries=3):
-    for attempt in range(retries):
+def extract_from_xpass(page, xpass_url):
+    for attempt in range(3):
         try:
             page.goto(xpass_url, wait_until='domcontentloaded', timeout=30000)
-            time.sleep(5)
+            time.sleep(6)
+
             m3u8 = page.evaluate(
                 "() => performance.getEntriesByType('resource').map(e => e.name).filter(n => n.includes('.m3u8'))"
             )
             if m3u8:
                 return m3u8
+
+            video = page.query_selector('video')
+            if video:
+                src = video.get_attribute('src') or video.get_attribute('currentSrc')
+                if src and '.m3u8' in src:
+                    return [src]
         except:
             pass
         time.sleep(2)
@@ -56,8 +65,11 @@ def crawl(site_info):
     base_url = f'https://{name}/watch'
     print(f'[CINEBY] Crawling {name} (category={category})...')
 
-    ids = get_tmdb_popular('movie', 10)
-    print(f'[CINEBY] Got {len(ids)} TMDB IDs')
+    popular = get_tmdb_popular('movie', 15)
+    for cid in CLASSIC_IDS:
+        if cid not in [p['id'] for p in popular]:
+            popular.append({'id': cid, 'title': '', 'year': '', 'media_type': 'movie'})
+    print(f'[CINEBY] Got {len(popular)} TMDB IDs')
 
     total = 0
     try:
@@ -65,11 +77,11 @@ def crawl(site_info):
             browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
             page = browser.new_page()
 
-            for item in ids:
+            for item in popular:
                 tid = item['id']
                 title = item['title']
                 watch_url = f'{base_url}/movie/{tid}'
-                print(f'  [{tid}] {title}')
+                print(f'  [{tid}] {title[:50]}')
 
                 try:
                     page.goto(watch_url, wait_until='domcontentloaded', timeout=30000)
@@ -85,14 +97,12 @@ def crawl(site_info):
 
                     if xpass_src:
                         print(f'    xpass iframe: {xpass_src[:100]}')
-                        m3u8_urls = extract_m3u8_from_xpass(page, xpass_src)
-                        if m3u8_urls:
-                            for m3u8_url in m3u8_urls:
-                                print(f'    M3U8: {m3u8_url[:100]}')
-                                saved = save_all_qualities(tid, watch_url, m3u8_url, category, title)
-                                total += saved
+                        saved = save_link(tid, watch_url, xpass_src, category, title)
+                        if saved:
+                            total += 1
+                            print(f'    Saved xpass URL')
                         else:
-                            print(f'    No m3u8 found from xpass')
+                            print(f'    xpass URL rejected')
                     else:
                         print(f'    No xpass iframe found')
 

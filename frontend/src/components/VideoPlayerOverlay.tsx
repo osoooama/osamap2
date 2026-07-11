@@ -54,9 +54,10 @@ export default function VideoPlayerOverlay({
 
   const hasStreams = qualities.length > 0 || episodes.length > 0 || embedUrl;
   const activeUrl = episodes.length > 0 ? episodes[currentEp]?.url || embedUrl : qualities[currentQuality]?.url || embedUrl;
+  const isEmbedPage = activeUrl.includes('xpass') || activeUrl.includes('vid3rb') || activeUrl.includes('embed');
 
   useEffect(() => {
-    if (!isOpen || !videoRef.current || !activeUrl) return;
+    if (!isOpen || !videoRef.current || !activeUrl || isEmbedPage) return;
     setError('');
     setLoaded(false);
 
@@ -228,6 +229,14 @@ export default function VideoPlayerOverlay({
                     </button>
                   </div>
                 </div>
+              ) : isEmbedPage ? (
+                <iframe
+                  src={activeUrl}
+                  className="w-full h-full"
+                  allowFullScreen
+                  allow="autoplay; encrypted-media; fullscreen"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                />
               ) : (
                 <>
                   <video
@@ -241,13 +250,13 @@ export default function VideoPlayerOverlay({
                     {subtitleUrl && <track ref={trackRef} kind="subtitles" srcLang="ar" label="العربية" />}
                   </video>
 
-                  {!loaded && (
+                  {!isEmbedPage && !loaded && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
                       <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
                     </div>
                   )}
 
-                  {error && (
+                  {!isEmbedPage && error && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-20">
                       <div className="text-center text-white">
                         <p className="text-xl mb-2">⚠️</p>
@@ -257,7 +266,7 @@ export default function VideoPlayerOverlay({
                     </div>
                   )}
 
-                  <div className={`absolute inset-0 transition-opacity duration-500 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'} z-10`}>
+                  {!isEmbedPage && <div className={`absolute inset-0 transition-opacity duration-500 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'} z-10`}>
                     {episodes.length > 1 && (
                       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
                         <button onClick={prevEp} disabled={currentEp === 0} className="flex items-center gap-1 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition disabled:opacity-30 text-white text-sm">
@@ -341,7 +350,7 @@ export default function VideoPlayerOverlay({
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div>}
                 </>
               )}
             </div>

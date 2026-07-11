@@ -89,7 +89,7 @@ def crawl(site_info):
                                 elements = page.query_selector_all(selector)
                                 for el in elements:
                                     src = el.get_attribute('src')
-                                    if src and src.startswith('http') and not any(ad in src for ad in ['doubleclick', 'googlead', 'popunder', 'dtscout']):
+                                    if src and src.startswith('http'):
                                         print(f'      STREAM: {src[:120]}...')
                                         if '.m3u8' in src:
                                             saved = save_all_qualities(tid, link, src, category, title)

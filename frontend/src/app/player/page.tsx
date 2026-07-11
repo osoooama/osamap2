@@ -52,12 +52,14 @@ function PlayerContent() {
     );
   }
 
+  const qualityRank: Record<string, number> = { '360p': 0, '480p': 1, '720p': 2, '1080p': 3, '2K': 4, '4K': 5 };
   const qualities = movie?.links
     ?.filter(l => l.embed_url && l.embed_url.startsWith('http'))
-    .map(l => ({ label: l.quality || '720p', url: l.embed_url }))
+    .map(l => ({ label: l.quality || '720p', url: l.embed_url, rank: qualityRank[l.quality || '720p'] || 2 }))
+    .sort((a, b) => b.rank - a.rank)
     .filter((v, i, a) => a.findIndex(x => x.url === v.url) === i) || [];
 
-  const embedUrl = movie?.embed_urls?.[0] || movie?.links?.[0]?.embed_url || '';
+  const embedUrl = qualities[0]?.url || movie?.embed_urls?.[0] || movie?.links?.[0]?.embed_url || '';
 
   return (
     <div className="min-h-screen bg-[#141414]">

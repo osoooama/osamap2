@@ -47,10 +47,12 @@ export default function VideoPlayerOverlay({
   const [loaded, setLoaded] = useState(false);
   const controlsTimer = useRef<NodeJS.Timeout | null>(null);
 
+  const isYoutube = (url: string) => /youtube\.com\/embed|youtube\.com\/watch|youtu\.be/.test(url);
   const activeUrl = episodes.length > 0 ? episodes[currentEp]?.url || embedUrl : qualities[currentQuality]?.url || embedUrl;
+  const isYt = isYoutube(activeUrl);
 
   useEffect(() => {
-    if (!isOpen || !videoRef.current || !activeUrl) return;
+    if (!isOpen || !videoRef.current || !activeUrl || isYt) return;
     setError('');
     setLoaded(false);
 
@@ -98,7 +100,7 @@ export default function VideoPlayerOverlay({
     return () => {
       if (hlsRef.current) hlsRef.current.destroy();
     };
-  }, [isOpen, activeUrl]);
+  }, [isOpen, activeUrl, isYt]);
 
   useEffect(() => {
     const show = () => { setShowControls(true); };
@@ -167,22 +169,31 @@ export default function VideoPlayerOverlay({
             onClick={e => e.stopPropagation()}
           >
             <div ref={containerRef} className="relative w-full h-full bg-black group">
-              <video
-                ref={videoRef}
-                className="w-full h-full object-contain cursor-pointer"
-                onClick={togglePlay}
-                poster={poster}
-                playsInline
-                controls={false}
-              />
+              {isYt ? (
+                <iframe
+                  src={activeUrl.replace('/embed/', '/embed/') + '?autoplay=1&rel=0'}
+                  className="w-full h-full"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-contain cursor-pointer"
+                  onClick={togglePlay}
+                  poster={poster}
+                  playsInline
+                  controls={false}
+                />
+              )}
 
-              {!loaded && !error && (
+              {!isYt && !loaded && !error && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
                   <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
                 </div>
               )}
 
-              {error && (
+              {!isYt && error && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-20">
                   <div className="text-center text-white">
                     <p className="text-xl mb-2">⚠️</p>

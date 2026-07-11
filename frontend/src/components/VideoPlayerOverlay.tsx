@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Hls from 'hls.js';
 import {
   X, Maximize2, Minimize2, Subtitles, Settings,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Play, Pause,
 } from 'lucide-react';
 
 interface Quality {
@@ -35,6 +35,7 @@ export default function VideoPlayerOverlay({
   qualities = [], episodes = [], poster = '',
 }: VideoPlayerOverlayProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const trackRef = useRef<HTMLTrackElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -45,14 +46,17 @@ export default function VideoPlayerOverlay({
   const [showControls, setShowControls] = useState(true);
   const [error, setError] = useState('');
   const [loaded, setLoaded] = useState(false);
+  const [subtitlesOn, setSubtitlesOn] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
   const controlsTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const isYoutube = (url: string) => /youtube\.com\/embed|youtube\.com\/watch|youtu\.be/.test(url);
+  const hasStreams = qualities.length > 0 || episodes.length > 0 || embedUrl;
   const activeUrl = episodes.length > 0 ? episodes[currentEp]?.url || embedUrl : qualities[currentQuality]?.url || embedUrl;
-  const isYt = isYoutube(activeUrl);
 
   useEffect(() => {
-    if (!isOpen || !videoRef.current || !activeUrl || isYt) return;
+    if (!isOpen || !videoRef.current || !activeUrl) return;
     setError('');
     setLoaded(false);
 
@@ -63,10 +67,7 @@ export default function VideoPlayerOverlay({
 
     if (activeUrl.includes('.m3u8')) {
       if (Hls.isSupported()) {
-        const hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: true,
-        });
+        const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
         hlsRef.current = hls;
         hls.loadSource(activeUrl);
         hls.attachMedia(videoRef.current);
@@ -89,7 +90,7 @@ export default function VideoPlayerOverlay({
       } else {
         setError('المتصفح لا يدعم تشغيل هذا النوع من الفيديو');
       }
-    } else {
+    } else if (activeUrl) {
       videoRef.current.src = activeUrl;
       videoRef.current.addEventListener('loadedmetadata', () => {
         setLoaded(true);
@@ -100,7 +101,7 @@ export default function VideoPlayerOverlay({
     return () => {
       if (hlsRef.current) hlsRef.current.destroy();
     };
-  }, [isOpen, activeUrl, isYt]);
+  }, [isOpen, activeUrl]);
 
   useEffect(() => {
     const show = () => { setShowControls(true); };
@@ -120,11 +121,36 @@ export default function VideoPlayerOverlay({
     };
   }, []);
 
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onTime = () => { setCurrentTime(v.currentTime); setDuration(v.duration || 0); };
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    v.addEventListener('timeupdate', onTime);
+    v.addEventListener('play', onPlay);
+    v.addEventListener('pause', onPause);
+    return () => {
+      v.removeEventListener('timeupdate', onTime);
+      v.removeEventListener('play', onPlay);
+      v.removeEventListener('pause', onPause);
+    };
+  }, [loaded]);
+
+  useEffect(() => {
+    if (!videoRef.current || !trackRef.current) return;
+    if (subtitlesOn && subtitleUrl) {
+      trackRef.current.src = subtitleUrl;
+      trackRef.current.track.mode = 'showing';
+    } else if (trackRef.current) {
+      trackRef.current.track.mode = 'hidden';
+    }
+  }, [subtitlesOn, subtitleUrl, loaded]);
+
   const togglePlay = useCallback(() => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) videoRef.current.play().catch(() => {});
     else videoRef.current.pause();
-    setPlaying(!videoRef.current.paused);
   }, []);
 
   const toggleFullscreen = useCallback(async () => {
@@ -151,6 +177,25 @@ export default function VideoPlayerOverlay({
     if (currentEp < episodes.length - 1) setCurrentEp(e => e + 1);
   }, [currentEp]);
 
+  const seek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!videoRef.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    videoRef.current.currentTime = pct * duration;
+  }, [duration]);
+
+  const changeVolume = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseFloat(e.target.value);
+    setVolume(v);
+    if (videoRef.current) videoRef.current.volume = v;
+  }, []);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -169,118 +214,136 @@ export default function VideoPlayerOverlay({
             onClick={e => e.stopPropagation()}
           >
             <div ref={containerRef} className="relative w-full h-full bg-black group">
-              {isYt ? (
-                <iframe
-                  src={activeUrl.replace('/embed/', '/embed/') + '?autoplay=1&rel=0'}
-                  className="w-full h-full"
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                />
+              {!hasStreams ? (
+                <div className="flex items-center justify-center h-full bg-zinc-900">
+                  <div className="text-center text-zinc-400">
+                    <p className="text-2xl mb-4">⚠️</p>
+                    <p className="text-lg">لا توجد روابط متاحة حالياً</p>
+                    <p className="text-sm mt-2 text-zinc-600">سيتم إضافة روابط البث قريباً</p>
+                    <button
+                      onClick={onClose}
+                      className="mt-6 px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition text-white"
+                    >
+                      العودة
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <video
-                  ref={videoRef}
-                  className="w-full h-full object-contain cursor-pointer"
-                  onClick={togglePlay}
-                  poster={poster}
-                  playsInline
-                  controls={false}
-                />
-              )}
+                <>
+                  <video
+                    ref={videoRef}
+                    className="w-full h-full object-contain cursor-pointer"
+                    onClick={togglePlay}
+                    poster={poster}
+                    playsInline
+                    controls={false}
+                  >
+                    {subtitleUrl && <track ref={trackRef} kind="subtitles" srcLang="ar" label="العربية" />}
+                  </video>
 
-              {!isYt && !loaded && !error && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
-                  <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-                </div>
-              )}
-
-              {!isYt && error && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-20">
-                  <div className="text-center text-white">
-                    <p className="text-xl mb-2">⚠️</p>
-                    <p>{error}</p>
-                    <button onClick={() => { setError(''); setLoaded(true); }} className="mt-4 px-6 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition">إعادة المحاولة</button>
-                  </div>
-                </div>
-              )}
-
-              <div className={`absolute inset-0 transition-opacity duration-500 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'} z-10`}>
-                {episodes.length > 1 && (
-                  <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
-                    <button onClick={prevEp} disabled={currentEp === 0} className="flex items-center gap-1 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition disabled:opacity-30 text-white text-sm">
-                      <ChevronRight className="w-4 h-4" /> السابق
-                    </button>
-                    <span className="text-white/80 text-sm">{episodes[currentEp]?.title || `الحلقة ${currentEp + 1}`}</span>
-                    <button onClick={nextEp} disabled={currentEp >= episodes.length - 1} className="flex items-center gap-1 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition disabled:opacity-30 text-white text-sm">
-                      التالي <ChevronLeft className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-
-                <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
-                  <button onClick={() => navigator.clipboard.writeText(activeUrl)} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-white/20 transition" title="نسخ الرابط">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                  </button>
-
-                  <button onClick={toggleFullscreen} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-white/20 transition" title="ملء الشاشة">
-                    {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-                  </button>
-
-                  {subtitleUrl && (
-                    <button className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-yellow-400 hover:bg-white/20 transition" title="الترجمة">
-                      <Subtitles className="w-5 h-5" />
-                    </button>
+                  {!loaded && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
+                      <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                    </div>
                   )}
 
-                  {(qualities.length > 1 || episodes.length > 0) && (
-                    <div className="relative">
-                      <button onClick={() => setShowQuality(q => !q)} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-white/20 transition" title="الإعدادات">
-                        <Settings className="w-5 h-5" />
+                  {error && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-20">
+                      <div className="text-center text-white">
+                        <p className="text-xl mb-2">⚠️</p>
+                        <p>{error}</p>
+                        <button onClick={() => { setError(''); setLoaded(true); }} className="mt-4 px-6 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition">إعادة المحاولة</button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className={`absolute inset-0 transition-opacity duration-500 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'} z-10`}>
+                    {episodes.length > 1 && (
+                      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
+                        <button onClick={prevEp} disabled={currentEp === 0} className="flex items-center gap-1 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition disabled:opacity-30 text-white text-sm">
+                          <ChevronRight className="w-4 h-4" /> السابق
+                        </button>
+                        <span className="text-white/80 text-sm">{episodes[currentEp]?.title || `الحلقة ${currentEp + 1}`}</span>
+                        <button onClick={nextEp} disabled={currentEp >= episodes.length - 1} className="flex items-center gap-1 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition disabled:opacity-30 text-white text-sm">
+                          التالي <ChevronLeft className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                      <button onClick={() => navigator.clipboard.writeText(activeUrl)} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-white/20 transition" title="نسخ الرابط">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                       </button>
-                      {showQuality && (
-                        <div className="absolute right-0 top-12 w-48 rounded-xl bg-black/90 border border-white/10 py-2 shadow-2xl backdrop-blur-xl z-30 max-h-80 overflow-y-auto">
-                          {qualities.length > 1 && (
-                            <div className="px-3 py-2">
-                              <p className="text-xs text-white/50 mb-1">الجودة</p>
-                              {qualities.map((q, i) => (
-                                <button key={q.label} onClick={() => switchQuality(i)} className={`w-full text-right px-3 py-2 rounded-lg text-sm transition ${i === currentQuality ? 'bg-white/20 text-white font-semibold' : 'text-white/70 hover:bg-white/10'}`}>
-                                  {q.label}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                          {episodes.length > 0 && (
-                            <div className="border-t border-white/10 px-3 pt-2">
-                              <p className="text-xs text-white/50 mb-1">الحلقات</p>
-                              {episodes.map((ep, i) => (
-                                <button key={ep.number} onClick={() => setCurrentEp(i)} className={`w-full text-right px-3 py-2 rounded-lg text-sm transition ${i === currentEp ? 'bg-white/20 text-white font-semibold' : 'text-white/70 hover:bg-white/10'}`}>
-                                  {ep.title}
-                                </button>
-                              ))}
+
+                      <button onClick={toggleFullscreen} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-white/20 transition" title="ملء الشاشة">
+                        {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                      </button>
+
+                      {subtitleUrl && (
+                        <button onClick={() => setSubtitlesOn(s => !s)} className={`flex h-10 w-10 items-center justify-center rounded-full bg-black/60 hover:bg-white/20 transition ${subtitlesOn ? 'text-yellow-400' : 'text-white'}`} title="الترجمة">
+                          <Subtitles className="w-5 h-5" />
+                        </button>
+                      )}
+
+                      {(qualities.length > 1 || episodes.length > 0) && (
+                        <div className="relative">
+                          <button onClick={() => setShowQuality(q => !q)} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-white/20 transition" title="الإعدادات">
+                            <Settings className="w-5 h-5" />
+                          </button>
+                          {showQuality && (
+                            <div className="absolute right-0 top-12 w-48 rounded-xl bg-black/90 border border-white/10 py-2 shadow-2xl backdrop-blur-xl z-30 max-h-80 overflow-y-auto">
+                              {qualities.length > 1 && (
+                                <div className="px-3 py-2">
+                                  <p className="text-xs text-white/50 mb-1">الجودة</p>
+                                  {qualities.map((q, i) => (
+                                    <button key={q.label} onClick={() => switchQuality(i)} className={`w-full text-right px-3 py-2 rounded-lg text-sm transition ${i === currentQuality ? 'bg-white/20 text-white font-semibold' : 'text-white/70 hover:bg-white/10'}`}>
+                                      {q.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {episodes.length > 0 && (
+                                <div className="border-t border-white/10 px-3 pt-2">
+                                  <p className="text-xs text-white/50 mb-1">الحلقات</p>
+                                  {episodes.map((ep, i) => (
+                                    <button key={ep.number} onClick={() => setCurrentEp(i)} className={`w-full text-right px-3 py-2 rounded-lg text-sm transition ${i === currentEp ? 'bg-white/20 text-white font-semibold' : 'text-white/70 hover:bg-white/10'}`}>
+                                      {ep.title}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
                       )}
+
+                      <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-500/80 transition" title="إغلاق">
+                        <X className="w-5 h-5" />
+                      </button>
                     </div>
-                  )}
 
-                  <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-500/80 transition" title="إغلاق">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="absolute bottom-4 left-4 right-4 z-20">
-                  <div className="flex items-center gap-4">
-                    <button onClick={togglePlay} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white">
-                      {playing ? (
-                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
-                      ) : (
-                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                      )}
-                    </button>
-                    <h2 className="text-white font-bold text-lg drop-shadow-lg truncate">{title}</h2>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-4 px-4 z-20">
+                      <div className="w-full h-1 bg-white/20 rounded-full cursor-pointer mb-3 group/progress" onClick={seek}>
+                        <div className="h-full bg-red-600 rounded-full relative" style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}>
+                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <button onClick={togglePlay} className="text-white hover:text-white/80 transition">
+                            {playing ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                          </button>
+                          <span className="text-white/70 text-xs font-mono">{formatTime(currentTime)} / {formatTime(duration)}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <input type="range" min="0" max="1" step="0.05" value={volume} onChange={changeVolume} className="w-20 accent-white" />
+                          <h2 className="text-white font-bold text-sm drop-shadow-lg truncate max-w-64">{title}</h2>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </motion.div>
         </motion.div>

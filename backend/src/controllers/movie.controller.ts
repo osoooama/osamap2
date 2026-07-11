@@ -55,19 +55,11 @@ export async function getMovieDetails(req: Request, res: Response) {
     }
 
     const links = await Link.find({ tmdb_id, is_active: true });
-    const linkUrls = links.length > 0 ? links.map((l: any) => l.embed_url) : [];
-    const existingUrls = movie.embed_urls || [];
 
-    let result: any = { ...movie.toObject(), links };
-    if (!existingUrls.length && !linkUrls.length) {
-      const trailer = await tmdb.getMovieTrailer(tmdb_id);
-      if (trailer) {
-        result.embed_urls = [trailer];
-        result.demo_trailer = true;
-      }
-    } else {
-      result.embed_urls = [...new Set([...existingUrls, ...linkUrls])];
-    }
+    const result: any = { ...movie.toObject(), links };
+    result.embed_urls = links.length > 0
+      ? [...new Set(links.map((l: any) => l.embed_url).filter(Boolean))]
+      : [];
 
     res.json(result);
   } catch (err) {

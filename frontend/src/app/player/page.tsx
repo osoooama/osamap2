@@ -1,13 +1,11 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { getMovieDetails } from '@/lib/api';
 import { getProvidersWithPriority } from '@/lib/providers';
-import VideoPlayerOverlay from '@/components/VideoPlayerOverlay';
 import MovieCard from '@/components/MovieCard';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Star, Calendar, Clock, Film, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Tv, RefreshCw, Server, Film } from 'lucide-react';
 
 interface MovieData {
   tmdb_id: string;
@@ -15,9 +13,7 @@ interface MovieData {
   overview?: string;
   poster_path?: string;
   backdrop_path?: string;
-  embed_urls?: string[];
   links?: { embed_url: string; quality?: string; source?: string }[];
-  subtitles?: string[];
   category?: string;
   release_date?: string;
   vote_average?: number;
@@ -27,40 +23,53 @@ interface MovieData {
   similar?: any[];
 }
 
-const FALLBACK_PROVIDER_PRIORITIES: { name: string; url: string; priority: number }[] = [];
-
 function PlayerContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tmdbId = searchParams.get('tmdb_id');
+  const serverParam = searchParams.get('server');
   const [movie, setMovie] = useState<MovieData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [currentProvider, setCurrentProvider] = useState(0);
-  const [playerOpen, setPlayerOpen] = useState(false);
   const mediaType = searchParams.get('type') || 'movie';
+  const [iframeError, setIframeError] = useState(false);
+
+  const providers = getProvidersWithPriority(tmdbId || '', mediaType);
+
+  const initialProvider = serverParam
+    ? providers.findIndex((p) => p.name.toLowerCase() === serverParam.toLowerCase())
+    : 0;
 
   useEffect(() => {
     if (!tmdbId) { setLoading(false); return; }
-
-    const providerUrls = getProvidersWithPriority(tmdbId, mediaType);
-    FALLBACK_PROVIDER_PRIORITIES.length = 0;
-    FALLBACK_PROVIDER_PRIORITIES.push(...providerUrls);
-
     getMovieDetails(tmdbId)
       .then((data) => setMovie(data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [tmdbId, mediaType]);
+  }, [tmdbId]);
+
+  useEffect(() => {
+    if (initialProvider >= 0) setCurrentProvider(initialProvider);
+  }, [serverParam]);
+
+  const switchServer = useCallback((index: number) => {
+    setCurrentProvider(index);
+    setIframeError(false);
+    const name = providers[index]?.name?.toLowerCase();
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('server', name);
+    router.replace(`/player?${params.toString()}`, { scroll: false });
+  }, [providers, searchParams, router]);
 
   if (!tmdbId) {
     return (
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-          <p className="text-zinc-400 text-lg">لم يتم تحديد فيلم</p>
-          <button onClick={() => router.back()} className="mt-6 px-6 py-2.5 glass text-white rounded-xl hover:bg-white/10 transition">
-            العودة
+          <Film className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
+          <p className="text-zinc-500 text-lg mb-6">لم يتم اختيار فيلم</p>
+          <button onClick={() => router.push('/netflix')} className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition font-semibold">
+            تصفح الأفلام
           </button>
         </div>
       </div>
@@ -69,11 +78,8 @@ function PlayerContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
-        <div className="relative">
-          <div className="w-14 h-14 border-4 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
-          <div className="w-14 h-14 border-4 border-blue-600/30 border-t-blue-600 rounded-full animate-spin absolute inset-0 opacity-50" style={{ animationDirection: 'reverse' }} />
-        </div>
+      <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
+        <div className="w-10 h-10 border-3 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -85,198 +91,206 @@ function PlayerContent() {
     .sort((a, b) => b.rank - a.rank)
     .filter((v, i, a) => a.findIndex(x => x.url === v.url) === i) || [];
 
-  const providerUrls = FALLBACK_PROVIDER_PRIORITIES.length > 0
-    ? FALLBACK_PROVIDER_PRIORITIES
-    : getProvidersWithPriority(tmdbId, mediaType);
+  const embedUrl = currentProvider < providers.length
+    ? providers[currentProvider].url
+    : qualities[0]?.url || movie?.links?.[0]?.embed_url || '';
 
-  const embedUrl = currentProvider < providerUrls.length
-    ? providerUrls[currentProvider].url
-    : qualities[0]?.url || movie?.embed_urls?.[0] || movie?.links?.[0]?.embed_url || '';
-
-  const handleProviderFallback = () => {
-    if (currentProvider < providerUrls.length - 1) {
-      setCurrentProvider(prev => prev + 1);
-    }
-  };
+  const isEmbed = embedUrl.includes('embed') || embedUrl.includes('vidsrc') || embedUrl.includes('vidlink') || embedUrl.includes('vidcore') || embedUrl.includes('xpass');
 
   return (
-    <div className="min-h-screen bg-[#141414]">
-      {/* Back Button */}
-      <div className="fixed top-4 left-4 z-50">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 px-4 py-2 glass rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition-all text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          رجوع
-        </button>
-      </div>
-
-      {/* Movie Hero */}
-      <div className="relative h-[40vh] sm:h-[55vh] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: movie?.backdrop_path
-              ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
-              : undefined,
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#141414]/80 via-transparent to-transparent" />
-
-        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-7xl mx-auto"
-          >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4">
-              {movie?.title || 'غير معروف'}
-            </h1>
-
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-zinc-400 mb-4">
-              {movie?.release_date && (
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" />
-                  {movie.release_date.slice(0, 4)}
-                </span>
-              )}
-              {movie?.vote_average && (
-                <span className="flex items-center gap-1.5 text-yellow-400">
-                  <Star className="w-4 h-4 fill-yellow-400" />
-                  {movie.vote_average.toFixed(1)}
-                </span>
-              )}
-              {movie?.runtime && (
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
-                </span>
-              )}
-              {movie?.vote_count && (
-                <span className="flex items-center gap-1.5">
-                  <Film className="w-4 h-4" />
-                  {movie.vote_count.toLocaleString()} تقييم
-                </span>
-              )}
-            </div>
-
-            {movie?.genres && movie.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {movie.genres.slice(0, 4).map((g) => (
-                  <span key={g.id} className="px-3 py-1 rounded-full bg-white/10 text-zinc-300 text-xs border border-white/5">
-                    {g.name}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <button
-              onClick={() => setPlayerOpen(true)}
-              className="px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-red-600/25 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              مشاهدة الآن
-            </button>
-          </motion.div>
+    <div className="min-h-screen bg-[#0e0e0e]">
+      {/* Header */}
+      <div className="sticky top-0 z-50 bg-[#0e0e0e]/95 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-[1800px] mx-auto px-4 h-14 flex items-center justify-between">
+          <button onClick={() => router.back()} className="flex items-center gap-2 text-zinc-400 hover:text-white transition text-sm">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">رجوع</span>
+          </button>
+          <h1 className="text-sm text-zinc-300 truncate max-w-[300px] sm:max-w-none">
+            {movie?.title || ''}
+          </h1>
+          <div />
         </div>
       </div>
 
-      {/* Movie Details */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Poster & Info */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <div className="aspect-[2/3] rounded-2xl overflow-hidden bg-zinc-900 shadow-2xl">
-                {movie?.poster_path ? (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    alt={movie.title}
-                    className="w-full h-full object-cover"
+      {/* Main Layout */}
+      <div className="max-w-[1800px] mx-auto px-4 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left: Player + Servers */}
+          <div className="flex-1 min-w-0">
+            {/* Player */}
+            <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+              {iframeError ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+                  <div className="text-center">
+                    <RefreshCw className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+                    <p className="text-zinc-400 font-bold mb-2">تعذر تحميل المشغل</p>
+                    <p className="text-zinc-600 text-sm mb-4">جرب سيرفر آخر</p>
+                    <div className="flex gap-2 justify-center">
+                      {providers.slice(0, 4).map((p, i) => (
+                        <button
+                          key={p.name}
+                          onClick={() => switchServer(i)}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs text-white transition"
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : embedUrl ? (
+                isEmbed ? (
+                  <iframe
+                    src={embedUrl}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="autoplay; encrypted-media; fullscreen"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    onError={() => setIframeError(true)}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
-                    <span className="text-zinc-600 text-6xl font-black">
-                      {movie?.title?.[0] || '?'}
-                    </span>
-                  </div>
-                )}
-              </div>
+                  <video
+                    src={embedUrl}
+                    className="w-full h-full object-contain"
+                    controls
+                    autoPlay
+                    playsInline
+                  />
+                )
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+                  <Server className="w-12 h-12 text-zinc-600 mb-3 mx-auto" />
+                  <p className="text-zinc-500 text-sm">لا توجد سيرفرات متاحة لهذا المحتوى</p>
+                </div>
+              )}
+            </div>
 
-              {/* Provider Selection */}
-              {providerUrls.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-zinc-500 text-xs mb-2">مزود التشغيل:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {providerUrls.map((p, i) => (
+            {/* Server Buttons - like streamex.sh */}
+            <div className="mt-4">
+              {error ? (
+                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 text-red-400 text-sm text-center">
+                  تعذر تحميل معلومات الفيلم. تأكد من معرف TMDB.
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Server className="w-3.5 h-3.5 text-red-500" />
+                    <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">اختر السيرفر</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {providers.map((p, i) => (
                       <button
                         key={p.name}
-                        onClick={() => setCurrentProvider(i)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        onClick={() => switchServer(i)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                           i === currentProvider
-                            ? 'bg-red-600 text-white'
-                            : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/25 ring-1 ring-red-400'
+                            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-white/5'
                         }`}
                       >
                         {p.name}
                       </button>
                     ))}
                   </div>
-                </div>
+                </>
               )}
             </div>
-          </div>
 
-          {/* Description & Similar */}
-          <div className="lg:col-span-2">
-            {movie?.overview && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-white mb-3">القصة</h2>
-                <p className="text-zinc-400 leading-relaxed">{movie.overview}</p>
-              </div>
-            )}
+            {/* Movie Info - Mobile */}
+            <div className="mt-6 lg:hidden">
+              <MovieInfo movie={movie} />
+            </div>
 
-            {qualities.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-white mb-3">الجودة المتاحة</h2>
-                <div className="flex flex-wrap gap-2">
-                  {qualities.map((q) => (
-                    <span key={q.label} className="px-3 py-1.5 rounded-lg bg-white/5 text-zinc-300 text-sm border border-white/5">
-                      {q.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
+            {/* Similar - Mobile */}
             {movie?.similar && movie.similar.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-white mb-4">محتوى مشابه</h2>
+              <div className="mt-8 lg:hidden">
+                <h2 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                  <Film className="w-4 h-4 text-red-500" />
+                  مقترحات
+                </h2>
                 <div className="flex gap-3 overflow-x-auto pb-4">
-                  {movie.similar.slice(0, 8).map((m: any) => (
+                  {movie.similar.slice(0, 10).map((m: any) => (
                     <MovieCard key={m.tmdb_id || m.id} movie={m} />
                   ))}
                 </div>
               </div>
             )}
           </div>
+
+          {/* Right: Movie Info Sidebar - Desktop */}
+          <div className="hidden lg:block w-80 xl:w-96 flex-shrink-0">
+            <div className="sticky top-20 space-y-6">
+              <MovieInfo movie={movie} />
+
+              {movie?.similar && movie.similar.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                    <Film className="w-4 h-4 text-red-500" />
+                    مقترحات
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {movie.similar.slice(0, 6).map((m: any) => (
+                      <MovieCard key={m.tmdb_id || m.id} movie={m} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Player Overlay */}
-      <VideoPlayerOverlay
-        isOpen={playerOpen}
-        onClose={() => setPlayerOpen(false)}
-        embedUrl={embedUrl}
-        subtitleUrl={movie?.subtitles?.[0]}
-        title={movie?.title || ''}
-        poster={movie?.backdrop_path ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}` : ''}
-        qualities={qualities}
-        onError={handleProviderFallback}
-        providerName={currentProvider < providerUrls.length ? providerUrls[currentProvider].name : undefined}
-      />
+function MovieInfo({ movie }: { movie: MovieData | null }) {
+  if (!movie) return null;
+  return (
+    <div className="space-y-4">
+      {/* Title */}
+      <h1 className="text-2xl font-black text-white">{movie.title}</h1>
+
+      {/* Meta */}
+      <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+        {movie.release_date && (
+          <span className="flex items-center gap-1">
+            <Calendar className="w-3.5 h-3.5" />
+            {movie.release_date.slice(0, 4)}
+          </span>
+        )}
+        {movie.vote_average && (
+          <span className="flex items-center gap-1 text-yellow-500">
+            <Star className="w-3.5 h-3.5 fill-yellow-500" />
+            {movie.vote_average.toFixed(1)}
+          </span>
+        )}
+        {movie.runtime && (
+          <span>{Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m</span>
+        )}
+        {movie.vote_count && (
+          <span>{movie.vote_count.toLocaleString()} تقييم</span>
+        )}
+      </div>
+
+      {/* Genres */}
+      {movie.genres && movie.genres.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {movie.genres.slice(0, 4).map((g) => (
+            <span key={g.id} className="px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 text-[10px] border border-white/5">
+              {g.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Overview */}
+      {movie.overview && (
+        <div>
+          <h3 className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-1.5">القصة</h3>
+          <p className="text-xs text-zinc-400 leading-relaxed line-clamp-6">{movie.overview}</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -284,8 +298,8 @@ function PlayerContent() {
 export default function PlayerPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
+        <div className="w-10 h-10 border-3 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
       </div>
     }>
       <PlayerContent />

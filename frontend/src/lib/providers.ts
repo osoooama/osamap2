@@ -1,9 +1,17 @@
 export interface Provider {
   name: string;
+  displayName?: string;
+  brandColor?: string;
   url: (tmdbId: string, type: string) => string;
   priority: number;
   needsResolution?: boolean;
 }
+
+export const BRANDED: Record<string, { displayName: string; color: string; glow: string }> = {
+  vidlink: { displayName: 'OSK+', color: '#ffd700', glow: '#ffd700' },
+  apiplayer: { displayName: 'OSK+ Pro', color: '#ff3333', glow: '#ff0000' },
+  VidLove: { displayName: 'OSK+ Gold', color: '#ffd700', glow: '#ffaa00' },
+};
 
 const PROVIDERS: Provider[] = [
   { name: 'StreameX', url: (tmdbId, type) => `https://play.xpass.top/e/${type}/${tmdbId}`, priority: 1 },
@@ -42,10 +50,15 @@ export function addArabicSubs(url: string): string {
 }
 
 export function getProviders(tmdbId: string, mediaType = 'movie') {
-  return PROVIDERS.map(p => ({
-    name: p.name,
-    url: addArabicSubs(p.url(tmdbId, mediaType)),
-    priority: p.priority,
-    needsResolution: p.needsResolution,
-  }));
+  return PROVIDERS.map(p => {
+    const branded = BRANDED[p.name];
+    return {
+      name: p.name,
+      displayName: branded?.displayName || p.name,
+      brandColor: branded?.color,
+      url: addArabicSubs(p.url(tmdbId, mediaType)),
+      priority: p.priority,
+      needsResolution: p.needsResolution,
+    };
+  });
 }

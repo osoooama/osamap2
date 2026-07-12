@@ -302,12 +302,32 @@ function PlayerContent() {
                           onClick={() => switchProvider(i)}
                           className={`relative px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                             currentProvider === i && !selectedQuality
-                              ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg shadow-red-600/20 ring-1 ring-red-400/30'
-                              : 'bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-white/[0.03] hover:border-white/10'
+                              ? p.brandColor
+                                ? 'text-white font-bold shadow-lg scale-105'
+                                : 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg shadow-red-600/20 ring-1 ring-red-400/30'
+                              : p.brandColor
+                                ? 'text-white/90 hover:text-white border border-white/20'
+                                : 'bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-white/[0.03] hover:border-white/10'
                           }`}
+                          style={p.brandColor ? {
+                            background: currentProvider === i && !selectedQuality
+                              ? `linear-gradient(135deg, ${p.brandColor}dd, ${p.brandColor}88)`
+                              : `linear-gradient(135deg, ${p.brandColor}22, ${p.brandColor}11)`,
+                            borderColor: currentProvider === i && !selectedQuality ? p.brandColor : `${p.brandColor}44`,
+                            boxShadow: currentProvider === i && !selectedQuality
+                              ? `0 0 20px ${p.brandColor}44, 0 0 40px ${p.brandColor}22`
+                              : `0 0 8px ${p.brandColor}11`,
+                          } : undefined}
                         >
-                          <span>{p.name}</span>
-                          {pBadge && (
+                          {p.brandColor ? (
+                            <span className="flex items-center gap-1.5">
+                              <span className={`inline-block w-1.5 h-1.5 rounded-full animate-ping`} style={{ backgroundColor: p.brandColor }} />
+                              {p.displayName}
+                            </span>
+                          ) : (
+                            <span>{p.name}</span>
+                          )}
+                          {pBadge && !p.brandColor && (
                             <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${pBadge} ring-2 ring-[#0a0a0a]`} />
                           )}
                         </button>

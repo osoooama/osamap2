@@ -154,12 +154,24 @@ export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose
                   onClick={() => { setCurrentProvider(i); setLinkError(false); loadStartRef.current = Date.now(); }}
                   className={`relative px-2 py-1 rounded text-[10px] font-medium transition ${
                     i === currentProvider
-                      ? 'bg-red-600 text-white'
-                      : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                      ? p.brandColor ? 'text-white font-bold shadow-sm' : 'bg-red-600 text-white'
+                      : p.brandColor ? 'text-white/80 border border-white/20' : 'bg-white/5 text-zinc-400 hover:bg-white/10'
                   }`}
+                  style={p.brandColor ? {
+                    background: i === currentProvider ? `linear-gradient(135deg, ${p.brandColor}dd, ${p.brandColor}88)` : `linear-gradient(135deg, ${p.brandColor}22, ${p.brandColor}11)`,
+                    borderColor: i === currentProvider ? p.brandColor : `${p.brandColor}44`,
+                    boxShadow: i === currentProvider ? `0 0 12px ${p.brandColor}33` : undefined,
+                  } : undefined}
                 >
-                  {p.name}
-                  {pBadge && (
+                  {p.brandColor ? (
+                    <span className="flex items-center gap-1">
+                      <span className="inline-block w-1 h-1 rounded-full animate-ping" style={{ backgroundColor: p.brandColor }} />
+                      {p.displayName}
+                    </span>
+                  ) : (
+                    p.name
+                  )}
+                  {pBadge && !p.brandColor && (
                     <span className={`absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ${pBadge} ring-2 ring-zinc-900`} />
                   )}
                 </button>

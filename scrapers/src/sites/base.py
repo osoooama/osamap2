@@ -32,11 +32,9 @@ CATEGORY_PLATFORM = {
     'animation': 'disney',
 }
 
-STREAM_EXTENSIONS = (
-    '.m3u8', '.mpd', '.ts', '.m4s', '.mp4', '.webm',
-    '.mkv', '.mov', '.avi', '.flv', '.wmv', '.asf',
-    '.3gp', '.aac', '.mp3', '.ogg', '.opus', '.wav',
-    '.flac', '.m4a', '.m3u', '.pls', '.xspf',
+REQUIRED_EXTENSIONS = (
+    '.m3u8', '.mpd', '.mp4', '.webm', '.ts', '.mkv', '.mov',
+    '.avi', '.flv', '.f4m', '.ism', '.isml', '.m3u',
 )
 
 AD_DOMAINS = ('doubleclick', 'googlesyndication', 'adservice', 'popunder',
@@ -56,42 +54,18 @@ BLOCKED_PATH_PATTERNS = (
     '/ad/', '/campaign', '/banner', '/popup', '/popunder',
 )
 
-CDN_DOMAINS = (
-    '1x2.space', 'tik.1x2.space', 'embedseek', 'xpass', 'vid3rb',
-    'cloudfront', 'akamai', 'fastly', 'xvi', 'cdn.', 'xstream',
-    'scdns.io', 'fasel-hd', 'hdup20', 'hd-vk', 'vk1001', 'vood78',
-    'film77', 'ok.ru',
-)
-
 STREAM_PROTOCOLS = ('http://', 'https://', 'rtmp://', 'rtmps://',
     'rtsp://', 'rtsps://', 'rtp://', 'udp://', 'srt://',
     'rist://', 'mms://')
 
-STREAM_PATHS_STRONG = (
-    '/api/player', '/api/play', '/api/stream', '/api/streams',
-    '/api/source', '/api/sources', '/api/media', '/api/manifest',
-    '/api/playlist', '/api/live', '/api/vod',
-    '/play', '/watch', '/embed', '/player',
-    '/live', '/vod', '/manifest', '/playlist',
-)
 
-STREAM_PATHS_WEAK = (
-    '/api/video', '/api/videos', '/api/channel',
-    '/video', '/videos', '/channel',
-    '/media', '/stream', '/streams',
-)
-
-STREAM_PARAMS = (
-    'token=', 'auth=', 'signature=', 'sig=', 'key=', 'hash=',
-    'expires=', 'exp=', 'hdnea=', 'policy=', 'session=',
-    'cid=', 'eid=', 'quality=', 'format=', 'playlist=',
-)
-
-STREAM_FILENAMES = (
-    'master', 'index', 'playlist', 'manifest', 'stream',
-    'live', 'video', 'play', 'source', 'sources',
-    'media', 'vod', 'channel',
-)
+def has_required_extension(url):
+    if not url:
+        return False
+    lower = url.lower().strip()
+    parsed = urlparse(lower)
+    path = parsed.path
+    return any(path.endswith(ext) for ext in REQUIRED_EXTENSIONS)
 
 
 def is_media_url(url):
@@ -101,7 +75,6 @@ def is_media_url(url):
     parsed = urlparse(lower)
     domain = parsed.netloc
     path = parsed.path
-    query = parsed.query
 
     if not domain or not any(lower.startswith(p) for p in STREAM_PROTOCOLS):
         return False
@@ -109,44 +82,13 @@ def is_media_url(url):
     if any(ad in domain for ad in AD_DOMAINS):
         return False
 
+    if not any(path.endswith(ext) for ext in REQUIRED_EXTENSIONS):
+        return False
+
     if any(pat in path for pat in BLOCKED_PATH_PATTERNS):
         return False
 
-    segments = [s for s in path.rstrip('/').split('/') if s]
-    filename = segments[-1] if segments else ''
-
-    if any(path.endswith(ext) for ext in STREAM_EXTENSIONS):
-        return True
-
-    has_strong = any(p in path for p in STREAM_PATHS_STRONG)
-    has_weak = any(p in path for p in STREAM_PATHS_WEAK)
-    has_params = any(p in query for p in STREAM_PARAMS)
-    has_id_param = 'id=' in query
-    is_stream_file = filename in STREAM_FILENAMES and not filename.endswith('.html')
-    has_numeric = any(s.isdigit() for s in segments)
-    is_cdn = any(c in domain for c in CDN_DOMAINS)
-
-    matched_strong = [p for p in STREAM_PATHS_STRONG if p in path]
-    strong_seg_count = 0
-    for sp in matched_strong:
-        sp_segs = [s for s in sp.strip('/').split('/') if s]
-        if segments[:len(sp_segs)] == sp_segs:
-            strong_seg_count = max(strong_seg_count, len(sp_segs))
-    beyond_strong = len(segments) > strong_seg_count if strong_seg_count > 0 else False
-
-    signals = sum([has_strong, has_weak, has_params, has_id_param,
-                   is_stream_file, has_numeric, beyond_strong, is_cdn])
-
-    if signals >= 4:
-        return True
-    if has_strong and beyond_strong and (has_params or has_id_param or has_numeric):
-        return True
-    if is_cdn and (has_params or has_numeric or has_strong):
-        return True
-    if is_cdn and is_stream_file:
-        return True
-
-    return False
+    return True
 
 
 def parse_m3u8_playlists(master_url):

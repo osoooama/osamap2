@@ -134,6 +134,11 @@ FRONTEND_URL=http://localhost:3000
 # Frontend (.env.local في frontend/)
 NEXT_PUBLIC_API_URL=https://osamap2.onrender.com
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_Y2xlcmsub3NhbWFwMi5wYWdlcy5kZXYk
+# ⚠️ تم التغيير: Clerk custom domain (osamap2.pages.dev) غير مدعوم DNS على pages.dev
+# الحل: استخدام test instance key الذي يعمل مع default clerk.accounts.dev domain
+# Test key: pk_test_d2VsY29tZS1zaHJpbXAtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA
+# Secret key: sk_test_pUVBtifGjUA2p9lbxmnGe6j2VxD11nFxEHfr3SZJf6
+# Frontend API: https://welcome-shrimp-70.clerk.accounts.dev
 
 # Scrapers (.env في scrapers/)
 MONGODB_URI=mongodb+srv://osamakreshan49_db_user:Osama995AA@cluster0.xiju5ao.mongodb.net/?appName=Cluster0
@@ -147,8 +152,9 @@ DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 - **Provider testing**: 5/17 working (StreameX, vidlink, screenscape, vidplays, modocine). Broken ones dimmed with green badge.
 - **New scrapers**: cinemana.py, hd1brstej.py, anime3rb_v2.py added.
 - **Platform pages redesigned**: Netflix/Shahid/Crunchyroll/Disney with movie/TV separation.
-- **Cloudflare deploy**: https://9595f259.osamap2.pages.dev
+- **Cloudflare deploy**: https://e09111c4.osamap2.pages.dev (current, Clerk works, redesigned UI)
 - **Clerk auth**: Email OTP only, custom sign-in page (`/sign-in`) with OSK+ logo, dark theme, animated transitions.
+- **Clerk CORS fix**: Switched from custom domain `osamap2.pages.dev` (DNS unverifiable) to default `welcome-shrimp-70.clerk.accounts.dev`. New test keys used: `pk_test_d2VsY29tZS1zaHJpbXAtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA`. Now works on ALL Cloudflare Pages subdomains.
 - **Route protection**: AuthGuard on all platform/player/search pages. No middleware (static export).
 - **Scrapers**: 11 site crawlers run on GitHub Actions (`scrape.yml`, cron `*/15 * * * *`), each run completes in ~38s.
 - **MongoDB resilience**: All DB ops wrapped in try/except. Scrapers work without DB.

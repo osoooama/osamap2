@@ -12,7 +12,8 @@ import cloudscraper
 
 load_dotenv(Path(__file__).resolve().parent.parent.joinpath('.env'))
 
-STREAMING_EXTENSIONS = ('.m3u8', '.mpd', '.mp4', '.ts', '.m4s')
+STREAMING_EXTENSIONS = ('.m3u8', '.mpd', '.mp4', '.webm', '.ts', '.mkv', '.mov',
+    '.avi', '.flv', '.f4m', '.ism', '.isml', '.m3u')
 AD_DOMAINS = [
     'doubleclick', 'googlesyndication', 'adservice', 'adserver',
     'popunder', 'exoclick', 'propellerads', 'adf.ly', 'shorte.st',
@@ -38,24 +39,31 @@ def is_ad_url(url):
     return any(ad in domain for ad in AD_DOMAINS)
 
 
+def has_stream_extension(url):
+    if not url:
+        return False
+    path = urlparse(url.lower()).path
+    return any(path.endswith(ext) for ext in STREAMING_EXTENSIONS)
+
+
 def extract_stream_urls(soup):
     streams = set()
     for tag in soup.find_all('source'):
         src = tag.get('src', '')
-        if src.endswith(STREAMING_EXTENSIONS) and not is_ad_url(src):
+        if has_stream_extension(src) and not is_ad_url(src):
             streams.add(src)
     for tag in soup.find_all('video'):
         src = tag.get('src', '')
-        if src.endswith(STREAMING_EXTENSIONS) and not is_ad_url(src):
+        if has_stream_extension(src) and not is_ad_url(src):
             streams.add(src)
         for source in tag.find_all('source'):
             src = source.get('src', '')
-            if src.endswith(STREAMING_EXTENSIONS) and not is_ad_url(src):
+            if has_stream_extension(src) and not is_ad_url(src):
                 streams.add(src)
     pattern = re.compile(
         r'(https?://[^"\'\s<>]+\.(?:' + '|'.join(
             ext.lstrip('.') for ext in STREAMING_EXTENSIONS
-        ) + r'))',
+        ) + r')(?:\?[^\s"\'<>]*)?)',
         re.IGNORECASE,
     )
     for match in pattern.findall(str(soup)):

@@ -6,7 +6,10 @@ import { getMovies } from '@/lib/api';
 export function useMovies(category: string, page = 1) {
   return useQuery({
     queryKey: ['movies', category, page],
-    queryFn: () => getMovies(category, page),
+    queryFn: async () => {
+      const data = await getMovies(category, page);
+      return Array.isArray(data) ? data : (data.items || []);
+    },
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });

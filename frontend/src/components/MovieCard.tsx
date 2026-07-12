@@ -19,6 +19,7 @@ interface MovieCardProps {
     genres?: { id: number; name: string }[];
     runtime?: number;
     category?: string;
+    media_type?: string;
   };
   accentColor?: string;
 }
@@ -29,6 +30,7 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
 
   const tmdbId = movie.tmdb_id;
   const title = movie.title || 'Unknown';
+  const mediaType = movie.media_type || 'movie';
   const posterUrl = movie.poster || movie.poster_path || '';
   const imgSrc = posterUrl.startsWith('http')
     ? posterUrl
@@ -43,7 +45,7 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
 
   return (
     <div
-      onClick={() => tmdbId && router.push(`/player?tmdb_id=${tmdbId}`)}
+      onClick={() => tmdbId && router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`)}
       className="group relative flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] cursor-pointer"
     >
       <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 group-hover:shadow-xl group-hover:shadow-black/40 transition-all duration-500">
@@ -79,11 +81,18 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
           </div>
         )}
 
-        {year && (
-          <div className="absolute top-2.5 left-2.5 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-xs text-zinc-300 border border-white/10">
-            {year}
-          </div>
-        )}
+        <div className="absolute top-2.5 left-2.5 flex gap-1">
+          {mediaType === 'tv' && (
+            <div className="px-2 py-1 rounded-lg bg-blue-600/80 backdrop-blur-md text-xs text-white font-semibold border border-white/10">
+              مسلسل
+            </div>
+          )}
+          {year && (
+            <div className="px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-xs text-zinc-300 border border-white/10">
+              {year}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-2.5 px-0.5 space-y-1">

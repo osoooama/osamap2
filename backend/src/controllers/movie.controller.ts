@@ -6,32 +6,53 @@ import * as tmdb from '../services/tmdb.service';
 export async function getMoviesByCategory(req: Request, res: Response) {
   try {
     const category = req.params.category as string;
-    let movies = await Movie.find({ category: category as any }).sort({ created_at: -1 }).limit(50);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    const type = req.query.type as string; // 'movie' | 'tv' | undefined (both)
 
-    if (movies.length === 0) {
+    const filter: any = { category };
+    if (type === 'movie' || type === 'tv') filter.media_type = type;
+
+    let movies = await Movie.find(filter)
+      .sort({ popularity: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (movies.length === 0 && page === 1) {
       const tmdbResults = await tmdb.discoverByCategory(category);
       const docs = tmdbResults.map((item: any) => ({
-        tmdb_id: String(item.id),
+        tmdb_id: item.tmdb_id,
         title: item.title || item.name || 'Unknown',
         overview: item.overview || '',
         poster_path: item.poster_path || '',
         backdrop_path: item.backdrop_path || '',
+        media_type: item.media_type || 'movie',
         category,
         images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
+        vote_average: item.vote_average || 0,
+        release_date: item.release_date || item.first_air_date || '',
+        genre_ids: item.genre_ids || [],
+        original_language: item.original_language || '',
+        popularity: item.popularity || 0,
       }));
       if (docs.length > 0) {
         await Movie.insertMany(docs, { ordered: false }).catch(() => {});
-        movies = await Movie.find({ category: category as any }).sort({ created_at: -1 }).limit(50);
+        movies = await Movie.find(filter)
+          .sort({ popularity: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit);
       }
     }
 
+    const total = await Movie.countDocuments(filter);
+
     const enriched = movies.map((m) => {
       const obj = m.toObject();
-      const image = obj.images?.tmdb || obj.poster_path || '';
+      const image = obj.images?.tmdb || (obj.poster_path ? `https://image.tmdb.org/t/p/w500${obj.poster_path}` : '');
       return { ...obj, poster: image };
     });
 
-    res.json(enriched);
+    res.json({ items: enriched, total, page, totalPages: Math.ceil(total / limit) });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to fetch movies';
     res.status(500).json({ error: message });
@@ -44,14 +65,41 @@ export async function getMovieDetails(req: Request, res: Response) {
     let movie = await Movie.findOne({ tmdb_id });
 
     if (!movie) {
-      const tmdbData = await tmdb.getMovieDetails(tmdb_id);
-      movie = await Movie.create({
-        tmdb_id,
-        title: tmdbData.title,
-        overview: tmdbData.overview,
-        poster_path: tmdbData.poster_path,
-        backdrop_path: tmdbData.backdrop_path,
-      });
+      try {
+        const tmdbData = await tmdb.getMovieDetails(tmdb_id);
+        movie = await Movie.create({
+          tmdb_id,
+          title: tmdbData.title,
+          overview: tmdbData.overview,
+          poster_path: tmdbData.poster_path,
+          backdrop_path: tmdbData.backdrop_path,
+          media_type: 'movie',
+          vote_average: tmdbData.vote_average || 0,
+          release_date: tmdbData.release_date || '',
+          genre_ids: tmdbData.genres?.map((g: any) => g.id) || [],
+          original_language: tmdbData.original_language || '',
+          popularity: tmdbData.popularity || 0,
+        });
+      } catch {
+        try {
+          const tmdbData = await tmdb.getTVDetails(tmdb_id);
+          movie = await Movie.create({
+            tmdb_id,
+            title: tmdbData.name,
+            overview: tmdbData.overview,
+            poster_path: tmdbData.poster_path,
+            backdrop_path: tmdbData.backdrop_path,
+            media_type: 'tv',
+            vote_average: tmdbData.vote_average || 0,
+            release_date: tmdbData.first_air_date || '',
+            genre_ids: tmdbData.genres?.map((g: any) => g.id) || [],
+            original_language: tmdbData.original_language || '',
+            popularity: tmdbData.popularity || 0,
+          });
+        } catch {
+          return res.status(404).json({ error: 'Content not found' });
+        }
+      }
     }
 
     const links = await Link.find({ tmdb_id, is_active: true });
@@ -74,6 +122,24 @@ export async function getMovieDetails(req: Request, res: Response) {
     const result: any = { ...movie.toObject(), links: uniqueSources };
     result.embed_urls = [...allUrls];
 
+    if (movie.media_type === 'tv') {
+      try {
+        const tvData = await tmdb.getTVDetails(tmdb_id);
+        result.seasons = (tvData.seasons || []).map((s: any) => ({
+          season_number: s.season_number,
+          episode_count: s.episode_count,
+          name: s.name,
+          poster_path: s.poster_path,
+        }));
+        result.number_of_seasons = tvData.number_of_seasons;
+        result.number_of_episodes = tvData.number_of_episodes;
+        result.status = tvData.status;
+        result.last_air_date = tvData.last_air_date;
+      } catch {
+        // season data optional
+      }
+    }
+
     res.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to fetch movie details';
@@ -87,22 +153,52 @@ export async function searchMovies(req: Request, res: Response) {
     if (!q.trim()) return res.json([]);
 
     const local = await Movie.find({ $text: { $search: q } }).limit(20);
-
-    let tmdbResults: any[] = [];
-    try {
-      const { data } = await import('axios').then(a =>
-        a.default.get('https://api.themoviedb.org/3/search/movie', {
-          params: { api_key: process.env.TMDB_API_KEY, query: q, language: 'ar' },
-        })
-      );
-      tmdbResults = (data.results || []).slice(0, 10);
-    } catch {
-      // TMDB fallback silently
-    }
+    const tmdbResults = await tmdb.searchTMDB(q);
 
     res.json({ local, tmdb: tmdbResults });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Search failed';
+    res.status(500).json({ error: message });
+  }
+}
+
+export async function seedDatabase(req: Request, res: Response) {
+  try {
+    const categories = ['foreign', 'arabic', 'turkish', 'anime', 'animation'];
+
+    for (const category of categories) {
+      const results = await tmdb.discoverByCategory(category);
+      const docs = results.map((item: any) => ({
+        tmdb_id: item.tmdb_id,
+        title: item.title || item.name || 'Unknown',
+        overview: item.overview || '',
+        poster_path: item.poster_path || '',
+        backdrop_path: item.backdrop_path || '',
+        media_type: item.media_type || 'movie',
+        category,
+        images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
+        vote_average: item.vote_average || 0,
+        release_date: item.release_date || '',
+        genre_ids: item.genre_ids || [],
+        original_language: item.original_language || '',
+        popularity: item.popularity || 0,
+      }));
+
+      for (const doc of docs) {
+        await Movie.updateOne({ tmdb_id: doc.tmdb_id }, { $set: doc }, { upsert: true });
+      }
+    }
+
+    const counts = await Promise.all(
+      categories.map(async (c) => {
+        const count = await Movie.countDocuments({ category: c as any });
+        return `${c}: ${count}`;
+      })
+    );
+
+    res.json({ message: 'Seed complete', counts });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Seed failed';
     res.status(500).json({ error: message });
   }
 }

@@ -4,7 +4,6 @@ import AuthGuard from '@/components/AuthGuard';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, X, Loader2, Film, Tv, Star } from 'lucide-react';
-import MovieCard from '@/components/MovieRow';
 import api from '@/lib/api';
 
 function SearchContent() {

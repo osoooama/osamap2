@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getProvidersWithPriority } from '@/lib/providers';
+import { getProviders } from '@/lib/providers';
 import { getMovieDetails } from '@/lib/api';
 import { X, ExternalLink, RefreshCw, Monitor } from 'lucide-react';
 
@@ -14,7 +14,7 @@ interface CardPlayerProps {
 }
 
 export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose }: CardPlayerProps) {
-  const [providers] = useState(() => getProvidersWithPriority(tmdbId, mediaType));
+  const [providers] = useState(() => getProviders(tmdbId, mediaType));
   const [currentProvider, setCurrentProvider] = useState(0);
   const [qualities, setQualities] = useState<{ label: string; url: string }[]>([]);
   const [linkError, setLinkError] = useState(false);

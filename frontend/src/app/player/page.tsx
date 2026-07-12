@@ -145,8 +145,7 @@ function PlayerContent() {
                     src={embedUrl}
                     className="w-full h-full"
                     allowFullScreen
-                    allow="autoplay; encrypted-media; fullscreen"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write"
                     onError={() => setIframeError(true)}
                   />
                 ) : (

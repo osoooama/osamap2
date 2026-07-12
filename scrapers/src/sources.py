@@ -1,8 +1,9 @@
 SITES = [
-    {'name': 'cineby.cc', 'url': 'https://cineby.cc', 'category': 'foreign'},
     {'name': 'streamex.sh', 'url': 'https://streamex.sh', 'category': 'foreign'},
     {'name': 'anime3rb.com', 'url': 'https://anime3rb.com', 'category': 'anime'},
     {'name': 'animeslayer.to', 'url': 'https://animeslayer.to', 'category': 'anime'},
+    {'name': 'cinemana.cc', 'url': 'https://cinemana.cc', 'category': 'arabic'},
+    {'name': 'hd1.brstej.com', 'url': 'https://hd1.brstej.com', 'category': 'arabic'},
     {'name': 'mycima.video', 'url': 'https://mycima.video', 'category': 'arabic'},
     {'name': 'eegebest.com', 'url': 'https://eegebest.com', 'category': 'arabic'},
     {'name': 'fajer.show', 'url': 'https://fajer.show', 'category': 'arabic'},

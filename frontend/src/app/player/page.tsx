@@ -105,7 +105,7 @@ function PlayerContent() {
   };
 
   const activeUrl = getActiveUrl();
-  const isEmbed = !selectedQuality && (activeUrl.includes('embed') || activeUrl.includes('vidsrc') || activeUrl.includes('vidlink') || activeUrl.includes('xpass') || activeUrl.includes('cinemana') || activeUrl.includes('hd1') || activeUrl.includes('anime3rb'));
+  const isEmbed = !selectedQuality && (activeUrl.includes('embed') || activeUrl.includes('vidsrc') || activeUrl.includes('vidlink') || activeUrl.includes('xpass') || activeUrl.includes('vidcore') || activeUrl.includes('apiplayer') || activeUrl.includes('2embed') || activeUrl.includes('vidfast') || activeUrl.includes('videasy') || activeUrl.includes('smashystream') || activeUrl.includes('frembed') || activeUrl.includes('vidking') || activeUrl.includes('vidnest') || activeUrl.includes('vidrift') || activeUrl.includes('vidlove') || activeUrl.includes('cinemana') || activeUrl.includes('hd1') || activeUrl.includes('anime3rb'));
 
   if (!tmdbId) {
     return (

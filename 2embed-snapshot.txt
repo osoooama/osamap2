@@ -1,0 +1,7 @@
+- generic [ref=f38e2]:
+  - heading [level=3] [ref=f38e3]:
+    - text: 2Embed
+    - superscript [ref=f38e4]: .cc
+  - text: you are doing too fast please use it smoothly refresh page now to use it
+  - link "https://www.2embed.skin/" [ref=f38e5] [cursor=pointer]:
+    - /url: /

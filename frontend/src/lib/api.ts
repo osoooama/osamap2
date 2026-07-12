@@ -6,8 +6,10 @@ const api = axios.create({
 
 export default api;
 
-export async function getMovies(category: string, page = 1) {
-  const { data } = await api.get(`/api/movies/category/${category}`, { params: { page } });
+export async function getMovies(category: string, page = 1, type?: string) {
+  const params: any = { page };
+  if (type) params.type = type;
+  const { data } = await api.get(`/api/movies/category/${category}`, { params });
   return data;
 }
 

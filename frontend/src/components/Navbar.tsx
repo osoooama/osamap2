@@ -95,9 +95,12 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               {isLoaded && isSignedIn ? (
                 <>
-                  <button className="hidden sm:flex w-9 h-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all">
+                  <Link
+                    href="/search"
+                    className="hidden sm:flex w-9 h-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                  >
                     <Search className="w-4.5 h-4.5" />
-                  </button>
+                  </Link>
                   <button className="hidden sm:flex w-9 h-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all relative">
                     <Bell className="w-4.5 h-4.5" />
                     <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />

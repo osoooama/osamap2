@@ -7,18 +7,17 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 
 export default function DisneyPage() {
-  const { data: movies, isLoading } = useMovies('animation');
-  const ACCENT = '#113CCF';
+  const { data: movies, isLoading } = useMovies('animation', 1, 'movie');
+  const { data: tvShows, isLoading: tvLoading } = useMovies('animation', 1, 'tv');
+  const { data: classic, isLoading: clLoading } = useMovies('animation', 2, 'movie');
 
   return (
     <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0a] pt-16 lg:pt-20">
-        {/* Hero Billboard */}
         <div className="relative h-[40vh] sm:h-[50vh] overflow-hidden">
           <div className="absolute inset-0 platform-gradient-disney" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-transparent to-transparent" />
-
           <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-16">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -42,30 +41,13 @@ export default function DisneyPage() {
           </div>
         </div>
 
-        {/* Content Rows */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
-          <div className="space-y-6">
-            <MovieRow
-              title="أفلام أنيميشن"
-              subtitle="أجمل أفلام الكرتون والأنيميشن"
-              movies={movies || []}
-              accentColor={ACCENT}
-              loading={isLoading}
-            />
-            <MovieRow
-              title="كلاسيكيات ديزني"
-              subtitle="أفلام ديزني الخالدة"
-              movies={movies?.slice(0, 8) || []}
-              accentColor={ACCENT}
-              loading={isLoading}
-            />
-            <MovieRow
-              title="الجديد على المنصة"
-              subtitle="أحدث أفلام الأنيميشن المضافة"
-              movies={movies?.slice(5, 12) || []}
-              accentColor={ACCENT}
-              loading={isLoading}
-            />
+          <div className="space-y-8">
+            <MovieRow title="أفلام أنيميشن" subtitle="أجمل أفلام الكرتون والأنيميشن" movies={movies || []} accentColor="#113CCF" loading={isLoading} />
+            <MovieRow title="مسلسلات كرتون" subtitle="مسلسلات الأنيميشن الممتعة" movies={tvShows || []} accentColor="#113CCF" loading={tvLoading} />
+            {classic && classic.length > 0 && (
+              <MovieRow title="كلاسيكيات" subtitle="أفلام ديزني الخالدة" movies={classic} accentColor="#113CCF" loading={clLoading} />
+            )}
           </div>
         </div>
       </div>

@@ -1,0 +1,27 @@
+- generic [active] [ref=f50e1]:
+  - generic [ref=f50e2]:
+    - generic:
+      - generic:
+        - paragraph: Loading Things Up...
+    - generic:
+      - generic [ref=f50e3]:
+        - button "Servers" [ref=f50e4] [cursor=pointer]
+        - generic [ref=f50e11]:
+          - generic [ref=f50e12]: Now Playing
+          - generic [ref=f50e13]: Fight Club
+      - generic [ref=f50e18]:
+        - generic [ref=f50e19]:
+          - button "Play/Pause" [ref=f50e20]
+          - button "Rewind 10 seconds" [ref=f50e23]:
+            - generic [ref=f50e27]: "10"
+          - button "Forward 10 seconds" [ref=f50e28]:
+            - generic [ref=f50e32]: "10"
+          - button "Volume" [ref=f50e34]
+          - generic [ref=f50e40]: 0:00 / 0:00
+        - generic [ref=f50e41]:
+          - button "Subtitles" [ref=f50e42]
+          - button "Settings" [ref=f50e46]
+          - button "Fullscreen" [ref=f50e50]
+  - alert [ref=f50e56]
+  - link [ref=f50e58] [cursor=pointer]:
+    - /url: https://workdeadlinededicate.com/ts99qxyndj?nqgwha=49&refer=https%3A%2F%2Fwww.vidcore.org%2Fembed%2Fmovie%2F550&kw=%5B%22tmdb%22%2C%22video%22%2C%22player%22%2C%22api%22%2C%22%E2%80%93%22%2C%22free%22%2C%22movie%22%2C%22tv%22%2C%22embed%22%2C%22vidcore%22%5D&key=79d1e21b1816b52e335c4561617ab5b4&scrWidth=1536&scrHeight=864&tz=3&ship=1&v=2026.7.0&sub3=invoke_layer&res=14.31&dev=r&ifid=019f542f-1e48-790e-b040-97f9f5e7db30&ibid=019f542f-1a75-70a5-91ac-7a0857ced485

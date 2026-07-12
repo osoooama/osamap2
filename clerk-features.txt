@@ -1,0 +1,175 @@
+- generic [active] [ref=f62e1]:
+  - generic [ref=f62e37]:
+    - log
+    - log
+  - generic [ref=f62e2]:
+    - region "Notifications (F8)":
+      - list
+    - banner [ref=f62e3]:
+      - generic [ref=f62e4]:
+        - generic [ref=f62e5]:
+          - generic [ref=f62e6]:
+            - link [ref=f62e38] [cursor=pointer]:
+              - /url: /apps
+              - img "Organization logo" [ref=f62e40]
+            - button "Switch organization" [ref=f62e42] [cursor=pointer]:
+              - text: Personal workspace
+              - generic [ref=f62e43]: Hobby
+          - button "Switch application" [ref=f62e17] [cursor=pointer]:
+            - generic [ref=f62e18]: osamap2
+          - button "Switch environment" [ref=f62e26] [cursor=pointer]:
+            - generic [ref=f62e28]: development
+          - button "Go to prod" [ref=f62e48] [cursor=pointer]
+        - generic [ref=f62e32]:
+          - generic [ref=f62e51]:
+            - button "Notifications, 1 unread" [ref=f62e52] [cursor=pointer]
+            - generic: "1"
+          - button "Invite user" [ref=f62e57] [cursor=pointer]:
+            - generic [ref=f62e58]: Invite
+          - button "Open user menu" [ref=f62e60] [cursor=pointer]:
+            - img "User avatar" [ref=f62e62]
+    - button "Help Center" [ref=f62e65] [cursor=pointer]
+    - dialog [ref=f62e77]:
+      - button "Close" [ref=f62e79] [cursor=pointer]
+      - generic [ref=f62e83]:
+        - banner [ref=f62e84]: What's new
+        - paragraph [ref=f62e86]: Adjust customer credit balances from the Clerk Dashboard and APIs
+        - link "Learn more" [ref=f62e87] [cursor=pointer]:
+          - /url: https://clerk.com/changelog/2026-06-30-account-credits
+    - navigation [ref=f62e95]:
+      - link "Overview" [ref=f62e97] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV
+      - link "Users" [ref=f62e98] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/users
+      - link "Organizations" [ref=f62e99] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/organizations
+      - link "Billing" [ref=f62e100] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/billing/subscriptions
+      - link "Logs" [ref=f62e101] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/application-logs
+      - link "Configure" [ref=f62e102] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/user-and-authentication
+      - generic [ref=f62e104]:
+        - generic:
+          - generic:
+            - button:
+              - generic: development
+    - generic [ref=f62e108]:
+      - complementary [ref=f62e109]:
+        - button "Find... Ctrl K" [ref=f62e110] [cursor=pointer]:
+          - generic [ref=f62e111]: Find...
+          - generic [ref=f62e116]:
+            - generic [ref=f62e117]: Ctrl
+            - generic [ref=f62e118]: K
+        - navigation [ref=f62e119]:
+          - generic [ref=f62e120]:
+            - heading "Configure" [level=3] [ref=f62e121]
+            - list "Configure" [ref=f62e122]:
+              - listitem [ref=f62e123]:
+                - generic [ref=f62e124]:
+                  - button [ref=f62e125] [cursor=pointer]
+                  - group "User & authentication":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f62e132]:
+                - generic [ref=f62e133]:
+                  - button [ref=f62e134] [cursor=pointer]
+                  - group "Sessions":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f62e141]:
+                - generic [ref=f62e142]:
+                  - button [ref=f62e143] [cursor=pointer]
+                  - group "Organizations":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f62e150]:
+                - generic [ref=f62e151]:
+                  - button [ref=f62e152] [cursor=pointer]
+                  - group "Billing":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f62e159]:
+                - generic [ref=f62e160]:
+                  - button [ref=f62e161] [cursor=pointer]
+                  - group "Protect":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f62e168]:
+                - link "Account Portal" [ref=f62e169] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/account-portal
+              - listitem [ref=f62e173]:
+                - link "Features" [ref=f62e174] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/features
+              - listitem [ref=f62e181]:
+                - generic [ref=f62e182]:
+                  - button [ref=f62e183] [cursor=pointer]
+                  - group "Customization":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f62e190]:
+                - generic [ref=f62e191]:
+                  - button [ref=f62e192] [cursor=pointer]
+                  - group "Developers":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+          - generic [ref=f62e199]:
+            - heading "Instance" [level=3] [ref=f62e200]
+            - list "Instance" [ref=f62e201]:
+              - listitem [ref=f62e202]:
+                - link "Settings" [ref=f62e203] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/instance-settings
+              - listitem [ref=f62e207]:
+                - link "API keys" [ref=f62e208] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/api-keys
+              - listitem [ref=f62e212]:
+                - link "Updates" [ref=f62e213] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/updates
+          - generic [ref=f62e217]:
+            - heading "Application" [level=3] [ref=f62e218]
+            - list "Application" [ref=f62e219]:
+              - listitem [ref=f62e220]:
+                - link "Settings" [ref=f62e221] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/settings
+      - main [ref=f62e225]:
+        - article [ref=f62e226]:
+          - generic [ref=f62e230]:
+            - heading "Features" [level=1] [ref=f62e232]
+            - generic [ref=f62e233]: Grant access to your privileged content and data using features.
+          - generic [ref=f62e237]:
+            - generic [ref=f62e239]:
+              - group [ref=f62e242]:
+                - searchbox [ref=f62e247]
+              - link "Add feature" [ref=f62e249] [cursor=pointer]:
+                - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/features/new
+            - grid "Features" [ref=f62e260]:
+              - rowgroup [ref=f62e261]:
+                - row [ref=f62e262]:
+                  - columnheader [ref=f62e263] [cursor=pointer]
+                  - columnheader [ref=f62e267] [cursor=pointer]
+                  - columnheader "Actions" [ref=f62e271]
+              - rowgroup [ref=f62e273]:
+                - row [ref=f62e274]:
+                  - rowheader "No features yet You don't have any features yet." [ref=f62e275]:
+                    - generic [ref=f62e283]:
+                      - heading "No features yet" [level=3] [ref=f62e284]
+                      - generic [ref=f62e285]: You don't have any features yet.
+  - alert [ref=f62e36]

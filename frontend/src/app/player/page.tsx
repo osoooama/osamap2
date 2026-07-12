@@ -5,7 +5,7 @@ import { useState, useEffect, Suspense, useCallback } from 'react';
 import { getMovieDetails } from '@/lib/api';
 import { getProvidersWithPriority } from '@/lib/providers';
 import MovieCard from '@/components/MovieCard';
-import { ArrowLeft, Star, Calendar, Tv, RefreshCw, Server, Film } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Tv, RefreshCw, Server, Film, BadgeCheck } from 'lucide-react';
 
 interface MovieData {
   tmdb_id: string;
@@ -178,16 +178,20 @@ function PlayerContent() {
                     <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">اختر السيرفر</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {providers.map((p, i) => (
+                    {providers.map((p: any, i) => (
                       <button
                         key={p.name}
                         onClick={() => switchServer(i)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                           i === currentProvider
                             ? 'bg-red-600 text-white shadow-lg shadow-red-600/25 ring-1 ring-red-400'
-                            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-white/5'
+                            : p.working
+                              ? 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-white/5'
+                              : 'bg-zinc-800/50 text-zinc-600 hover:bg-zinc-700/50 hover:text-zinc-400 border border-white/5'
                         }`}
+                        title={p.working ? 'مشغل يعمل' : 'قد لا يعمل هذا المشغل'}
                       >
+                        {p.working && <BadgeCheck className="w-3 h-3 inline mr-1 text-green-500" />}
                         {p.name}
                       </button>
                     ))}

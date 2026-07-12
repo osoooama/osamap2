@@ -1,0 +1,239 @@
+- generic [active] [ref=f84e1]:
+  - generic [ref=f84e2]:
+    - region "Notifications (F8)":
+      - list
+    - banner [ref=f84e3]:
+      - generic [ref=f84e4]:
+        - generic [ref=f84e5]:
+          - generic [ref=f84e6]:
+            - link [ref=f84e7] [cursor=pointer]:
+              - /url: /apps
+              - img "Organization logo" [ref=f84e9]
+            - button "Switch organization" [ref=f84e11] [cursor=pointer]:
+              - text: Personal workspace
+              - generic [ref=f84e44]: Hobby
+          - button "Switch application" [ref=f84e19] [cursor=pointer]:
+            - generic [ref=f84e20]: osamap2
+          - button "Switch environment" [ref=f84e28] [cursor=pointer]:
+            - generic [ref=f84e30]: development
+          - button "Go to prod" [ref=f84e46] [cursor=pointer]
+        - generic [ref=f84e34]:
+          - generic [ref=f84e49]:
+            - button "Notifications, 1 unread" [ref=f84e50] [cursor=pointer]
+            - generic: "1"
+          - button "Invite user" [ref=f84e36] [cursor=pointer]:
+            - generic [ref=f84e37]: Invite
+          - button "Open user menu" [ref=f84e39] [cursor=pointer]:
+            - img "User avatar" [ref=f84e41]
+    - button "Help Center" [ref=f84e56] [cursor=pointer]
+    - dialog [ref=f84e68]:
+      - button "Close" [ref=f84e70] [cursor=pointer]
+      - generic [ref=f84e74]:
+        - banner [ref=f84e75]: What's new
+        - paragraph [ref=f84e77]: Adjust customer credit balances from the Clerk Dashboard and APIs
+        - link "Learn more" [ref=f84e78] [cursor=pointer]:
+          - /url: https://clerk.com/changelog/2026-06-30-account-credits
+    - navigation [ref=f84e86]:
+      - link "Overview" [ref=f84e88] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV
+      - link "Users" [ref=f84e89] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/users
+      - link "Organizations" [ref=f84e90] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/organizations
+      - link "Billing" [ref=f84e91] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/billing/subscriptions
+      - link "Logs" [ref=f84e92] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/application-logs
+      - link "Configure" [ref=f84e93] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/user-and-authentication
+      - generic [ref=f84e95]:
+        - generic:
+          - generic:
+            - button:
+              - generic: development
+    - generic [ref=f84e99]:
+      - complementary [ref=f84e100]:
+        - button "Find... Ctrl K" [ref=f84e101] [cursor=pointer]:
+          - generic [ref=f84e102]: Find...
+          - generic [ref=f84e107]:
+            - generic [ref=f84e108]: Ctrl
+            - generic [ref=f84e109]: K
+        - navigation [ref=f84e110]:
+          - generic [ref=f84e111]:
+            - heading "Configure" [level=3] [ref=f84e112]
+            - list "Configure" [ref=f84e113]:
+              - listitem [ref=f84e114]:
+                - generic [ref=f84e115]:
+                  - button [ref=f84e116] [cursor=pointer]
+                  - group "User & authentication":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f84e123]:
+                - generic [ref=f84e124]:
+                  - button [ref=f84e125] [cursor=pointer]
+                  - group "Sessions":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f84e132]:
+                - generic [ref=f84e133]:
+                  - button [ref=f84e134] [cursor=pointer]
+                  - group "Organizations":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f84e141]:
+                - generic [ref=f84e142]:
+                  - button [ref=f84e143] [cursor=pointer]
+                  - group "Billing":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f84e150]:
+                - generic [ref=f84e151]:
+                  - button [ref=f84e152] [cursor=pointer]
+                  - group "Protect":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f84e159]:
+                - link "Account Portal" [ref=f84e160] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/account-portal
+              - listitem [ref=f84e164]:
+                - link "Features" [ref=f84e165] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/features
+              - listitem [ref=f84e172]:
+                - generic [ref=f84e173]:
+                  - button [ref=f84e174] [cursor=pointer]
+                  - group "Customization":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f84e181]:
+                - generic [ref=f84e182]:
+                  - button [ref=f84e183] [cursor=pointer]
+                  - group "Developers":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+          - generic [ref=f84e190]:
+            - heading "Instance" [level=3] [ref=f84e191]
+            - list "Instance" [ref=f84e192]:
+              - listitem [ref=f84e193]:
+                - link "Settings" [ref=f84e194] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/instance-settings
+              - listitem [ref=f84e198]:
+                - link "API keys" [ref=f84e199] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/api-keys
+              - listitem [ref=f84e203]:
+                - link "Updates" [ref=f84e204] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/updates
+          - generic [ref=f84e208]:
+            - heading "Application" [level=3] [ref=f84e209]
+            - list "Application" [ref=f84e210]:
+              - listitem [ref=f84e211]:
+                - link "Settings" [ref=f84e212] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/settings
+      - main [ref=f84e216]:
+        - article [ref=f84e217]:
+          - heading "API keys" [level=1] [ref=f84e223]
+          - generic [ref=f84e224]:
+            - generic [ref=f84e225]:
+              - generic [ref=f84e227]:
+                - generic [ref=f84e228]:
+                  - generic [ref=f84e229]:
+                    - heading "Quick copy" [level=2] [ref=f84e230]
+                    - paragraph [ref=f84e231]: Choose your framework and paste the code into your environment file.
+                  - generic [ref=f84e233]:
+                    - button [ref=f84e234] [cursor=pointer]:
+                      - generic [ref=f84e238]:
+                        - img "Next.js logo" [ref=f84e239]
+                        - text: Next.js
+                    - combobox [ref=f84e245]
+                - generic [ref=f84e247]:
+                  - generic [ref=f84e248]:
+                    - paragraph [ref=f84e254]: .env.local
+                    - generic [ref=f84e255]:
+                      - button "Reveal Secret Key" [ref=f84e256] [cursor=pointer]
+                      - button "Copy code to clipboard" [ref=f84e266] [cursor=pointer]
+                  - code [ref=f84e273]: 1 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_d2VsY29tZS1zaHJpbXAtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA 2 CLERK_SECRET_KEY=••••••••••••••••••••••••••••••••••••••••••••••••••
+                - generic [ref=f84e274]: These are the same keys as you see below.
+              - generic [ref=f84e279]:
+                - generic [ref=f84e281]:
+                  - heading "Publishable key" [level=2] [ref=f84e282]
+                  - paragraph [ref=f84e283]: This key should be used in your frontend code. It can be safely shared, and does not need to be kept secret.
+                - generic [ref=f84e286]:
+                  - generic [ref=f84e287]:
+                    - generic [ref=f84e288]: Public key
+                    - generic [ref=f84e290]: Never used
+                  - textbox "Public key" [ref=f84e292]: pk_test_d…HMuZGV2JA
+                  - button "Copy API key Public key" [ref=f84e294] [cursor=pointer]
+              - generic [ref=f84e299]:
+                - generic [ref=f84e300]:
+                  - generic [ref=f84e301]:
+                    - heading "Secret keys" [level=2] [ref=f84e302]
+                    - paragraph [ref=f84e303]: Secret keys grant admin-level access to sensitive operations in Clerk's backend API, including impersonating users, changing security settings and creating admin users in organizations.
+                  - button "Add new key" [ref=f84e305] [cursor=pointer]
+                - list [ref=f84e313]:
+                  - listitem [ref=f84e314]:
+                    - generic [ref=f84e315]:
+                      - generic [ref=f84e316]:
+                        - generic [ref=f84e317]: default
+                        - generic [ref=f84e319]:
+                          - text: Created
+                          - button "Jul 9, 2026" [ref=f84e320]
+                          - text: •Used
+                          - button "about 1h ago" [ref=f84e321]
+                      - textbox "default" [ref=f84e323]: •••••••••••••••••••
+                      - generic [ref=f84e324]:
+                        - button "Copy API key default" [ref=f84e325] [cursor=pointer]
+                        - button "Show key" [ref=f84e330] [cursor=pointer]
+                - generic [ref=f84e340]: Do not share these keys with anyone. If you suspect that one of your secret keys has been compromised, you should create a new key, update your code, then delete the compromised key. Clerk support will never ask you to share your secret keys.
+            - complementary [ref=f84e345]:
+              - generic [ref=f84e349]:
+                - generic "Details" [ref=f84e350]:
+                  - generic [ref=f84e351]:
+                    - term [ref=f84e352]: Frontend API URL
+                    - definition [ref=f84e353]:
+                      - generic [ref=f84e354]: https://welcome-shrimp-70.clerk.accounts.dev
+                      - button "Copy to clipboard" [ref=f84e356] [cursor=pointer]
+                  - generic [ref=f84e361]:
+                    - term [ref=f84e362]: Backend API URL
+                    - definition [ref=f84e363]:
+                      - generic [ref=f84e364]: https://api.clerk.com
+                      - button "Copy to clipboard" [ref=f84e366] [cursor=pointer]
+                  - generic [ref=f84e371]:
+                    - term [ref=f84e372]: JWKS URL
+                    - definition [ref=f84e373]:
+                      - generic [ref=f84e374]: https://welcome-shrimp-70.clerk.accounts.dev/.well-known/jwks.json
+                      - button "Copy to clipboard" [ref=f84e376] [cursor=pointer]
+                  - generic [ref=f84e381]:
+                    - term [ref=f84e382]: JWKS Public Key
+                    - definition [ref=f84e383]:
+                      - code [ref=f84e385]: "-----BEG…EY-----"
+                      - button "Copy to clipboard" [ref=f84e386] [cursor=pointer]
+                      - button "View full JWKS Public Key" [ref=f84e391] [cursor=pointer]
+                  - generic [ref=f84e401]:
+                    - term [ref=f84e402]: Configured API version
+                    - definition [ref=f84e403]:
+                      - generic [ref=f84e404]: 2026-05-12
+                      - button "Configure API Version" [ref=f84e406] [cursor=pointer]
+                  - generic [ref=f84e411]:
+                    - term [ref=f84e412]: Latest API version
+                    - definition [ref=f84e413]:
+                      - generic [ref=f84e414]: 2026-05-12
+                - link "Learn about API keys" [ref=f84e417] [cursor=pointer]:
+                  - /url: https://clerk.com/docs/guides/development/clerk-environment-variables#clerk-publishable-and-secret-keys
+  - alert [ref=f84e43]

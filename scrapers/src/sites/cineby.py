@@ -65,7 +65,7 @@ def crawl(site_info):
     base_url = f'https://{name}/watch'
     print(f'[STREAMEX] Crawling {name} (category={category})...')
 
-    popular = get_tmdb_popular('movie', 15)
+    popular = get_tmdb_popular('movie', 5)
     for cid in CLASSIC_IDS:
         if cid not in [p['id'] for p in popular]:
             popular.append({'id': cid, 'title': '', 'year': '', 'media_type': 'movie'})

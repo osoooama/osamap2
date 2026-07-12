@@ -9,7 +9,10 @@ import { Film } from 'lucide-react';
 const ACCENT = '#E50914';
 
 export default function NetflixPage() {
-  const { data: movies, isLoading } = useMovies('foreign');
+  const { data: movies, isLoading } = useMovies('foreign', 1, 'movie');
+  const { data: tvShows, isLoading: tvLoading } = useMovies('foreign', 1, 'tv');
+  const { data: trending } = useMovies('foreign', 2, 'movie');
+  const { data: topRated } = useMovies('foreign', 3, 'movie');
 
   return (
     <AuthGuard>
@@ -42,10 +45,13 @@ export default function NetflixPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
-          <div className="space-y-6">
-            <MovieRow title="الأكثر مشاهدة" subtitle="أشهر الأفلام العالمية هذا الأسبوع" movies={movies || []} accentColor={ACCENT} loading={isLoading} />
-            <MovieRow title="وصل حديثاً" subtitle="أحدث الإضافات إلى المكتبة" movies={movies?.slice(0, 10) || []} accentColor={ACCENT} loading={isLoading} />
-            <MovieRow title="الأعلى تقييماً" subtitle="أفضل الأفلام حسب تقييمات المشاهدين" movies={movies?.slice(5, 15) || []} accentColor={ACCENT} loading={isLoading} />
+          <div className="space-y-8">
+            <MovieRow title="أفلام رائجة" subtitle="الأكثر مشاهدة هذا الأسبوع" movies={movies || []} accentColor={ACCENT} loading={isLoading} />
+            <MovieRow title="مسلسلات رائجة" subtitle="أشهر المسلسلات العالمية" movies={tvShows || []} accentColor={ACCENT} loading={tvLoading} />
+            <MovieRow title="الأكثر تقييماً" subtitle="أفضل الأفلام حسب التقييم" movies={topRated || []} accentColor={ACCENT} loading={isLoading} />
+            {trending && trending.length > 0 && (
+              <MovieRow title={movies?.[0]?.release_date?.slice(0, 4) === '2026' ? 'أفلام 2026' : 'أحدث الإضافات'} subtitle="جديد المكتبة" movies={trending} accentColor={ACCENT} loading={isLoading} />
+            )}
           </div>
         </div>
       </div>

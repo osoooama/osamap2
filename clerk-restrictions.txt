@@ -1,0 +1,182 @@
+- generic [active] [ref=f80e1]:
+  - generic [ref=f80e2]:
+    - region "Notifications (F8)":
+      - list
+    - banner [ref=f80e3]:
+      - generic [ref=f80e4]:
+        - generic [ref=f80e5]:
+          - generic [ref=f80e28]:
+            - link [ref=f80e29] [cursor=pointer]:
+              - /url: /apps
+              - img "Organization logo" [ref=f80e31]
+            - button "Switch organization" [ref=f80e33] [cursor=pointer]:
+              - text: Personal workspace
+              - generic [ref=f80e34]: Hobby
+          - button "Switch application" [ref=f80e42] [cursor=pointer]:
+            - generic [ref=f80e43]: osamap2
+          - button "Switch environment" [ref=f80e51] [cursor=pointer]:
+            - generic [ref=f80e53]: development
+          - button "Go to prod" [ref=f80e57] [cursor=pointer]
+        - generic [ref=f80e11]:
+          - generic [ref=f80e60]:
+            - button "Notifications, 1 unread" [ref=f80e61] [cursor=pointer]
+            - generic: "1"
+          - button "Invite user" [ref=f80e66] [cursor=pointer]:
+            - generic [ref=f80e67]: Invite
+          - button "Open user menu" [ref=f80e69] [cursor=pointer]:
+            - img "User avatar" [ref=f80e71]
+    - dialog [ref=f80e73]:
+      - button "Close" [ref=f80e75] [cursor=pointer]
+      - generic [ref=f80e79]:
+        - banner [ref=f80e80]: What's new
+        - paragraph [ref=f80e82]: Adjust customer credit balances from the Clerk Dashboard and APIs
+        - link "Learn more" [ref=f80e83] [cursor=pointer]:
+          - /url: https://clerk.com/changelog/2026-06-30-account-credits
+    - navigation [ref=f80e91]:
+      - link "Overview" [ref=f80e93] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV
+      - link "Users" [ref=f80e94] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/users
+      - link "Organizations" [ref=f80e95] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/organizations
+      - link "Billing" [ref=f80e96] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/billing/subscriptions
+      - link "Logs" [ref=f80e97] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/application-logs
+      - link "Configure" [ref=f80e98] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/user-and-authentication
+      - generic [ref=f80e100]:
+        - generic:
+          - generic:
+            - button:
+              - generic: development
+    - generic [ref=f80e104]:
+      - complementary [ref=f80e105]:
+        - button "Find... Ctrl K" [ref=f80e106] [cursor=pointer]:
+          - generic [ref=f80e107]: Find...
+          - generic [ref=f80e112]:
+            - generic [ref=f80e113]: Ctrl
+            - generic [ref=f80e114]: K
+        - navigation [ref=f80e115]:
+          - generic [ref=f80e116]:
+            - heading "Configure" [level=3] [ref=f80e117]
+            - list "Configure" [ref=f80e118]:
+              - listitem [ref=f80e119]:
+                - generic [ref=f80e120]:
+                  - button [ref=f80e121] [cursor=pointer]
+                  - group "User & authentication":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f80e128]:
+                - generic [ref=f80e129]:
+                  - button [ref=f80e130] [cursor=pointer]
+                  - group "Sessions":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f80e137]:
+                - generic [ref=f80e138]:
+                  - button [ref=f80e139] [cursor=pointer]
+                  - group "Organizations":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f80e146]:
+                - generic [ref=f80e147]:
+                  - button [ref=f80e148] [cursor=pointer]
+                  - group "Billing":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f80e155]:
+                - generic [ref=f80e156]:
+                  - button [expanded] [ref=f80e157] [cursor=pointer]
+                  - group "Protect" [ref=f80e164]:
+                    - list [ref=f80e165]:
+                      - listitem [ref=f80e166]:
+                        - link "Attack protection" [ref=f80e167] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/protect/attack-protection
+                      - listitem [ref=f80e171]:
+                        - link "Restrictions" [ref=f80e172] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/protect/restrictions
+              - listitem [ref=f80e177]:
+                - link "Account Portal" [ref=f80e178] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/account-portal
+              - listitem [ref=f80e182]:
+                - link "Features" [ref=f80e183] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/features
+              - listitem [ref=f80e190]:
+                - generic [ref=f80e191]:
+                  - button [ref=f80e192] [cursor=pointer]
+                  - group "Customization":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f80e199]:
+                - generic [ref=f80e200]:
+                  - button [ref=f80e201] [cursor=pointer]
+                  - group "Developers":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+          - generic [ref=f80e208]:
+            - heading "Instance" [level=3] [ref=f80e209]
+            - list "Instance" [ref=f80e210]:
+              - listitem [ref=f80e211]:
+                - link "Settings" [ref=f80e212] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/instance-settings
+              - listitem [ref=f80e216]:
+                - link "API keys" [ref=f80e217] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/api-keys
+              - listitem [ref=f80e221]:
+                - link "Updates" [ref=f80e222] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/updates
+          - generic [ref=f80e226]:
+            - heading "Application" [level=3] [ref=f80e227]
+            - list "Application" [ref=f80e228]:
+              - listitem [ref=f80e229]:
+                - link "Settings" [ref=f80e230] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/settings
+      - main [ref=f80e234]:
+        - article [ref=f80e235]:
+          - heading "Restrictions" [level=1] [ref=f80e241]
+          - generic [ref=f80e245]:
+            - tablist [ref=f80e246]:
+              - tab "Overview" [selected] [ref=f80e247] [cursor=pointer]
+              - tab "Allowlist" [ref=f80e249] [cursor=pointer]
+              - tab "Blocklist" [ref=f80e250] [cursor=pointer]
+            - tabpanel "Overview" [ref=f80e251]:
+              - generic [ref=f80e252]:
+                - generic [ref=f80e253]:
+                  - generic [ref=f80e255]:
+                    - generic [ref=f80e256]:
+                      - switch "Enable restricted mode" [ref=f80e258]
+                      - generic [ref=f80e261]: Enable restricted mode
+                    - paragraph [ref=f80e262]: Sign-ups are disabled, and users can only access your application if they are invited, created manually, or authenticated through an enterprise SSO connection.
+                  - generic [ref=f80e267]:
+                    - text: Learn more about
+                    - link "Restricted mode" [ref=f80e268] [cursor=pointer]:
+                      - /url: https://clerk.com/docs/guides/secure/restricting-access#restricted
+                - generic [ref=f80e271]:
+                  - generic [ref=f80e272]:
+                    - switch "Block email subaddresses" [ref=f80e274]
+                    - generic [ref=f80e277]: Block email subaddresses
+                  - paragraph [ref=f80e278]: "Limit subaddress usage: emails that include +, =, or # (e.g., email+tag@domain.com) are allowed, but only one distinct subaddress may be used per base email address. After one subaddress is used for a base email, additional different subaddresses for that base are blocked for sign-up and when adding to an existing account."
+                - generic [ref=f80e281]:
+                  - generic [ref=f80e282]:
+                    - switch "Block sign-ups that use disposable email addresses" [ref=f80e284]
+                    - generic [ref=f80e287]: Block sign-ups that use disposable email addresses
+                  - paragraph [ref=f80e288]: If enabled, all sign-up attempts using an email address from a disposable email domain will be rejected.
+  - alert [ref=f80e27]: Configure | Clerk.com

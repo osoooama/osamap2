@@ -1,0 +1,234 @@
+- generic [active] [ref=f71e1]:
+  - generic [ref=f71e2]:
+    - region "Notifications (F8)":
+      - list
+    - banner [ref=f71e3]:
+      - generic [ref=f71e4]:
+        - generic [ref=f71e5]:
+          - generic [ref=f71e6]:
+            - link [ref=f71e37] [cursor=pointer]:
+              - /url: /apps
+              - img "Organization logo" [ref=f71e39]
+            - button "Switch organization" [ref=f71e41] [cursor=pointer]:
+              - text: Personal workspace
+              - generic [ref=f71e42]: Hobby
+          - button "Switch application" [ref=f71e17] [cursor=pointer]:
+            - generic [ref=f71e18]: osamap2
+          - button "Switch environment" [ref=f71e26] [cursor=pointer]:
+            - generic [ref=f71e28]: development
+          - button "Go to prod" [ref=f71e47] [cursor=pointer]
+        - generic [ref=f71e32]:
+          - generic [ref=f71e50]:
+            - button "Notifications, 1 unread" [ref=f71e51] [cursor=pointer]
+            - generic: "1"
+          - button "Invite user" [ref=f71e56] [cursor=pointer]:
+            - generic [ref=f71e57]: Invite
+          - button "Open user menu" [ref=f71e59] [cursor=pointer]:
+            - img "User avatar" [ref=f71e61]
+    - button "Help Center" [ref=f71e64] [cursor=pointer]
+    - dialog [ref=f71e76]:
+      - button "Close" [ref=f71e78] [cursor=pointer]
+      - generic [ref=f71e82]:
+        - banner [ref=f71e83]: What's new
+        - paragraph [ref=f71e85]: Adjust customer credit balances from the Clerk Dashboard and APIs
+        - link "Learn more" [ref=f71e86] [cursor=pointer]:
+          - /url: https://clerk.com/changelog/2026-06-30-account-credits
+    - navigation [ref=f71e94]:
+      - link "Overview" [ref=f71e96] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV
+      - link "Users" [ref=f71e97] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/users
+      - link "Organizations" [ref=f71e98] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/organizations
+      - link "Billing" [ref=f71e99] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/billing/subscriptions
+      - link "Logs" [ref=f71e100] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/application-logs
+      - link "Configure" [ref=f71e101] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/user-and-authentication
+      - generic [ref=f71e103]:
+        - generic:
+          - generic:
+            - button:
+              - generic: development
+    - generic [ref=f71e107]:
+      - complementary [ref=f71e108]:
+        - button "Find... Ctrl K" [ref=f71e109] [cursor=pointer]:
+          - generic [ref=f71e110]: Find...
+          - generic [ref=f71e115]:
+            - generic [ref=f71e116]: Ctrl
+            - generic [ref=f71e117]: K
+        - navigation [ref=f71e118]:
+          - generic [ref=f71e119]:
+            - heading "Configure" [level=3] [ref=f71e120]
+            - list "Configure" [ref=f71e121]:
+              - listitem [ref=f71e122]:
+                - generic [ref=f71e123]:
+                  - button [ref=f71e124] [cursor=pointer]
+                  - group "User & authentication":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f71e131]:
+                - generic [ref=f71e132]:
+                  - button [ref=f71e133] [cursor=pointer]
+                  - group "Sessions":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f71e140]:
+                - generic [ref=f71e141]:
+                  - button [ref=f71e142] [cursor=pointer]
+                  - group "Organizations":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f71e149]:
+                - generic [ref=f71e150]:
+                  - button [ref=f71e151] [cursor=pointer]
+                  - group "Billing":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f71e158]:
+                - generic [ref=f71e159]:
+                  - button [ref=f71e160] [cursor=pointer]
+                  - group "Protect":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f71e167]:
+                - link "Account Portal" [ref=f71e168] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/account-portal
+              - listitem [ref=f71e172]:
+                - link "Features" [ref=f71e173] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/features
+              - listitem [ref=f71e180]:
+                - generic [ref=f71e181]:
+                  - button [ref=f71e182] [cursor=pointer]
+                  - group "Customization":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f71e189]:
+                - generic [ref=f71e190]:
+                  - button [ref=f71e191] [cursor=pointer]
+                  - group "Developers":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+          - generic [ref=f71e198]:
+            - heading "Instance" [level=3] [ref=f71e199]
+            - list "Instance" [ref=f71e200]:
+              - listitem [ref=f71e201]:
+                - link "Settings" [ref=f71e202] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/instance-settings
+              - listitem [ref=f71e206]:
+                - link "API keys" [ref=f71e207] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/api-keys
+              - listitem [ref=f71e211]:
+                - link "Updates" [ref=f71e212] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/updates
+          - generic [ref=f71e216]:
+            - heading "Application" [level=3] [ref=f71e217]
+            - list "Application" [ref=f71e218]:
+              - listitem [ref=f71e219]:
+                - link "Settings" [ref=f71e220] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/settings
+      - main [ref=f71e224]:
+        - article [ref=f71e225]:
+          - heading "Manage osamap2" [level=1] [ref=f71e231]
+          - generic [ref=f71e232]:
+            - generic [ref=f71e234]:
+              - generic [ref=f71e235]:
+                - generic [ref=f71e236]:
+                  - heading "Application details" [level=2] [ref=f71e239]
+                  - generic [ref=f71e240]:
+                    - generic [ref=f71e242]:
+                      - generic [ref=f71e243]:
+                        - generic [ref=f71e244]: Application name
+                        - generic [ref=f71e245]: Customize the name of your application. Used in the dashboard and with Clerk components.
+                      - textbox "Application name" [ref=f71e247]:
+                        - /placeholder: Enter an application name
+                        - text: osamap2
+                    - generic [ref=f71e249]:
+                      - generic [ref=f71e250]:
+                        - generic [ref=f71e251]: Support email
+                        - generic [ref=f71e252]: The email displayed on Clerk components used for your application support channels.
+                      - textbox "Support email" [ref=f71e254]:
+                        - /placeholder: Enter a support email
+                        - text: osamakreshan352@gmail.com
+                - generic [ref=f71e255]:
+                  - generic [ref=f71e257]:
+                    - heading "Branding" [level=2] [ref=f71e258]
+                    - paragraph [ref=f71e259]: Configure the branding of your Clerk application.
+                  - generic [ref=f71e260]:
+                    - generic [ref=f71e262]:
+                      - generic [ref=f71e263]:
+                        - button "DropZone Logo"
+                      - generic [ref=f71e264]:
+                        - generic [ref=f71e265]: Logo
+                        - generic [ref=f71e266]: You can upload .jpeg, .png, .gif, or .webp files.
+                      - button "Upload image" [ref=f71e269] [cursor=pointer]:
+                        - generic [ref=f71e275]:
+                          - generic [ref=f71e276]: Upload
+                          - text: image
+                    - generic [ref=f71e279]:
+                      - generic [ref=f71e280]:
+                        - button "DropZone Favicon"
+                      - generic [ref=f71e281]:
+                        - generic [ref=f71e282]: Favicon
+                        - generic [ref=f71e283]: You can upload .ico or .png files.
+                      - button "Upload image" [ref=f71e286] [cursor=pointer]:
+                        - generic [ref=f71e292]:
+                          - generic [ref=f71e293]: Upload
+                          - text: image
+                    - generic [ref=f71e296]:
+                      - generic [ref=f71e297]:
+                        - switch "Remove \"Secured by Clerk\" branding on Clerk Components Pro" [ref=f71e299]
+                        - generic [ref=f71e302]:
+                          - text: Remove "Secured by Clerk" branding on Clerk Components
+                          - generic [ref=f71e303]: Pro
+                      - generic [ref=f71e306]:
+                        - text: This shows up by default on components like
+                        - code [ref=f71e307]: <OrganizationSwitcher/>
+                        - text: and
+                        - code [ref=f71e308]: <UserButton/>
+                        - text: .
+              - generic [ref=f71e309]:
+                - heading "Danger zone" [level=2] [ref=f71e312]
+                - generic [ref=f71e313]:
+                  - generic [ref=f71e315]:
+                    - generic [ref=f71e316]:
+                      - generic [ref=f71e317]: Transfer ownership
+                      - generic [ref=f71e318]: Transfer the ownership of this application to another organization.
+                    - generic [ref=f71e319]: Transfer ownership
+                  - generic [ref=f71e326]:
+                    - generic [ref=f71e327]:
+                      - generic [ref=f71e328]: Delete application
+                      - generic [ref=f71e329]: Delete the application and all associated instances and data. This action is irreversible.
+                    - button "Delete application" [ref=f71e330] [cursor=pointer]
+            - complementary [ref=f71e337]:
+              - generic [ref=f71e341]:
+                - generic "Details" [ref=f71e342]:
+                  - generic [ref=f71e343]:
+                    - term [ref=f71e344]: Application ID
+                    - definition [ref=f71e345]:
+                      - code [ref=f71e347]: app_3GGlw…fQJfcCAzc
+                      - button "Copy to clipboard" [ref=f71e348] [cursor=pointer]
+                - generic "Metadata" [ref=f71e353]:
+                  - generic [ref=f71e354]:
+                    - term [ref=f71e355]: Created on
+                    - definition [ref=f71e356]: July 9, 2026
+  - alert [ref=f71e36]

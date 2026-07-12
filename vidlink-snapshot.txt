@@ -1,0 +1,23 @@
+- generic [active] [ref=f52e1]:
+  - region "Video Player - Fight Club" [ref=f52e11]:
+    - group:
+      - slider "Seek" [ref=f52e15] [cursor=pointer]:
+        - generic: 0:00
+      - generic [ref=f52e21]:
+        - generic [ref=f52e22]:
+          - button "Play" [ref=f52e23] [cursor=pointer]
+          - button "Mute" [pressed] [ref=f52e26] [cursor=pointer]
+        - slider "Volume" [ref=f52e29] [cursor=pointer]:
+          - generic: 0%
+        - generic [ref=f52e32]:
+          - generic [ref=f52e33]: 0:00
+          - generic [ref=f52e34]: /
+          - generic [ref=f52e35]: 0:00
+        - generic [ref=f52e36]: "| Fight Club"
+        - generic [ref=f52e38]:
+          - button "Google Cast disconnected" [ref=f52e40] [cursor=pointer]
+          - button [ref=f52e46] [cursor=pointer]
+          - button [ref=f52e50] [cursor=pointer]
+          - button "PiP" [ref=f52e53] [cursor=pointer]
+          - button "Fullscreen" [ref=f52e56] [cursor=pointer]
+  - alert [ref=f52e10]

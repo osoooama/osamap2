@@ -1,0 +1,203 @@
+- generic [active] [ref=f65e1]:
+  - generic [ref=f65e2]:
+    - region "Notifications (F8)":
+      - list
+    - banner [ref=f65e3]:
+      - generic [ref=f65e4]:
+        - generic [ref=f65e5]:
+          - generic [ref=f65e6]:
+            - link [ref=f65e39] [cursor=pointer]:
+              - /url: /apps
+              - img "Organization logo" [ref=f65e41]
+            - button "Switch organization" [ref=f65e43] [cursor=pointer]:
+              - text: Personal workspace
+              - generic [ref=f65e44]: Hobby
+          - button "Switch application" [ref=f65e17] [cursor=pointer]:
+            - generic [ref=f65e18]: osamap2
+          - button "Switch environment" [ref=f65e26] [cursor=pointer]:
+            - generic [ref=f65e28]: development
+          - button "Go to prod" [ref=f65e49] [cursor=pointer]
+        - generic [ref=f65e32]:
+          - generic [ref=f65e52]:
+            - button "Notifications, 1 unread" [ref=f65e53] [cursor=pointer]
+            - generic: "1"
+          - button "Invite user" [ref=f65e34] [cursor=pointer]:
+            - generic [ref=f65e35]: Invite
+          - button "Open user menu" [ref=f65e58] [cursor=pointer]:
+            - img "User avatar" [ref=f65e60]
+    - button "Help Center" [ref=f65e63] [cursor=pointer]
+    - dialog [ref=f65e75]:
+      - button "Close" [ref=f65e77] [cursor=pointer]
+      - generic [ref=f65e81]:
+        - banner [ref=f65e82]: What's new
+        - paragraph [ref=f65e84]: Adjust customer credit balances from the Clerk Dashboard and APIs
+        - link "Learn more" [ref=f65e85] [cursor=pointer]:
+          - /url: https://clerk.com/changelog/2026-06-30-account-credits
+    - navigation [ref=f65e93]:
+      - link "Overview" [ref=f65e95] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV
+      - link "Users" [ref=f65e96] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/users
+      - link "Organizations" [ref=f65e97] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/organizations
+      - link "Billing" [ref=f65e98] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/billing/subscriptions
+      - link "Logs" [ref=f65e99] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/application-logs
+      - link "Configure" [ref=f65e100] [cursor=pointer]:
+        - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/user-and-authentication
+      - generic [ref=f65e102]:
+        - generic:
+          - generic:
+            - button:
+              - generic: development
+    - generic [ref=f65e106]:
+      - complementary [ref=f65e107]:
+        - button "Find... Ctrl K" [ref=f65e108] [cursor=pointer]:
+          - generic [ref=f65e109]: Find...
+          - generic [ref=f65e114]:
+            - generic [ref=f65e115]: Ctrl
+            - generic [ref=f65e116]: K
+        - navigation [ref=f65e117]:
+          - generic [ref=f65e118]:
+            - heading "Configure" [level=3] [ref=f65e119]
+            - list "Configure" [ref=f65e120]:
+              - listitem [ref=f65e121]:
+                - generic [ref=f65e122]:
+                  - button [expanded] [ref=f65e123] [cursor=pointer]
+                  - group "User & authentication" [ref=f65e130]:
+                    - list [ref=f65e131]:
+                      - listitem [ref=f65e132]:
+                        - link "User & authentication" [ref=f65e133] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/user-and-authentication
+                      - listitem [ref=f65e138]:
+                        - link "SSO connections" [ref=f65e139] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/sso-connections
+                      - listitem [ref=f65e143]:
+                        - link "Web3" [ref=f65e144] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/web3
+                      - listitem [ref=f65e148]:
+                        - link "Multi-factor" [ref=f65e149] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/multi-factor
+                      - listitem [ref=f65e153]:
+                        - link "Waitlist" [ref=f65e154] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/user-authentication/waitlist
+                      - listitem [ref=f65e158]:
+                        - link "Legal" [ref=f65e159] [cursor=pointer]:
+                          - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/compliance/legal
+              - listitem [ref=f65e163]:
+                - generic [ref=f65e164]:
+                  - button [ref=f65e165] [cursor=pointer]
+                  - group "Sessions":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f65e172]:
+                - generic [ref=f65e173]:
+                  - button [ref=f65e174] [cursor=pointer]
+                  - group "Organizations":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f65e181]:
+                - generic [ref=f65e182]:
+                  - button [ref=f65e183] [cursor=pointer]
+                  - group "Billing":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f65e190]:
+                - generic [ref=f65e191]:
+                  - button [ref=f65e192] [cursor=pointer]
+                  - group "Protect":
+                    - list:
+                      - listitem
+                      - listitem
+              - listitem [ref=f65e199]:
+                - link "Account Portal" [ref=f65e200] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/account-portal
+              - listitem [ref=f65e204]:
+                - link "Features" [ref=f65e205] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/features
+              - listitem [ref=f65e212]:
+                - generic [ref=f65e213]:
+                  - button [ref=f65e214] [cursor=pointer]
+                  - group "Customization":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+              - listitem [ref=f65e221]:
+                - generic [ref=f65e222]:
+                  - button [ref=f65e223] [cursor=pointer]
+                  - group "Developers":
+                    - list:
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+                      - listitem
+          - generic [ref=f65e230]:
+            - heading "Instance" [level=3] [ref=f65e231]
+            - list "Instance" [ref=f65e232]:
+              - listitem [ref=f65e233]:
+                - link "Settings" [ref=f65e234] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/instance-settings
+              - listitem [ref=f65e238]:
+                - link "API keys" [ref=f65e239] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/api-keys
+              - listitem [ref=f65e243]:
+                - link "Updates" [ref=f65e244] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/updates
+          - generic [ref=f65e248]:
+            - heading "Application" [level=3] [ref=f65e249]
+            - list "Application" [ref=f65e250]:
+              - listitem [ref=f65e251]:
+                - link "Settings" [ref=f65e252] [cursor=pointer]:
+                  - /url: /apps/app_3GGlwSNJ6i4HKeK4gffQJfcCAzc/instances/ins_3GGlwTeCbJzW4NZIA4CCqQ5ykUV/settings
+      - main [ref=f65e256]:
+        - article [ref=f65e257]:
+          - generic [ref=f65e259]:
+            - heading "User & authentication" [level=1] [ref=f65e263]
+            - button "Preview" [ref=f65e265] [cursor=pointer]
+          - generic [ref=f65e275]:
+            - tablist [ref=f65e276]:
+              - tab "Email" [ref=f65e277] [cursor=pointer]
+              - tab "Phone" [ref=f65e281] [cursor=pointer]
+              - tab "Username" [ref=f65e282] [cursor=pointer]
+              - tab "Password" [ref=f65e285] [cursor=pointer]
+              - tab "Passkeys" [ref=f65e286] [cursor=pointer]
+              - tab "User model" [selected] [ref=f65e287] [cursor=pointer]
+            - tabpanel "User model" [ref=f65e399]:
+              - generic [ref=f65e400]:
+                - generic [ref=f65e401]:
+                  - generic [ref=f65e403]:
+                    - generic [ref=f65e404]:
+                      - switch "First and last name" [checked] [ref=f65e406]
+                      - generic [ref=f65e409]: First and last name
+                    - paragraph [ref=f65e410]: Users have the ability to set their first and last name
+                  - generic [ref=f65e414]:
+                    - generic [ref=f65e415]:
+                      - checkbox "Require first and last name" [ref=f65e417]
+                      - generic [ref=f65e421]: Require first and last name
+                    - generic [ref=f65e422]: Users must provide both first and last name at sign-up
+                - generic [ref=f65e424]:
+                  - heading "User permissions" [level=2] [ref=f65e427]
+                  - generic [ref=f65e428]:
+                    - generic [ref=f65e430]:
+                      - generic [ref=f65e432]:
+                        - generic [ref=f65e433]:
+                          - switch "Allow users to delete their account" [checked] [ref=f65e435]
+                          - generic [ref=f65e438]: Allow users to delete their account
+                        - generic [ref=f65e439]: Changing this setting will only affect new users. You can override on a per-user basis in the user profile.
+                      - button "Apply to existing users" [ref=f65e441] [cursor=pointer]
+                    - generic [ref=f65e446]:
+                      - switch "Allow users to change their email address" [checked] [ref=f65e448]
+                      - generic [ref=f65e451]: Allow users to change their email address
+                    - generic [ref=f65e454]:
+                      - switch "Allow users to change their username" [checked] [ref=f65e456]
+                      - generic [ref=f65e459]: Allow users to change their username
+  - alert [ref=f65e38]: User & authentication | Clerk.com

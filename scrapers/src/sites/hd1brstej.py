@@ -5,8 +5,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from playwright.sync_api import sync_playwright
 from sites.base import save_link, log_result
+import requests
 
 BASE = 'https://hd1.brstej.com'
+TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
+TMDB_SEARCH = 'https://api.themoviedb.org/3/search/multi'
 
 SERVERS = [
     {'name': 'hdup20', 'pattern': 'hdup20'},
@@ -14,6 +17,19 @@ SERVERS = [
     {'name': 'hd-vk', 'pattern': 'hd-vk'},
     {'name': 'okru', 'pattern': 'ok.ru'},
 ]
+
+
+def search_tmdb(title):
+    if not title or len(title) < 3:
+        return None
+    try:
+        resp = requests.get(f'{TMDB_SEARCH}?api_key={TMDB_API_KEY}&query={title[:50]}', timeout=10)
+        if resp.ok:
+            results = resp.json().get('results', [])
+            return str(results[0]['id']) if results else None
+    except:
+        pass
+    return None
 
 
 def crawl(site_info):
@@ -83,6 +99,8 @@ def crawl(site_info):
                     if not embed_urls:
                         embed_urls.append(f'{BASE}/embed.php?vid={vid}')
 
+                    tmdb_id = search_tmdb(title)
+
                     for embed_url in embed_urls:
                         q = '720p'
                         for srv_name, pat in SERVERS:
@@ -90,7 +108,7 @@ def crawl(site_info):
                                 q = srv_name
                                 break
                         print(f'    [{q}] {embed_url[:80]}...')
-                        save_link(vid, play_url, embed_url, category, title)
+                        save_link(tmdb_id or vid, play_url, embed_url, category, title)
                         total += 1
 
                 except Exception as e:

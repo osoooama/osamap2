@@ -1,0 +1,144 @@
+- generic [active] [ref=f6e1]:
+  - text:    
+  - generic [ref=f6e2]:
+    - banner [ref=f6e3]:
+      - generic [ref=f6e4]:
+        - generic [ref=f6e5]:
+          - link "Show menu" [ref=f6e6] [cursor=pointer]:
+            - /url: "#"
+          - link "سيما لايت" [ref=f6e9] [cursor=pointer]:
+            - /url: https://r.cimalight.co/main24
+            - img "سيما لايت" [ref=f6e10]
+        - generic [ref=f6e13]:
+          - textbox "بحث..." [ref=f6e14]
+          - button "" [ref=f6e16] [cursor=pointer]
+        - generic [ref=f6e18]:
+          - list: 
+    - generic [ref=f6e19]:
+      - heading " أحدث الأفلام" [level=1] [ref=f6e22]:
+        - generic [ref=f6e23]: 
+        - text: أحدث الأفلام
+      - generic [ref=f6e26]:
+        - generic [ref=f6e30]:
+          - link " جديد الموقع" [ref=f6e31] [cursor=pointer]:
+            - /url: https://r.cimalight.co/index.php
+            - generic [ref=f6e32]: 
+            - text: جديد الموقع
+          - link " أحدث الأفلام" [ref=f6e33] [cursor=pointer]:
+            - /url: https://r.cimalight.co/movies.php
+            - generic [ref=f6e34]: 
+            - text: أحدث الأفلام
+          - link " أحدث الحلقات" [ref=f6e35] [cursor=pointer]:
+            - /url: https://r.cimalight.co/episodes.php
+            - generic [ref=f6e36]: 
+            - text: أحدث الحلقات
+          - link " أحدث المسلسلات" [ref=f6e37] [cursor=pointer]:
+            - /url: https://r.cimalight.co/all-series.php
+            - generic [ref=f6e38]: 
+            - text: أحدث المسلسلات
+        - generic [ref=f6e39]:
+          - generic [ref=f6e41]:
+            - button "" [ref=f6e42] [cursor=pointer]
+            - button "" [ref=f6e44] [cursor=pointer]
+            - button "فرز" [ref=f6e46] [cursor=pointer]
+          - list [ref=f6e48]:
+            - listitem [ref=f6e49]
+            - listitem [ref=f6e60]
+            - listitem [ref=f6e71]
+            - listitem [ref=f6e82]
+            - listitem [ref=f6e93]
+            - listitem [ref=f6e104]
+            - listitem [ref=f6e115]
+            - listitem [ref=f6e126]
+            - listitem [ref=f6e137]
+            - listitem [ref=f6e146]
+            - listitem [ref=f6e157]
+            - listitem [ref=f6e168]
+            - listitem [ref=f6e179]
+            - listitem [ref=f6e190]
+            - listitem [ref=f6e201]
+            - listitem [ref=f6e212]
+            - listitem [ref=f6e223]
+            - listitem [ref=f6e234]
+            - listitem [ref=f6e245]
+            - listitem [ref=f6e256]
+            - listitem [ref=f6e267]
+            - listitem [ref=f6e278]
+            - listitem [ref=f6e289]
+            - listitem [ref=f6e300]
+            - listitem [ref=f6e311]
+            - listitem [ref=f6e322]
+            - listitem [ref=f6e333]
+            - listitem [ref=f6e344]
+            - listitem [ref=f6e353]
+            - listitem [ref=f6e362]
+          - list [ref=f6e375]:
+            - listitem
+            - listitem
+            - listitem
+            - listitem
+            - listitem
+            - listitem
+            - listitem
+            - listitem
+            - listitem
+            - listitem
+  - contentinfo [ref=f6e389]:
+    - list [ref=f6e392]:
+      - link "cima" [ref=f6e393] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "سيما" [ref=f6e394] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "سيما لايت" [ref=f6e395] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "مسلسلات رمضان 2026" [ref=f6e396] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=ramadan-2026
+      - link "مسلسلات كورية" [ref=f6e397] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=koryan-series
+      - link "مسرحيات كاملة" [ref=f6e398] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=masrahiyat
+      - link "أفلام عربى اون لاين" [ref=f6e399] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-movies5
+      - link "مسلسلات عربية 2026 اون لاين" [ref=f6e400] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-series14
+      - link "افلام اون لاين" [ref=f6e401] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=online-movies3
+      - link "افلام اجنبى مترجم" [ref=f6e402] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=english-movies1
+      - link "مسلسلات اسيوية" [ref=f6e403] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=asian-series
+      - link "مسلسلات هندية 2020" [ref=f6e404] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=indian-series
+      - link "افلام هندي" [ref=f6e405] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=indian-movies1
+      - link "مسلسلات تركية 2026 مترجمة..." [ref=f6e406] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=turkish-series15
+      - link "مسلسلات وبرامج سيما لايت" [ref=f6e407] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=cimalight1
+      - link "افلام تركية" [ref=f6e408] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=turkish-movies
+      - link "مسلسلات هندية" [ref=f6e409] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=hindi-series
+      - link "قنوات فضائية" [ref=f6e410] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=tv-channels
+      - link "افلام اسيوية" [ref=f6e411] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=asian-movies
+      - link "مسلسلات أجنبية" [ref=f6e412] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=english-series4
+      - link "مسلسلات مدبلجة" [ref=f6e413] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=modblj-series
+      - link "افلام انمي" [ref=f6e414] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=anime-movies1
+      - link "برامج تلفزيون" [ref=f6e415] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=tv-shows
+      - link "مسلسلات مصرية" [ref=f6e416] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-serie
+      - link "انمى وكرتون" [ref=f6e417] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=anime2
+      - link "تحميل مسلسلات كاملة برابط واحد" [ref=f6e418] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=download-full-series10
+      - link "مسلسلات رمضان" [ref=f6e419] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=ramadan-series
+    - generic [ref=f6e421]:
+      - paragraph
+      - paragraph [ref=f6e422]: كافة الحقوق محفوظة لــ موقع سيما لايت © 2026 .

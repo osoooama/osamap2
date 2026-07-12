@@ -23,6 +23,22 @@ SERVER_URL = f'{BASE}/wp-content/themes/EEE/Inc/Ajax/Single/Server.php'
 
 QUALITY_MAP = {'1080': '1080p', '720': '720p', '480': '480p', '360': '360p'}
 
+TMDB_SEARCH = 'https://api.themoviedb.org/3/search/multi'
+
+
+def search_tmdb(title, api_key=TMDB_API_KEY):
+    if not title or len(title) < 3:
+        return None
+    try:
+        resp = requests.get(f'{TMDB_SEARCH}?api_key={api_key}&query={title[:50]}', timeout=10)
+        if resp.ok:
+            results = resp.json().get('results', [])
+            if results:
+                return str(results[0]['id'])
+    except:
+        pass
+    return None
+
 
 def extract_tmdb_id_from_page(page):
     text = page.evaluate('() => document.body.innerText')
@@ -30,9 +46,6 @@ def extract_tmdb_id_from_page(page):
     if m:
         return m.group(1)
     m = re.search(r'themoviedb\.org/[a-z]+/(\d{4,8})', text)
-    if m:
-        return m.group(1)
-    m = re.search(r'(\d{4,8})', page.url)
     if m:
         return m.group(1)
     return None
@@ -90,6 +103,9 @@ def crawl_category(browser, cat_info, limit=20):
                 if not m3u8_urls:
                     m3u8_urls = re.findall(r'(https?://[^"\']*(?:scdns\.io|fasel-hd|c\.scdns)[^"\']*)', html)
 
+                if not tmdb_id and title:
+                    tmdb_id = search_tmdb(title)
+
                 for stream_url in m3u8_urls:
                     quality = '720p'
                     for res, q in QUALITY_MAP.items():
@@ -98,7 +114,7 @@ def crawl_category(browser, cat_info, limit=20):
                             break
                     if stream_url.startswith('http'):
                         print(f'      [{quality}] {stream_url[:80]}...')
-                        save_link(tmdb_id or post_id, link, stream_url, cat, f'{title}')
+                        save_link(tmdb_id or post_id, link, stream_url, cat, title)
                         total += 1
 
             except Exception as e:

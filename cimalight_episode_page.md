@@ -1,0 +1,168 @@
+- generic [active] [ref=f4e1]:
+  - text:    
+  - generic [ref=f4e2]:
+    - banner [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - generic [ref=f4e5]:
+          - link "Show menu" [ref=f4e6] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=f4e9] [cursor=pointer]:
+            - /url: https://r.cimalight.co/main24
+            - img "سيما لايت" [ref=f4e10]
+        - generic [ref=f4e13]:
+          - textbox "بحث..." [ref=f4e14]
+          - button "" [ref=f4e16] [cursor=pointer]
+        - generic [ref=f4e18]:
+          - list: 
+    - generic [ref=f4e19]:
+      - generic [ref=f4e23]:
+        - generic [ref=f4e26]:
+          - list [ref=f4e27]:
+            - listitem [ref=f4e28]:
+              - link "سيما لايت" [ref=f4e29] [cursor=pointer]:
+                - /url: https://r.cimalight.co
+            - listitem [ref=f4e30]:
+              - text: /
+              - link "مسلسلات وبرامج سيما لايت" [ref=f4e31] [cursor=pointer]:
+                - /url: https://r.cimalight.co/category.php?cat=cimalight1
+          - heading "مسلسل Silo الموسم الثالث الحلقة 1 الاولى مترجمة" [level=1] [ref=f4e32]
+        - generic [ref=f4e34]:
+          - generic [ref=f4e37] [cursor=pointer]:
+            - link "51:48":
+              - /url: https://elif.news/categorysa/?rand&hash=NkhKSTc5ZVRob25ISjNMaG1nc2dTdTFKMWsrY3FGYTd0NmY2QjYyVUdzU3hINERVVndkVkZ0ZzFBWWE4L3UrVnFsTldqazB5UERGTXRiQUh3Ry9taVR6cWVuS2tkRHZXZWl3Tko5M0hQUkVQM3RRbjR2Y3hnc0hiK1hxbWtmNk0vVXYrLzhpRWZKNmJzTGQ1UEt6ZGpyMlB1YnR3WEp6NjVldkpweFhpM2g4K1JneDRDNEpxb29IVTVxZGwwL3ByRGVhSldjbDJkQlV5U1N2TC9QQjhaNk5DdFlVbDJDMlpIaDVHdXlGaFJTdGFCS2tibzJoRmhKaXpNMnlDWitVVExPVXliUnMzZk5TQ1dhQStRNnp6OXdZM1BMQ2Rqc1VQMFpuckhGYm5YbVlIeGVDQTczY0toN0tmRThpVnpkQjFjcnlVclFGcWE2WXAyeTF6Nlk1ZE5oSjZka3RtSHY1bTRCemk2b1RQeGp0THRWY2VXd2Mrc1Q0dXZaLytZZ2F6WFVmcXFieHF5clFUS1BxdDZFM3VoOUxkWkl6WnkwcnlOSzhQWFpwMTlmN1lhbDJNMVlyR2I2c3BSLzE0QUcraGt3MTh5VWpneHFZTDVOb3RaY3YyUlFuVFZGcEJVV1BpQ1FwWnRQb3ZBN3BscU5rNW5ZQksrbWR4OTFsUk9VZHRCemlIK3dXK0JDdTRUd1ZPRURKdjZQaWF1WTRzWkhSckcwNFZZaWRFdGs4dlBScTJhZ0ZhTnB0YUZ5R3UraEpQUTlVcXg0RmRHQ0JWOHpFYndQTnF3WDZnQ1QvVVhLTkdFVFNZazJYbE9FVlJ4bk9ZSzlldzVxVUJQbDlWYWNYUnEySTVKWmlnMFdiZmMzNWM0L29jdEVBK01qaEFGNEdOYzNERjFQdk5BSFA3S1VFUTg0NmNoQjlkU1BwaldsT3hlUXN6V3QwRWVhdGpSRitxbkVTNzd2VEU5R3p1dENPdGVIYWdTMjVFSWFPcW1VNE9OM3JLanFraGI1aEUvUExWcWowMkR1TUJDVk9jUkN4TDRveDhkeXZtZnZlbUJqM3VhUmUyL3RKR2xpN20rL05EaDVjNDNLYXpUOUE5ekVTNG8rSktsKzFNOFFvL0ZpdEwrVUg3aWJoRzhrd0w1dlRBeElLQjA2SWtCck1MdGQvcWd4M0Q4bUl5Zk8rWkdJei9qQ1lIK1BhOHNja1hVVXRzTHpZMnZaOEViSzBuRTljTTdyZ3BFaXlsNENnRjIzc3dkOXFSV01xV05vRXVFTkFyT0FmY1I4Z09WdVVLRkhkUThYN3hWVE9paFlqRHRqdktGRkp6MnpGM2E4OWVubHRIYkRTcGY0SVFpNGdkVXZLa2FKT2grVkdZUm5mZGFaRjFZQ1JFaHc9PQ%3D%3D.5e9d53305660fac1ef67be38c8f7952f273b0f7acdb96b682b312b6d4519ee8f
+          - link "الحلقة التالية 2" [ref=f4e57] [cursor=pointer]:
+            - /url: https://r.cimalight.co/watch.php?vid=7b45118bc
+            - generic [ref=f4e58]: 
+            - text: الحلقة التالية 2
+      - generic [ref=f4e60]:
+        - link " اضغط هنا للذهاب الي سيرفرات التحميل" [ref=f4e63] [cursor=pointer]:
+          - /url: https://r.cimalight.co/downloads.php?vid=df9e532ac
+        - generic [ref=f4e65]:
+          - tablist:
+            - generic [ref=f4e67]:
+              - generic [ref=f4e68]: المواسم و الحلقات
+              - generic [ref=f4e69]:
+                - generic [ref=f4e71]
+                - generic [ref=f4e75]
+      - generic [ref=f4e79]:
+        - generic [ref=f4e82]:
+          - generic [ref=f4e83]:
+            - link [ref=f4e85] [cursor=pointer]:
+              - /url: https://r.cimalight.co/user.php?u=cimalight
+            - generic [ref=f4e87]:
+              - text: أضيف
+              - time [ref=f4e88]: 1 أسبوع منذُ
+              - text: بواسطة
+              - link "cimalight" [ref=f4e89] [cursor=pointer]:
+                - /url: https://r.cimalight.co/user.php?u=cimalight
+          - generic [ref=f4e90]:
+            - generic [ref=f4e91]: الوصف والتفاصيل
+            - generic [ref=f4e92]:
+              - paragraph [ref=f4e94]: "مشاهدة وتحميل مسلسل Silo موسم 3 الحلقة 1 مترجم اون لاين \"الصومعة\"، من بطولة : ريبيكا فيرغسون، هارييت والتر، تيم روبنز، آفي ناش، ستيف زان. تدور احداث القصة حول : تعود جولييت فاقدةً للذاكرة بعد نجاتها من العالم الخارجي، لتكشف أسرارًا خطيرة عن الصوامع والعالم المميت الذي يحيط بها على موقع سيما لايت."
+              - generic [ref=f4e95]:
+                - term [ref=f4e96]: المسلسل
+                - definition [ref=f4e97]: Silo
+                - term [ref=f4e98]: الموسم
+                - definition [ref=f4e99]: الموسم 3
+                - term [ref=f4e100]: الاقسام
+                - definition [ref=f4e101]
+                - term [ref=f4e105]: الكلمات المفتاحية
+                - definition [ref=f4e106]
+          - link "Show more" [ref=f4e108] [cursor=pointer]:
+            - /url: "#"
+          - generic [ref=f4e109]:
+            - heading "اضف تعليقك" [level=2] [ref=f4e110]
+            - generic [ref=f4e112]:
+              - generic [ref=f4e117]:
+                - textbox "تعليقك" [ref=f4e121]
+                - text: 
+                - button "أضف تعليق" [ref=f4e125] [cursor=pointer]
+              - heading "التعليقات" [level=2] [ref=f4e126]
+              - generic [ref=f4e127]:
+                - list
+                - generic [ref=f4e128]: لا توجد تعليقات حتي الآن
+        - generic [ref=f4e130]:
+          - paragraph [ref=f4e132]:
+            - link "مسلسلات وبرامج سيما لايت" [ref=f4e133] [cursor=pointer]:
+              - /url: https://r.cimalight.co/category.php?cat=cimalight1
+            - text: »
+            - link "مسلسلات أجنبية" [ref=f4e134] [cursor=pointer]:
+              - /url: https://r.cimalight.co/category.php?cat=english-series4
+            - text: »
+            - link "مسلسل Silo الموسم الثالث مترجم" [ref=f4e135] [cursor=pointer]:
+              - /url: https://r.cimalight.co/category.php?cat=silo-season-3
+            - text: قد تود مشاهدتها
+          - list [ref=f4e136]:
+            - listitem [ref=f4e137]:
+              - generic [ref=f4e138]:
+                - generic [ref=f4e139]
+                - heading "مسلسل Silo الموسم الثالث مترجم كامل" [level=3] [ref=f4e144]
+            - listitem [ref=f4e146]:
+              - generic [ref=f4e147]:
+                - generic [ref=f4e148]
+                - heading "مسلسل Silo الموسم الثالث الحلقة 2 الثانية مترجمة" [level=3] [ref=f4e154]
+            - listitem [ref=f4e156]:
+              - generic [ref=f4e157]:
+                - generic [ref=f4e158]
+                - heading "مسلسل Silo الموسم الثالث الحلقة 3 الثالثة مترجمة" [level=3] [ref=f4e164]
+        - text:    
+  - contentinfo [ref=f4e167]:
+    - list [ref=f4e170]:
+      - link "cima" [ref=f4e171] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "سيما" [ref=f4e172] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "سيما لايت" [ref=f4e173] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "مسلسلات رمضان 2026" [ref=f4e174] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=ramadan-2026
+      - link "مسلسلات كورية" [ref=f4e175] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=koryan-series
+      - link "مسرحيات كاملة" [ref=f4e176] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=masrahiyat
+      - link "أفلام عربى اون لاين" [ref=f4e177] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-movies5
+      - link "مسلسلات عربية 2026 اون لاين" [ref=f4e178] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-series14
+      - link "افلام اون لاين" [ref=f4e179] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=online-movies3
+      - link "افلام اجنبى مترجم" [ref=f4e180] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=english-movies1
+      - link "مسلسلات اسيوية" [ref=f4e181] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=asian-series
+      - link "مسلسلات هندية 2020" [ref=f4e182] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=indian-series
+      - link "افلام هندي" [ref=f4e183] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=indian-movies1
+      - link "مسلسلات تركية 2026 مترجمة..." [ref=f4e184] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=turkish-series15
+      - link "مسلسلات وبرامج سيما لايت" [ref=f4e185] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=cimalight1
+      - link "افلام تركية" [ref=f4e186] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=turkish-movies
+      - link "مسلسلات هندية" [ref=f4e187] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=hindi-series
+      - link "قنوات فضائية" [ref=f4e188] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=tv-channels
+      - link "افلام اسيوية" [ref=f4e189] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=asian-movies
+      - link "مسلسلات أجنبية" [ref=f4e190] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=english-series4
+      - link "مسلسلات مدبلجة" [ref=f4e191] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=modblj-series
+      - link "افلام انمي" [ref=f4e192] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=anime-movies1
+      - link "برامج تلفزيون" [ref=f4e193] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=tv-shows
+      - link "مسلسلات مصرية" [ref=f4e194] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-serie
+      - link "انمى وكرتون" [ref=f4e195] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=anime2
+      - link "تحميل مسلسلات كاملة برابط واحد" [ref=f4e196] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=download-full-series10
+      - link "مسلسلات رمضان" [ref=f4e197] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=ramadan-series
+    - generic [ref=f4e199]:
+      - paragraph
+      - paragraph [ref=f4e200]: كافة الحقوق محفوظة لــ موقع سيما لايت © 2026 .
+  - textbox

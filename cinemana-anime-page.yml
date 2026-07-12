@@ -1,0 +1,194 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e4]:
+    - generic [ref=f2e7]:
+      - searchbox "ماذا تريد أن تشاهد اليوم؟" [ref=f2e10]
+      - button "إبحث" [ref=f2e11] [cursor=pointer]
+    - link "تحميل التطبيق" [ref=f2e14] [cursor=pointer]:
+      - /url: https://download.cinemana.soft31.com/
+  - banner [ref=f2e18]:
+    - generic [ref=f2e20]:
+      - link "Logo سينمانا" [ref=f2e22] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/home1.html
+        - img "Logo" [ref=f2e23]
+        - generic [ref=f2e24]: سينمانا
+      - navigation [ref=f2e25]:
+        - list [ref=f2e26]:
+          - listitem [ref=f2e27]:
+            - link "الرئيسية" [ref=f2e28] [cursor=pointer]:
+              - /url: /main
+          - listitem [ref=f2e31]:
+            - link "أفلام" [ref=f2e32] [cursor=pointer]:
+              - /url: https://www.soft31.com/cinemana/movie.html
+          - listitem [ref=f2e35]:
+            - link "مسلسلات" [ref=f2e36] [cursor=pointer]:
+              - /url: https://www.soft31.com/cinemana/seris.html
+          - listitem [ref=f2e39]:
+            - link "Anime Icon عالم الأنمي" [ref=f2e40] [cursor=pointer]:
+              - /url: https://cdn.soft31.com/cinemana/anmi
+              - img "Anime Icon" [ref=f2e41]
+              - generic [ref=f2e42]: عالم الأنمي
+          - listitem [ref=f2e43]:
+            - link "اتصل بنا" [ref=f2e44] [cursor=pointer]:
+              - /url: https://www.soft31.com/cinemana/Contact.html
+      - button [ref=f2e47] [cursor=pointer]
+  - generic [ref=f2e49]:
+    - generic [ref=f2e51]:
+      - link "الرئيسية" [ref=f2e52] [cursor=pointer]:
+        - /url: /main
+      - link "الأفلام" [ref=f2e56] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/movie.html
+      - link "المسلسلات" [ref=f2e60] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/seris.html
+      - link "Anime الأنمي" [ref=f2e64] [cursor=pointer]:
+        - /url: https://cdn.soft31.com/cinemana/anmi
+        - img "Anime" [ref=f2e66]
+        - generic [ref=f2e67]: الأنمي
+      - link "اتصل بنا" [ref=f2e68] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/Contact.html
+      - button "إغلاق" [ref=f2e72] [cursor=pointer]
+    - link "تحميل تطبيق سينمانا" [ref=f2e76] [cursor=pointer]:
+      - /url: https://download.cinemana.soft31.com/
+    - link "انضم إلى قناتنا على التلغرام" [ref=f2e80] [cursor=pointer]:
+      - /url: https://t.me/cinammana
+  - generic [ref=f2e85]:
+    - navigation [ref=f2e86]:
+      - generic [ref=f2e88]:
+        - link "Home" [ref=f2e90] [cursor=pointer]:
+          - /url: https://cinemana.cc
+        - text: »
+        - link "مسلسلات أجنبي" [ref=f2e92] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=category/%d9%85%d8%b3%d9%84%d8%b3%d9%84%d8%a7%d8%aa-%d8%a3%d8%ac%d9%86%d8%a8%d9%8a/
+        - text: » انمي Uchi no Otouto-domo ga Sumimasen – الحلقة 2
+    - generic [ref=f2e93]:
+      - main [ref=f2e94]:
+        - generic [ref=f2e102]:
+          - generic [ref=f2e304]:
+            - generic [ref=f2e305]:
+              - generic:
+                - button "Pause" [pressed]
+                - generic:
+                  - generic:
+                    - slider "Seek": "3.57"
+                    - progressbar: "% buffered"
+                    - generic: 00:00
+                - timer "Current time": "-22:58"
+                - generic:
+                  - button "Unmute" [pressed]
+                - button "Enter fullscreen"
+                - button "Rewind 5s « -5" [ref=f2e319] [cursor=pointer]:
+                  - generic [ref=f2e320]: Rewind 5s
+                  - text: « -5
+                - button "Forward 5s 5+ »" [ref=f2e321] [cursor=pointer]:
+                  - generic [ref=f2e322]: Forward 5s
+                  - text: 5+ »
+              - generic [ref=f2e331] [cursor=pointer]:
+                - generic [ref=f2e332]: "!"
+                - link "جاهزين لكاس العالم ؟ اكتشف العروض":
+                  - /url: https://cinemana.cc/gifit.html
+                  - generic: جاهزين لكاس العالم ؟
+                  - generic: اكتشف العروض
+              - generic:
+                - img "Logo"
+            - combobox [ref=f2e328] [cursor=pointer]:
+              - option "1080p"
+              - option "720p"
+              - option "360p" [selected]
+          - text: "= document.getElementById('skipForward'); if(btnBack) btnBack.onclick = () => player.currentTime -= 10; if(btnFwd) btnFwd.onclick = () => player.currentTime += 10; // Autoplay ثابت setTimeout(() => { player.muted(true); var playPromise = player.play(); if (playPromise !== undefined) { playPromise.then(() => { console.log(\"تم بدأ التشغيل التلقائي بنجاح وهو صامت\"); }).catch(error => { console.log(\"Autoplay blocked: المتصفح يطلب نقرة من المستخدم لتشغيل الفيديو\"); }); } }, 300); }); })(); let unlocked = false; function unlockAudio() { if (unlocked) return; player.muted = false; player.volume = 1; unlocked = true; // نشيل الليسنر بعد أول تفاعل document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); } // أول تفاعل حقيقي من المستخدم document.addEventListener('click', unlockAudio); document.addEventListener('touchstart', unlockAudio);"
+        - generic [ref=f2e103]:
+          - heading "انمي Uchi no Otouto-domo ga Sumimasen – الحلقة 2" [level=1] [ref=f2e104]
+          - generic [ref=f2e105]:
+            - button "😊 1" [ref=f2e106] [cursor=pointer]:
+              - img "😊" [ref=f2e107]
+              - generic [ref=f2e108]: "1"
+            - button "😔 1" [ref=f2e109] [cursor=pointer]:
+              - img "😔" [ref=f2e110]
+              - generic [ref=f2e111]: "1"
+            - button "⏳ مشاهدة لاحقاً" [ref=f2e112] [cursor=pointer]:
+              - img "⏳" [ref=f2e114]
+              - generic [ref=f2e115]: مشاهدة لاحقاً
+            - button "مشاركة" [ref=f2e116] [cursor=pointer]
+        - link "download" [ref=f2e122] [cursor=pointer]:
+          - /url: //b.m2track.co/adb/zc/ODc3NTE1ODUtMTAwMzEtMjAyNi0wNy0xMi0wNXw5NC4yNDkuOTEuOTB8fDZhNTMyOGNiOWI5MWE=?url=aXBiVDRJYnduR0RKRDlmQVZaUEthamE3d2pZdW1XT0llc255Sk5wVEtQMEROS0tKcVBQMEFubjcxTnpnNUV1QmdlMGVqOXVJUHM5ek9DcGUzL2RPc3hzem9ETVZiWUp0blo3MWNUZmw2bWpKMnFvZFk5OUFkQ3V4bERnTVRNS1RzeEgrZ2xMeDc0NHJNYXE0ZjltQzJBYkNGUGdnbVQ4bW5JSXgwS1B5Rm1hNzUreDJrNU1CNVNqQndjdTNzRGtIRkF3bnZPSXIrTmkvblhDK3JHMmFrcVErWVNWK1VEQ0c3REFZbVBEaE95Q3l1QTJjZ1RsK1BucElLdU1kbFlrNlRDMmNtQjRGblhsbVR1c2UxcVFISjVrd2pVTUN3WFlua082OTI1eWN2Y3cwano4aFU3NlFSaFRyb3JEKzBnK1k%3D&data=cCtNeVJHa0JXZmlxWDJYbzdMKy94VUZzSVBNOWhueVY4aFprWkhJbnRRMEtJMENvZXJWVUEyVWEwUk9JaTlFT29JekNTTHZST2o3cTlCYXFHazRFbSs5aDQ1U1VBd2RyNGlSMHh3dkxuRzg9
+          - img "download" [ref=f2e123]
+        - generic [ref=f2e124]:
+          - heading "الحلقات والمواسم" [level=2] [ref=f2e126]
+          - generic [ref=f2e127]:
+            - button "موسم 1" [ref=f2e129] [cursor=pointer]
+            - generic [ref=f2e132]:
+              - link "EP 2" [ref=f2e133] [cursor=pointer]:
+                - /url: https://cinemana.cc/watch=3204730/
+                - generic [ref=f2e134]: EP
+                - generic [ref=f2e135]: "2"
+              - link "EP 1" [ref=f2e136] [cursor=pointer]:
+                - /url: https://cinemana.cc/watch=3203796/
+                - generic [ref=f2e137]: EP
+                - generic [ref=f2e138]: "1"
+        - generic [ref=f2e139]:
+          - heading "التعليقات" [level=2] [ref=f2e141]
+          - generic [ref=f2e142]:
+            - generic [ref=f2e145]:
+              - heading "شاركنا رأيك" [level=3] [ref=f2e146]
+              - generic [ref=f2e147]:
+                - textbox "اكتب تعليقك هنا..." [ref=f2e148]
+                - generic [ref=f2e149]:
+                  - textbox "الاسم" [ref=f2e150]
+                  - textbox "الإيميل" [ref=f2e151]
+                - paragraph [ref=f2e152]:
+                  - button "إرسال التعليق" [ref=f2e153] [cursor=pointer]
+            - button "استعراض التعليقات (0)" [ref=f2e155] [cursor=pointer]
+      - complementary [ref=f2e157]:
+        - generic [ref=f2e158]:
+          - generic [ref=f2e162]:
+            - generic [ref=f2e163]: IMDb
+            - text: "7.2"
+          - generic [ref=f2e164]:
+            - heading "القصة" [level=4] [ref=f2e165]
+            - paragraph [ref=f2e166]: خلال عطلة الربيع في نهاية السنة الأولى من دراستها الثانوية، علمت إيتو أن عليها الانتقال لأن والدتها ستتزوج مرة أخرى. ما لم تتوقعه هو أن تجد فجأة أربعة إخوة غير أشقاء أصغر سناً تحت سقف واحد. عاقدة العزم على الانسجام مع عائلتها الجديدة، تبذل إيتو قصارى جهدها للتكيف، لكن الأخ الأكبر، جين، بعيد ويصعب القراءة. ومع ذلك، بينما يقضون المزيد من الوقت معًا، تبدأ في رؤية لمحات من اللطف خلف مظهره الخارجي الرائع.
+    - generic [ref=f2e167]:
+      - heading "مقترحات لك" [level=2] [ref=f2e169]
+      - generic [ref=f2e170]:
+        - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 7" [ref=f2e173] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204700/
+          - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 7" [level=3] [ref=f2e181]
+        - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 6" [ref=f2e184] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204702/
+          - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 6" [level=3] [ref=f2e192]
+        - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 5" [ref=f2e195] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204704/
+          - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 5" [level=3] [ref=f2e203]
+        - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 4" [ref=f2e206] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204706/
+          - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 4" [level=3] [ref=f2e214]
+        - link "برنامج The Last Woodsmen الموسم الثالث – الحلقة 4" [ref=f2e217] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204708/
+          - heading "برنامج The Last Woodsmen الموسم الثالث – الحلقة 4" [level=3] [ref=f2e225]
+        - link "برنامج The Last Woodsmen الموسم الثالث – الحلقة 3" [ref=f2e228] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204710/
+          - heading "برنامج The Last Woodsmen الموسم الثالث – الحلقة 3" [level=3] [ref=f2e236]
+        - link "مسلسل Ghostforce الموسم الأول – الحلقة 26 مدبلجة" [ref=f2e239] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204850/
+          - heading "مسلسل Ghostforce الموسم الأول – الحلقة 26 مدبلجة" [level=3] [ref=f2e247]
+        - link "مسلسل Ghostforce الموسم الأول – الحلقة 25 مدبلجة" [ref=f2e250] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204848/
+          - heading "مسلسل Ghostforce الموسم الأول – الحلقة 25 مدبلجة" [level=3] [ref=f2e258]
+        - link "مسلسل Ghostforce الموسم الأول – الحلقة 24 مدبلجة" [ref=f2e261] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204846/
+          - heading "مسلسل Ghostforce الموسم الأول – الحلقة 24 مدبلجة" [level=3] [ref=f2e269]
+        - link "مسلسل Ghostforce الموسم الأول – الحلقة 23 مدبلجة" [ref=f2e272] [cursor=pointer]:
+          - /url: https://cinemana.cc/watch=3204844/
+          - heading "مسلسل Ghostforce الموسم الأول – الحلقة 23 مدبلجة" [level=3] [ref=f2e280]
+  - link [ref=f2e282] [cursor=pointer]:
+    - /url: https://cdnbitly.com/baner/
+  - generic [ref=f2e284]:
+    - link "download" [ref=f2e288] [cursor=pointer]:
+      - /url: //b.m2track.co/adb/zc/ODc3NTE1ODItMTAwMzEtMjAyNi0wNy0xMi0wNXw5NC4yNDkuOTEuOTB8fDZhNTMyOGNiOWQ0ODE=?url=aXBiVDRJYnduR0RKRDlmQVZaUEthamE3d2pZdW1XT0llc255Sk5wVEtQMEROS0tKcVBQMEFubjcxTnpnNUV1QmdlMGVqOXVJUHM5ek9DcGUzL2RPc3dxOFMxNnIxT2tURDJOcG5oTkdlTEtsN2JaS0NUY0lLMVhlMlJRTExhNjJ2dnpISUJRZC9WN0kwVW1tOEIzRUV2NndiM0lsUVdTMTJmcVB3aHF6dGhyVnpsVEk0aDdqbDFBbDRDVnd4K3EwcGt5U3grK2N6NVUvMGJybGdGWThVa2s2NEw4K2RwOEhxek51cWF0czRGYWVtVFpndGhhTVFuMjB1cklXbWpBUEtMbldyY3QwZXV0aGp4dHRDVU5VZjUxYXQyUmJMNGdpTUViRlJucTZCVVpXZDYrUHhYSGZyVGcrZEIzSUZjdGY%3D&data=cCtNeVJHa0JXZmlxWDJYbzdMKy94VUZzSVBNOWhueVY4aFprWkhJbnRRMEtJMENvZXJWVUEyVWEwUk9JaTlFT29JekNTTHZST2o3cTlCYXFHazRFbSs5aDQ1U1VBd2RyNGlSMHh3dkxuRzg9
+      - img "download" [ref=f2e289]
+    - generic [ref=f2e292]:
+      - button [ref=f2e293] [cursor=pointer]
+      - link "download" [ref=f2e299] [cursor=pointer]:
+        - /url: //b.m2track.co/adb/zc/ODc3MzQyMTUtMTAwMzEtMjAyNi0wNy0xMi0wNXw5NC4yNDkuOTEuOTB8fDZhNTMyOGNiOWQ3NGU=?url=aXBiVDRJYnduR0RKRDlmQVZaUEthamE3d2pZdW1XT0llc255Sk5wVEtQMEROS0tKcVBQMEFubjcxTnpnNUV1QjFXVWI1eXpWb3ZhV3ZzaXNGWkdXYkZUSzVKY1FTbnFIYkJVM2ZXRk5ENzJkVm03eUl2Qk01R2dhd0ZsbVc3Qzl0WnJQUmZhQlpKakVnaFVkeFVFVWZLTnZLV1FIOGxSMFpOWXN4K2thZDVxYVNCaGxSc0xvQTNvTXNvQmZuZm5UT3hnamZHUjZYNHVqekp3UENaV2MwT2N3NkZBTkpPWFlxQVhNUjdnM2VCK25UUS8vZ05Bd1k2aVJqSHQwK20vRjRXa1JjSVR0ZzJyZ0VRV3JYa0JUR2taYk55RXBXL0VZdWV2UXUrendFYlk4alJxbWdlallGVVRjeGd0Tk5qcng%3D&data=cCtNeVJHa0JXZmlxWDJYbzdMKy94VUZzSVBNOWhueVY4aFprWkhJbnRRMEtJMENvZXJWVUEyVWEwUk9JaTlFT29JekNTTHZST2o3cTlCYXFHazRFbSs5aDQ1U1VBd2RyNGlSMHh3dkxuRzg9
+        - img "download" [ref=f2e300]
+    - generic [ref=f2e302]:
+      - text: Copyright © 2026
+      - img "Shabakaty" [ref=f2e303]
+      - text: All rights reserved.

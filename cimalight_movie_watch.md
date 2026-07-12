@@ -1,0 +1,121 @@
+- generic [active] [ref=f7e1]:
+  - text:    
+  - generic [ref=f7e2]:
+    - banner [ref=f7e3]:
+      - generic [ref=f7e4]:
+        - generic [ref=f7e5]:
+          - link "Show menu" [ref=f7e6] [cursor=pointer]:
+            - /url: "#"
+          - link "سيما لايت" [ref=f7e9] [cursor=pointer]:
+            - /url: https://r.cimalight.co/main24
+            - img "سيما لايت" [ref=f7e10]
+        - generic [ref=f7e13]:
+          - textbox "بحث..." [ref=f7e14]
+          - button "" [ref=f7e16] [cursor=pointer]
+        - generic [ref=f7e18]:
+          - list: 
+    - generic [ref=f7e19]:
+      - generic [ref=f7e23]:
+        - generic [ref=f7e26]:
+          - list [ref=f7e27]:
+            - listitem [ref=f7e28]
+            - listitem [ref=f7e30]
+          - heading "فيلم Evil Dead Burn 2026 مترجم" [level=1] [ref=f7e32]
+        - generic [ref=f7e37] [cursor=pointer]:
+          - link "1:42:34":
+            - /url: https://elif.news/categorysa/?rand&hash=NkhKSTc5ZVRob25ISjNMaG1nc2dTdTFKMWsrY3FGYTd0NmY2QjYyVUdzU3hINERVVndkVkZ0ZzFBWWE4L3UrVk9ORTNUU2xiWnY5Qlp2eEQwMmhsTnB6RHlLQ3QyZWs5YmtOcVZheUs5ZlJkOSszTHlDYzZ0b0ppVXpob2JsemtTYkVDUW5OaitnS3Q5WjNoTExERkE3TS9wSmF5NVVzOWFTSXcxZ29pS0ZBZlgrTE4rNENUMVJFWlFuR2ZIcE9mSG9TeC9zZDZFV3dTT3cybXdxSzcrelZTZXI5UGRuNGRsZWtnMU5NV2VUSklTdDZWVG9FcEN4MWY5NXdhemVDTFdUelpNdVhkdGU0cjlWalkxNDgycmxMdlNhaVJ5KzRZSGZGeU1jbWFBQk13ZHpzNEVMM2prbkRqa2YzT2hsN3h0dmF0VDBDZTR5cWVZL1FZbXNDNGJOWGM0TmdGbEtRZ1lJdWNGL1gwVU1XbUp0WkdzSFN5Slh4NnZGMkl3NXk2bWNGOFRkaldZMHBFWjNmUVFLZzZSRnBpZkNUeGI5ak5BUnAzV29OSXVMcTE5emxDaUtsN2RDbjBsQmhnTTJ1M2h1dWN3cHVtVWo2a2xLZjMyWVN5NnFKYzR6bHRzaG41Zjc4M0JLa3pvcG5ObGlJMFVhV2NhM01vVlMzOTdBL3U1eElTUnJFdE8zN25zYzJJVURzRzk4TGlDOE9SQ3NIS3E3d1pycGt4Vm83RERpcTJ3S2dmQm9VRXZuRVJlM1pVeFd5bmVuaGFvTVhtMmpBNDJjY24wa2ZHNURpZXJ5QzNDcnRpcUhVVldvOXgwdmR3YlpieVFNWGJyMStETzl4NVpkNXJodVVpaDZTVFhvN3pnMFNXVUNTMVMvdGZHYk1oVWtWUmZsd1A2c1dQZnllN3pGZWtlWiszRW5ObHZZMTd4enVjYUUrcHp6OXRzMkg3K1Fna2Y5Y2w3b3BNUTBqenNHSDY4WGdpQUprWU9pbXZ0cWpNYUc0dlI0eHdpOC8yTU4yUzlNYTJ4Tm90V1VkcEIzNWg0RFc4aUxVTWRYK1hETjVuUlZZd2VjbVVWamxOaCtRRWxPeC9DUTEzU3dQYXlGcUhVdnVpcmkxQVF2czQ2bTJzakgrYUFmUkUyMFRheWtmSDR3Z2lhUi9OemlLUFQ3WkdOS0FRYnNTemR3Q1E0eDAxWTZFdVhTeWhpc1I0YisyR1doWVJFUG5udXYrN0x0QnZ5T1pXSlhNSEVEUG9sVmxDTUdmUHpBR3lrWGFnR0JkMXpsVm5qTVk4VnlhZCt5dWQzaUVLeDNkaXRodXpiNm9mSEdtcFRBZWpNa0pYK1ZraE93d2l2RStGRWJsWQ%3D%3D.92a9c3f5287f6a62c8e85f99db023544cc8f2c4e4f0687f1e0e81a70c90eb0f3
+      - link " اضغط هنا للذهاب الي سيرفرات التحميل" [ref=f7e57] [cursor=pointer]:
+        - /url: https://r.cimalight.co/downloads.php?vid=976504405
+      - generic [ref=f7e58]:
+        - generic [ref=f7e61]:
+          - generic [ref=f7e62]:
+            - link [ref=f7e64] [cursor=pointer]:
+              - /url: https://r.cimalight.co/user.php?u=cimalight
+            - generic [ref=f7e66]
+          - generic [ref=f7e69]:
+            - generic [ref=f7e70]: الوصف والتفاصيل
+            - generic [ref=f7e71]
+          - link "Show more" [ref=f7e82] [cursor=pointer]:
+            - /url: "#"
+          - generic [ref=f7e83]:
+            - heading "اضف تعليقك" [level=2] [ref=f7e84]
+            - generic [ref=f7e86]
+        - generic [ref=f7e104]:
+          - paragraph [ref=f7e106]:
+            - link "افلام اون لاين" [ref=f7e107] [cursor=pointer]:
+              - /url: https://r.cimalight.co/category.php?cat=online-movies3
+            - text: »
+            - link "افلام اجنبى مترجم" [ref=f7e108] [cursor=pointer]:
+              - /url: https://r.cimalight.co/category.php?cat=english-movies1
+            - text: قد تود مشاهدتها
+          - list [ref=f7e109]:
+            - listitem [ref=f7e110]
+            - listitem [ref=f7e121]
+            - listitem [ref=f7e132]
+            - listitem [ref=f7e143]
+            - listitem [ref=f7e154]
+            - listitem [ref=f7e165]
+            - listitem [ref=f7e176]
+            - listitem [ref=f7e187]
+            - listitem [ref=f7e198]
+        - text:    
+  - contentinfo [ref=f7e210]:
+    - list [ref=f7e213]:
+      - link "cima" [ref=f7e214] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "سيما" [ref=f7e215] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "سيما لايت" [ref=f7e216] [cursor=pointer]:
+        - /url: https://r.cimalight.co/main24
+      - link "مسلسلات رمضان 2026" [ref=f7e217] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=ramadan-2026
+      - link "مسلسلات كورية" [ref=f7e218] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=koryan-series
+      - link "مسرحيات كاملة" [ref=f7e219] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=masrahiyat
+      - link "أفلام عربى اون لاين" [ref=f7e220] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-movies5
+      - link "مسلسلات عربية 2026 اون لاين" [ref=f7e221] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-series14
+      - link "افلام اون لاين" [ref=f7e222] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=online-movies3
+      - link "افلام اجنبى مترجم" [ref=f7e223] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=english-movies1
+      - link "مسلسلات اسيوية" [ref=f7e224] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=asian-series
+      - link "مسلسلات هندية 2020" [ref=f7e225] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=indian-series
+      - link "افلام هندي" [ref=f7e226] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=indian-movies1
+      - link "مسلسلات تركية 2026 مترجمة..." [ref=f7e227] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=turkish-series15
+      - link "مسلسلات وبرامج سيما لايت" [ref=f7e228] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=cimalight1
+      - link "افلام تركية" [ref=f7e229] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=turkish-movies
+      - link "مسلسلات هندية" [ref=f7e230] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=hindi-series
+      - link "قنوات فضائية" [ref=f7e231] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=tv-channels
+      - link "افلام اسيوية" [ref=f7e232] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=asian-movies
+      - link "مسلسلات أجنبية" [ref=f7e233] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=english-series4
+      - link "مسلسلات مدبلجة" [ref=f7e234] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=modblj-series
+      - link "افلام انمي" [ref=f7e235] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=anime-movies1
+      - link "برامج تلفزيون" [ref=f7e236] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=tv-shows
+      - link "مسلسلات مصرية" [ref=f7e237] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=arabic-serie
+      - link "انمى وكرتون" [ref=f7e238] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=anime2
+      - link "تحميل مسلسلات كاملة برابط واحد" [ref=f7e239] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=download-full-series10
+      - link "مسلسلات رمضان" [ref=f7e240] [cursor=pointer]:
+        - /url: https://r.cimalight.co/category.php?cat=ramadan-series
+    - generic [ref=f7e242]:
+      - paragraph
+      - paragraph [ref=f7e243]: كافة الحقوق محفوظة لــ موقع سيما لايت © 2026 .
+  - textbox

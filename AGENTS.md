@@ -68,12 +68,14 @@ osamap2/
 │   ├── src/
 │   │   ├── sites/
 │   │   │   ├── base.py         # دوال مشتركة (حفظ في MongoDB)
-│   │   │   ├── cineby.py       # زاحف cineby.cc + streamex.net (عبر play.xpass.top)
-│   │   │   ├── anime3rb.py     # زاحف anime3rb.com (عبر video.vid3rb.com)
-│   │   │   └── animeslayer.py  # زاحف animeslayer.to
-│   │   ├── crawler.py          # (قديم) احتياطي
-│   │   ├── sources.py          # 4 مواقع فقط
-│   │   ├── ai_classifier.py
+│   │   │   ├── cineby.py       # زاحف streamex.sh (عبر play.xpass.top)
+│   │   │   ├── anime3rb.py     # زاحف anime3rb.com القديم
+│   │   │   ├── anime3rb_v2.py  # زاحف محسّن يستخرج vid3rb sources عبر JS
+│   │   │   ├── animeslayer.py  # زاحف animeslayer.to
+│   │   │   ├── cinemana.py     # زاحف cinemana.cc (عربي/تركي HLS عبر Server.php)
+│   │   │   ├── hd1brstej.py    # زاحف hd1.brstej.com (4 سيرفرات: hdup20, film77, hd-vk, ok.ru)
+│   │   │   └── arabic_sites.py # زاحف mycima/eegebest/fajer/3iskk/7obtv/dizipal
+│   │   ├── sources.py          # 11 موقعاً
 │   │   ├── notifier.py
 │   │   ├── run_all.py          # مشغل جميع الزاحفين
 │   │   └── main.py             # نقطة الدخول
@@ -83,6 +85,21 @@ osamap2/
     ├── scrape.yml
     └── test-crawl.yml
 ```
+
+### قوائم المواقع (11 موقعاً)
+| الموقع | الفئة | التقنية |
+|--------|-------|---------|
+| streamex.sh | foreign | play.xpass.top (HLS) |
+| anime3rb.com | anime | video.vid3rb.com (MP4) |
+| animeslayer.to | anime | ← redirects to cinemana.cc |
+| cinemana.cc | arabic/turkish | Fasel-HD CDN (scdns.io) عبر Server.php |
+| hd1.brstej.com | arabic | 4 سيرفرات: hdup20, film77, hd-vk, ok.ru (JW Player) |
+| mycima.video | arabic | متنوع |
+| eegebest.com | arabic | متنوع |
+| fajer.show | arabic | متنوع |
+| 3iskk.xyz | arabic | متنوع |
+| 7obtv.co | arabic | متنوع |
+| dizipal2085.com | turkish | متنوع |
 
 ### قوائم المواقع (4 مواقع مستهدفة)
 1. **cineby.cc** - أفلام أجنبية (عبر play.xpass.top)
@@ -132,3 +149,11 @@ TELEGRAM_BOT_TOKEN=8523313590:AAHtdiTZ3XcZbPQ7AROIts2_ZFfhVqugpS4
 TELEGRAM_CHAT_ID=6328505405
 DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
+
+## Work State
+### Completed
+- **Provider testing**: 5/17 working (StreameX, vidlink, screenscape, vidplays, modocine). Broken ones dimmed with green badge.
+- **New scrapers**: cinemana.py, hd1brstej.py, anime3rb_v2.py added.
+- **Platform pages redesigned**: Netflix/Shahid/Crunchyroll/Disney with movie/TV separation.
+- **Cloudflare deploy**: https://9595f259.osamap2.pages.dev
+

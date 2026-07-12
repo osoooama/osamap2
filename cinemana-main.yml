@@ -1,0 +1,344 @@
+- generic [active] [ref=f178e1]:
+  - generic [ref=f178e4]:
+    - generic [ref=f178e7]:
+      - searchbox "ماذا تريد أن تشاهد اليوم؟" [ref=f178e10]
+      - button "إبحث" [ref=f178e11] [cursor=pointer]
+    - link "تحميل التطبيق" [ref=f178e14] [cursor=pointer]:
+      - /url: https://download.cinemana.soft31.com/
+  - banner [ref=f178e18]:
+    - generic [ref=f178e20]:
+      - link "Logo سينمانا" [ref=f178e22] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/home1.html
+        - img "Logo" [ref=f178e23]
+        - generic [ref=f178e24]: سينمانا
+      - navigation [ref=f178e25]:
+        - list [ref=f178e26]:
+          - listitem [ref=f178e27]:
+            - link "الرئيسية" [ref=f178e28] [cursor=pointer]:
+              - /url: /main
+          - listitem [ref=f178e31]:
+            - link "أفلام" [ref=f178e32] [cursor=pointer]:
+              - /url: https://www.soft31.com/cinemana/movie.html
+          - listitem [ref=f178e35]:
+            - link "مسلسلات" [ref=f178e36] [cursor=pointer]:
+              - /url: https://www.soft31.com/cinemana/seris.html
+          - listitem [ref=f178e39]:
+            - link "Anime Icon عالم الأنمي" [ref=f178e40] [cursor=pointer]:
+              - /url: https://cdn.soft31.com/cinemana/anmi
+              - img "Anime Icon" [ref=f178e41]
+              - generic [ref=f178e42]: عالم الأنمي
+          - listitem [ref=f178e43]:
+            - link "اتصل بنا" [ref=f178e44] [cursor=pointer]:
+              - /url: https://www.soft31.com/cinemana/Contact.html
+      - button [ref=f178e47] [cursor=pointer]
+  - generic [ref=f178e49]:
+    - generic [ref=f178e51]:
+      - link "الرئيسية" [ref=f178e52] [cursor=pointer]:
+        - /url: /main
+      - link "الأفلام" [ref=f178e56] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/movie.html
+      - link "المسلسلات" [ref=f178e60] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/seris.html
+      - link "Anime الأنمي" [ref=f178e64] [cursor=pointer]:
+        - /url: https://cdn.soft31.com/cinemana/anmi
+        - img "Anime" [ref=f178e66]
+        - generic [ref=f178e67]: الأنمي
+      - link "اتصل بنا" [ref=f178e68] [cursor=pointer]:
+        - /url: https://www.soft31.com/cinemana/Contact.html
+      - button "إغلاق" [ref=f178e72] [cursor=pointer]
+    - link "تحميل تطبيق سينمانا" [ref=f178e76] [cursor=pointer]:
+      - /url: https://download.cinemana.soft31.com/
+    - link "انضم إلى قناتنا على التلغرام" [ref=f178e80] [cursor=pointer]:
+      - /url: https://t.me/cinammana
+  - generic [ref=f178e108]:
+    - generic [ref=f178e109]:
+      - generic [ref=f178e110]:
+        - generic [ref=f178e112]:
+          - link "شاهد الآن" [ref=f178e117] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203842/
+          - link "شاهد الآن" [ref=f178e124] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203457/
+          - link "شاهد الآن" [ref=f178e131] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203419/
+          - link "شاهد الآن" [ref=f178e138] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203003/
+          - link "شاهد الآن" [ref=f178e145] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3202984/
+          - link "شاهد الآن" [ref=f178e152] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204464/
+          - link "شاهد الآن" [ref=f178e159] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3199302/
+          - link "شاهد الآن" [ref=f178e166] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204308/
+          - link "شاهد الآن" [ref=f178e173] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3157483/
+          - link "شاهد الآن" [ref=f178e180] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203945/
+          - link "شاهد الآن" [ref=f178e187] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203842/
+          - link "شاهد الآن" [ref=f178e194] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203457/
+          - link "شاهد الآن" [ref=f178e201] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203419/
+          - link "شاهد الآن" [ref=f178e208] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203003/
+          - link "شاهد الآن" [ref=f178e215] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3202984/
+          - link "شاهد الآن" [ref=f178e222] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204464/
+          - link "شاهد الآن" [ref=f178e229] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3199302/
+          - link "شاهد الآن" [ref=f178e236] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204308/
+          - link "شاهد الآن" [ref=f178e243] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3157483/
+          - link "شاهد الآن" [ref=f178e250] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203945/
+        - generic [ref=f178e253]:
+          - button [ref=f178e254] [cursor=pointer]
+          - button [ref=f178e256] [cursor=pointer]
+          - button [ref=f178e258] [cursor=pointer]
+          - button [ref=f178e260] [cursor=pointer]
+          - button [ref=f178e262] [cursor=pointer]
+          - button [ref=f178e264] [cursor=pointer]
+          - button [ref=f178e266] [cursor=pointer]
+          - button [ref=f178e268] [cursor=pointer]
+          - button [ref=f178e270] [cursor=pointer]
+          - button [ref=f178e272] [cursor=pointer]
+      - generic:
+        - button [ref=f178e274] [cursor=pointer]
+        - button [ref=f178e276] [cursor=pointer]
+    - link "download" [ref=f178e282] [cursor=pointer]:
+      - /url: //b.m2track.co/adb/zc/ODc3MzQyMTMtMTAwMzEtMjAyNi0wNy0xMi0wNXw5NC4yNDkuOTEuOTB8fDZhNTMyODljNDYwY2E=?url=aXBiVDRJYnduR0RKRDlmQVZaUEthamE3d2pZdW1XT0llc255Sk5wVEtQMEROS0tKcVBQMEFubjcxTnpnNUV1QjFXVWI1eXpWb3ZhV3ZzaXNGWkdXYksxNjFHMGpXU3plc0pveUVBM2F4T3czM2JqZk1Eb1NsY2lUOWltRTRYN21Kb3BJUXF2WUFxS095N0IyYUEyN1MvOExqSXBhbDR4eitrUDIxQWVBdmNnR0dGb1NLM0YrSEpidTJPcGE4MEVJTVVheWdTZkFVV1FzLzlrSkk3TmprdXZ6OUpjN2xGSGd0aGloUG9wMHh6bTY2b2lreWNreWRFcUhiRTIyaURBclcwUFdPc2dGTnBUUkJYMG9KOXFtVzBCMWtnN1Z3R0JJUVpaK3crZjFLMEVRWjIvU3dSYVVJMG9OdWoyM0VLZkU%3D&data=cCtNeVJHa0JXZmlxWDJYbzdMKy94VUZzSVBNOWhueVY4aFprWkhJbnRRMEtJMENvZXJWVUEyVWEwUk9JaTlFT29JekNTTHZST2o3cTlCYXFHazRFbSs5aDQ1U1VBd2RyNGlSMHh3dkxuRzg9
+      - img "download" [ref=f178e283]
+    - main [ref=f178e284]:
+      - generic [ref=f178e285]:
+        - generic [ref=f178e286]:
+          - heading "أحدث الأفلام" [level=2] [ref=f178e287]
+          - generic [ref=f178e288]:
+            - button "‹" [ref=f178e289] [cursor=pointer]
+            - button "›" [ref=f178e290] [cursor=pointer]
+        - generic [ref=f178e293]:
+          - link "فيلم Jiao Long Xing Dong 2025 مترجم" [ref=f178e297] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204714/
+            - heading "فيلم Jiao Long Xing Dong 2025 مترجم" [level=3] [ref=f178e305]
+          - link "فيلم Tow 2026 مترجم" [ref=f178e309] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204718/
+            - heading "فيلم Tow 2026 مترجم" [level=3] [ref=f178e317]
+          - link "فيلم The Outer Threat 2026 مترجم" [ref=f178e321] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204722/
+            - heading "فيلم The Outer Threat 2026 مترجم" [level=3] [ref=f178e329]
+          - 'link "فيلم Heartman: Rock and Love 2026 مترجم" [ref=f178e333] [cursor=pointer]':
+            - /url: https://cinemana.cc/watch=3204724/
+            - 'heading "فيلم Heartman: Rock and Love 2026 مترجم" [level=3] [ref=f178e341]'
+          - link "فيلم Ikka 2026 مترجم" [ref=f178e345] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204740/
+            - heading "فيلم Ikka 2026 مترجم" [level=3] [ref=f178e353]
+          - 'link "فيلم Shipwrecked: Nightmare at Sea 2026 مترجم" [ref=f178e357] [cursor=pointer]':
+            - /url: https://cinemana.cc/watch=3204742/
+            - 'heading "فيلم Shipwrecked: Nightmare at Sea 2026 مترجم" [level=3] [ref=f178e365]'
+          - 'link "فيلم Miguel Ángel Blanco: Las 48 horas que lo cambiaron todo 2026 مترجم" [ref=f178e369] [cursor=pointer]':
+            - /url: https://cinemana.cc/watch=3204744/
+            - 'heading "فيلم Miguel Ángel Blanco: Las 48 horas que lo cambiaron todo 2026 مترجم" [level=3] [ref=f178e377]'
+          - link "فيلم Peddi 2026 مترجم" [ref=f178e381] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204672/
+            - heading "فيلم Peddi 2026 مترجم" [level=3] [ref=f178e389]
+          - link "فيلم The Butcher’s Blade 2026 مترجم" [ref=f178e393] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204674/
+            - heading "فيلم The Butcher’s Blade 2026 مترجم" [level=3] [ref=f178e401]
+          - link "فيلم Boulevard 2026 مترجم" [ref=f178e405] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204676/
+            - heading "فيلم Boulevard 2026 مترجم" [level=3] [ref=f178e413]
+          - 'link "اونا Biao Ren Er: Blades of the Guardians الموسم الثاني – الحلقة 5" [ref=f178e417] [cursor=pointer]':
+            - /url: https://cinemana.cc/watch=3204678/
+            - 'heading "اونا Biao Ren Er: Blades of the Guardians الموسم الثاني – الحلقة 5" [level=3] [ref=f178e425]'
+          - link "فيلم Toy Story 5 2026 مترجم" [ref=f178e429] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204464/
+            - heading "فيلم Toy Story 5 2026 مترجم" [level=3] [ref=f178e437]
+      - generic [ref=f178e438]:
+        - generic [ref=f178e439]:
+          - heading "أحدث المسلسلات" [level=2] [ref=f178e440]
+          - generic [ref=f178e441]:
+            - button "‹" [ref=f178e442] [cursor=pointer]
+            - button "›" [ref=f178e443] [cursor=pointer]
+        - generic [ref=f178e446]:
+          - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 7" [ref=f178e450] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204700/
+            - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 7" [level=3] [ref=f178e458]
+          - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 6" [ref=f178e462] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204702/
+            - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 6" [level=3] [ref=f178e470]
+          - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 5" [ref=f178e474] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204704/
+            - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 5" [level=3] [ref=f178e482]
+          - link "برنامج Baylen Out Loud الموسم الثالث – الحلقة 4" [ref=f178e486] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204706/
+            - heading "برنامج Baylen Out Loud الموسم الثالث – الحلقة 4" [level=3] [ref=f178e494]
+          - link "برنامج The Last Woodsmen الموسم الثالث – الحلقة 4" [ref=f178e498] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204708/
+            - heading "برنامج The Last Woodsmen الموسم الثالث – الحلقة 4" [level=3] [ref=f178e506]
+          - link "برنامج The Last Woodsmen الموسم الثالث – الحلقة 3" [ref=f178e510] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204710/
+            - heading "برنامج The Last Woodsmen الموسم الثالث – الحلقة 3" [level=3] [ref=f178e518]
+          - link "مسلسل Ghostforce الموسم الأول – الحلقة 26 مدبلجة" [ref=f178e522] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204850/
+            - heading "مسلسل Ghostforce الموسم الأول – الحلقة 26 مدبلجة" [level=3] [ref=f178e530]
+          - link "مسلسل Ghostforce الموسم الأول – الحلقة 25 مدبلجة" [ref=f178e534] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204848/
+            - heading "مسلسل Ghostforce الموسم الأول – الحلقة 25 مدبلجة" [level=3] [ref=f178e542]
+          - link "مسلسل Ghostforce الموسم الأول – الحلقة 24 مدبلجة" [ref=f178e546] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204846/
+            - heading "مسلسل Ghostforce الموسم الأول – الحلقة 24 مدبلجة" [level=3] [ref=f178e554]
+          - link "مسلسل Ghostforce الموسم الأول – الحلقة 23 مدبلجة" [ref=f178e558] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204844/
+            - heading "مسلسل Ghostforce الموسم الأول – الحلقة 23 مدبلجة" [level=3] [ref=f178e566]
+          - link "مسلسل Ghostforce الموسم الأول – الحلقة 22 مدبلجة" [ref=f178e570] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204842/
+            - heading "مسلسل Ghostforce الموسم الأول – الحلقة 22 مدبلجة" [level=3] [ref=f178e578]
+          - link "مسلسل Ghostforce الموسم الأول – الحلقة 21 مدبلجة" [ref=f178e582] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204840/
+            - heading "مسلسل Ghostforce الموسم الأول – الحلقة 21 مدبلجة" [level=3] [ref=f178e590]
+      - generic [ref=f178e591]:
+        - generic [ref=f178e592]:
+          - heading "رعب" [level=2] [ref=f178e593]
+          - generic [ref=f178e594]:
+            - button "‹" [ref=f178e595] [cursor=pointer]
+            - button "›" [ref=f178e596] [cursor=pointer]
+        - generic [ref=f178e599]:
+          - link "فيلم Black Box 2026 مترجم" [ref=f178e603] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204306/
+            - heading "فيلم Black Box 2026 مترجم" [level=3] [ref=f178e611]
+          - link "فيلم Pitfall 2025 مترجم" [ref=f178e615] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3157483/
+            - heading "فيلم Pitfall 2025 مترجم" [level=3] [ref=f178e623]
+          - link "فيلم Passenger 2026 مترجم" [ref=f178e627] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203949/
+            - heading "فيلم Passenger 2026 مترجم" [level=3] [ref=f178e635]
+          - 'link "فيلم Kafir: Gerbang Sukma 2026 مترجم" [ref=f178e639] [cursor=pointer]':
+            - /url: https://cinemana.cc/watch=3203269/
+            - 'heading "فيلم Kafir: Gerbang Sukma 2026 مترجم" [level=3] [ref=f178e647]'
+          - link "فيلم Obsession 2026 مترجم" [ref=f178e651] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3202984/
+            - heading "فيلم Obsession 2026 مترجم" [level=3] [ref=f178e659]
+          - link "فيلم Hold the Fort 2026 مترجم" [ref=f178e663] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3201806/
+            - heading "فيلم Hold the Fort 2026 مترجم" [level=3] [ref=f178e671]
+          - link "فيلم Hungry 2026 مترجم" [ref=f178e675] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3200026/
+            - heading "فيلم Hungry 2026 مترجم" [level=3] [ref=f178e683]
+          - link "فيلم The Voices of Our Mother 2026 مترجم" [ref=f178e687] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3199296/
+            - heading "فيلم The Voices of Our Mother 2026 مترجم" [level=3] [ref=f178e695]
+          - link "فيلم Deep Water 2026 مترجم" [ref=f178e699] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3197320/
+            - heading "فيلم Deep Water 2026 مترجم" [level=3] [ref=f178e707]
+          - link "فيلم Time of Death 2026 مترجم" [ref=f178e711] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3195087/
+            - heading "فيلم Time of Death 2026 مترجم" [level=3] [ref=f178e719]
+          - link "كائنات ج2 الحلقة 13" [ref=f178e723] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3195041/
+            - heading "كائنات ج2 الحلقة 13" [level=3] [ref=f178e731]
+          - link "فيلم Bhooth Bangla 2026 مترجم" [ref=f178e735] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3194263/
+            - heading "فيلم Bhooth Bangla 2026 مترجم" [level=3] [ref=f178e743]
+      - generic [ref=f178e744]:
+        - generic [ref=f178e745]:
+          - heading "اعمال تركية" [level=2] [ref=f178e746]
+          - generic [ref=f178e747]:
+            - button "‹" [ref=f178e748] [cursor=pointer]
+            - button "›" [ref=f178e749] [cursor=pointer]
+        - generic [ref=f178e752]:
+          - link "قانون الطبيعة الحلقة 5" [ref=f178e756] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204628/
+            - heading "قانون الطبيعة الحلقة 5" [level=3] [ref=f178e764]
+          - link "إسطنبول رأسا على عقب الحلقة 4" [ref=f178e768] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204340/
+            - heading "إسطنبول رأسا على عقب الحلقة 4" [level=3] [ref=f178e776]
+          - link "إسطنبول رأسا على عقب الحلقة 3" [ref=f178e780] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203954/
+            - heading "إسطنبول رأسا على عقب الحلقة 3" [level=3] [ref=f178e788]
+          - link "إسطنبول رأسا على عقب الحلقة 2" [ref=f178e792] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203953/
+            - heading "إسطنبول رأسا على عقب الحلقة 2" [level=3] [ref=f178e800]
+          - link "في السابعة عشرة الحلقة 6" [ref=f178e804] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203951/
+            - heading "في السابعة عشرة الحلقة 6" [level=3] [ref=f178e812]
+          - link "قانون الطبيعة الحلقة 4" [ref=f178e816] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3203485/
+            - heading "قانون الطبيعة الحلقة 4" [level=3] [ref=f178e824]
+          - link "قانون الطبيعة الحلقة 3" [ref=f178e828] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3202785/
+            - heading "قانون الطبيعة الحلقة 3" [level=3] [ref=f178e836]
+          - link "في السابعة عشرة الحلقة 5" [ref=f178e840] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3202680/
+            - heading "في السابعة عشرة الحلقة 5" [level=3] [ref=f178e848]
+          - link "في السابعة عشرة الحلقة 4" [ref=f178e852] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3199984/
+            - heading "في السابعة عشرة الحلقة 4" [level=3] [ref=f178e860]
+          - link "قانون الطبيعة الحلقة 2" [ref=f178e864] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3198136/
+            - heading "قانون الطبيعة الحلقة 2" [level=3] [ref=f178e872]
+          - link "إسطنبول رأسا على عقب الحلقة 1" [ref=f178e876] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3198155/
+            - heading "إسطنبول رأسا على عقب الحلقة 1" [level=3] [ref=f178e884]
+          - link "في السابعة عشرة الحلقة 3" [ref=f178e888] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3197036/
+            - heading "في السابعة عشرة الحلقة 3" [level=3] [ref=f178e896]
+      - generic [ref=f178e897]:
+        - generic [ref=f178e898]:
+          - heading "Anime 🉐" [level=2] [ref=f178e899]
+          - generic [ref=f178e900]:
+            - button "‹" [ref=f178e901] [cursor=pointer]
+            - button "›" [ref=f178e902] [cursor=pointer]
+        - generic [ref=f178e905]:
+          - link "انمي Uchi no Otouto-domo ga Sumimasen – الحلقة 2" [ref=f178e909] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204730/
+            - heading "انمي Uchi no Otouto-domo ga Sumimasen – الحلقة 2" [level=3] [ref=f178e917]
+          - link "انمي Tensei shitara Slime Datta Ken 4th Season – الحلقة 14" [ref=f178e921] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204732/
+            - heading "انمي Tensei shitara Slime Datta Ken 4th Season – الحلقة 14" [level=3] [ref=f178e929]
+          - link "انمي Koko wa Ore ni Makasete Saki ni Ike to Itte kara 10-nen ga Tattara Densetsu ni Natteita. – الحلقة 2" [ref=f178e933] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204734/
+            - heading "انمي Koko wa Ore ni Makasete Saki ni Ike to Itte kara 10-nen ga Tattara Densetsu ni Natteita. – الحلقة 2" [level=3] [ref=f178e941]
+          - link "انمي Kore Kaite Shine – الحلقة 2" [ref=f178e945] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204736/
+            - heading "انمي Kore Kaite Shine – الحلقة 2" [level=3] [ref=f178e953]
+          - link "انمي Kami no Shizuku – الحلقة 14" [ref=f178e957] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204738/
+            - heading "انمي Kami no Shizuku – الحلقة 14" [level=3] [ref=f178e965]
+          - link "انمي Ryoumin 0-nin Start no Henkyou Ryoushu-sama – الحلقة 2" [ref=f178e969] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204746/
+            - heading "انمي Ryoumin 0-nin Start no Henkyou Ryoushu-sama – الحلقة 2" [level=3] [ref=f178e977]
+          - link "انمي Bai Ri Cheng Wang – الحلقة 6" [ref=f178e981] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204748/
+            - heading "انمي Bai Ri Cheng Wang – الحلقة 6" [level=3] [ref=f178e989]
+          - link "انمي Bai Ri Cheng Wang – الحلقة 5" [ref=f178e993] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204660/
+            - heading "انمي Bai Ri Cheng Wang – الحلقة 5" [level=3] [ref=f178e1001]
+          - 'link "اونا Biao Ren Er: Blades of the Guardians الموسم الثاني – الحلقة 5" [ref=f178e1005] [cursor=pointer]':
+            - /url: https://cinemana.cc/watch=3204678/
+            - 'heading "اونا Biao Ren Er: Blades of the Guardians الموسم الثاني – الحلقة 5" [level=3] [ref=f178e1013]'
+          - link "انمي Mebius Dust – الحلقة 1" [ref=f178e1017] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204688/
+            - heading "انمي Mebius Dust – الحلقة 1" [level=3] [ref=f178e1025]
+          - link "انمي Yani Neko – الحلقة 2" [ref=f178e1029] [cursor=pointer]:
+            - /url: https://cinemana.cc/watch=3204690/
+            - heading "انمي Yani Neko – الحلقة 2" [level=3] [ref=f178e1037]
+          - 'link "انمي Rakudai Kenja no Gakuin Musou: Nidome no Tensei, S-Rank Cheat Majutsushi Boukenroku – الحلقة 3" [ref=f178e1041] [cursor=pointer]':
+            - /url: https://cinemana.cc/watch=3204694/
+            - 'heading "انمي Rakudai Kenja no Gakuin Musou: Nidome no Tensei, S-Rank Cheat Majutsushi Boukenroku – الحلقة 3" [level=3] [ref=f178e1049]'
+  - link [ref=f178e97] [cursor=pointer]:
+    - /url: https://cdnbitly.com/baner/
+  - generic [ref=f178e99]:
+    - link "download" [ref=f178e1053] [cursor=pointer]:
+      - /url: //b.m2track.co/adb/zc/ODc3NTE1ODktMTAwMzEtMjAyNi0wNy0xMi0wNXw5NC4yNDkuOTEuOTB8fDZhNTMyODliZThmM2U=?url=aXBiVDRJYnduR0RKRDlmQVZaUEthamE3d2pZdW1XT0llc255Sk5wVEtQMEROS0tKcVBQMEFubjcxTnpnNUV1QmdlMGVqOXVJUHM5ek9DcGUzL2RPczR6OHFPRzZwZ1JCS0tkT2Evd0VUZDVjYW4reDcrc25xTTllRi90TFhSOHFQcXplWFNzUisycXU5SGxOc3VvSmRNb25adFhWVlkwdmdaaXc4K0xRT09aOXEzMXBHUlJDR2NnRFBrdFArcVIxNml4OFJNYjZYYXdFNmJ4Ykt0bHJFcjltU1FadnNsN2UvZUl0SDhON3laS1p5NGJGalBHaExaUU9WdE1WbjMwSi9iR1BaVmVPWWtKK2p6azltYThRa0xlbmxkbVA1NHhVRE9ra09PODBES2NNdFhSYXdvbTlJaURpYitvdkNoU2U%3D&data=cCtNeVJHa0JXZmlxWDJYbzdMKy94VUZzSVBNOWhueVY4aFprWkhJbnRRMEtJMENvZXJWVUEyVWEwUk9JaTlFT29JekNTTHZST2o3cTlCYXFHazRFbSs5aDQ1U1VBd2RyNGlSMHh3dkxuRzg9
+      - img "download" [ref=f178e1054]
+    - generic [ref=f178e102]:
+      - button [ref=f178e103] [cursor=pointer]
+      - link "download" [ref=f178e1059] [cursor=pointer]:
+        - /url: //b.m2track.co/adb/zc/ODc3NTE1ODItMTAwMzEtMjAyNi0wNy0xMi0wNXw5NC4yNDkuOTEuOTB8fDZhNTMyODljMjMxYTE=?url=aXBiVDRJYnduR0RKRDlmQVZaUEthamE3d2pZdW1XT0llc255Sk5wVEtQMEROS0tKcVBQMEFubjcxTnpnNUV1QmdlMGVqOXVJUHM5ek9DcGUzL2RPc3dxOFMxNnIxT2tURDJOcG5oTkdlTEtsN2JaS0NUY0lLMVhlMlJRTExhNjJ2dnpISUJRZC9WN0kwVW1tOEIzRUVtK2VlM3E3MkVsM2FJOHBaMXF1YnoyUUVoYUpQRTB3YzBjYmJpOXJqZng1M3kyaWdyeTRMQy9DSlYrUjV3bEpRQW0zOHY2czk1RUNQdkpmN2w5V2ljQXk2UDB2YVllUG5WK1dIdmNzZXhub2kxWW16Ujd5ZTZ6QnBlTkxINnNZOVUxcHV5SkFnWHp4Ryt6VFFOZjR4OHowVFNUaFFrOVZHT2t3VEl3TUdkRWk%3D&data=cCtNeVJHa0JXZmlxWDJYbzdMKy94VUZzSVBNOWhueVY4aFprWkhJbnRRMEtJMENvZXJWVUEyVWEwUk9JaTlFT29JekNTTHZST2o3cTlCYXFHazRFbSs5aDQ1U1VBd2RyNGlSMHh3dkxuRzg9
+        - img "download" [ref=f178e1060]
+    - generic [ref=f178e106]:
+      - text: Copyright © 2026
+      - img "Shabakaty" [ref=f178e107]
+      - text: All rights reserved.

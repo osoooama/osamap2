@@ -10,6 +10,21 @@ import Image from 'next/image';
 
 const theme = { primary: '#F47521' };
 
+const ANIME_GENRES = new Set(['Animation', 'Anime', 'أنمي', 'رسوم متحركة', 'Action & Adventure', 'Sci-Fi & Fantasy', 'Fantasy', 'Action']);
+const NON_ANIME_KEYWORDS = ['documentary', 'reality', 'talk show', 'news', 'sport'];
+
+function isAnime(movie: any): boolean {
+  if (movie.original_language === 'ja') return true;
+  const genres = movie.genres || [];
+  const genreNames = genres.map((g: any) => g.name);
+  const genreIds = genres.map((g: any) => g.id);
+  if (genreIds.includes(16)) return true;
+  const hasAnimeGenre = genreNames.some((n: string) => ANIME_GENRES.has(n));
+  const title = (movie.title || movie.name || '').toLowerCase();
+  const hasNonAnimeKeyword = NON_ANIME_KEYWORDS.some(k => title.includes(k));
+  return hasAnimeGenre && !hasNonAnimeKeyword;
+}
+
 function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
   const router = useRouter();
   const featured = !isLoading && movies?.length > 0 ? movies[0] : null;
@@ -91,19 +106,23 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
 }
 
 export default function CrunchyrollPage() {
-  const { data: animeSeries, isLoading: seriesLoading } = useMovies('anime', 1, 'tv');
-  const { data: animeMovies, isLoading: moviesLoading } = useMovies('anime', 1, 'movie');
-  const { data: topRated } = useMovies('anime', 2, 'tv');
+  const { data: rawSeries, isLoading: seriesLoading } = useMovies('anime', 1, 'tv');
+  const { data: rawMovies, isLoading: moviesLoading } = useMovies('anime', 1, 'movie');
+  const { data: rawTop, isLoading: topLoading } = useMovies('anime', 2, 'tv');
+
+  const animeSeries = (rawSeries || []).filter(isAnime);
+  const animeMovies = (rawMovies || []).filter(isAnime);
+  const topRated = (rawTop || []).filter(isAnime);
 
   return (
     <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0a]">
-        <Billboard movies={animeSeries || []} isLoading={seriesLoading} />
+        <Billboard movies={animeSeries} isLoading={seriesLoading} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 pb-16">
           <div className="space-y-6">
-            <MovieRow title="مسلسلات أنمي" subtitle="أشهر مسلسلات الأنمي" movies={animeSeries || []} accentColor={theme.primary} loading={seriesLoading} platformRef="crunchyroll" />
-            <MovieRow title="أفلام أنمي" subtitle="أفلام الأنمي المميزة" movies={animeMovies || []} accentColor={theme.primary} loading={moviesLoading} platformRef="crunchyroll" />
-            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أنمي حسب التقييم" movies={topRated || []} accentColor={theme.primary} loading={seriesLoading} platformRef="crunchyroll" />
+            <MovieRow title="مسلسلات أنمي" subtitle="أشهر مسلسلات الأنمي" movies={animeSeries} accentColor={theme.primary} loading={seriesLoading} platformRef="crunchyroll" />
+            <MovieRow title="أفلام أنمي" subtitle="أفلام الأنمي المميزة" movies={animeMovies} accentColor={theme.primary} loading={moviesLoading} platformRef="crunchyroll" />
+            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أنمي حسب التقييم" movies={topRated} accentColor={theme.primary} loading={topLoading} platformRef="crunchyroll" />
           </div>
         </div>
       </div>

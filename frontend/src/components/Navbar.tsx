@@ -22,7 +22,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const isLanding = pathname === '/';
-  const hideNav = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
+  const hideNav = pathname.startsWith('/sign-in');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -103,39 +103,20 @@ export default function Navbar() {
                     <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
                   </button>
 
-                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-2">
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
+                      <User className="w-3.5 h-3.5 text-zinc-400" />
+                      <span className="text-xs text-zinc-400 truncate max-w-24">
+                        {user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'مستخدم'}
+                      </span>
+                    </div>
                     <button
-                      onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all"
+                      onClick={() => signOut()}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-600/10 border border-red-600/20 text-red-400 hover:bg-red-600/20 hover:text-red-300 transition-all text-xs font-medium"
                     >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center overflow-hidden ring-2 ring-white/10 hover:ring-red-500/50 transition-all">
-                        {user?.imageUrl ? (
-                          <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <User className="w-4 h-4 text-zinc-400" />
-                        )}
-                      </div>
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">تسجيل الخروج</span>
                     </button>
-
-                    {showUserMenu && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 glass-strong rounded-2xl py-2 shadow-2xl border border-white/10">
-                        <div className="px-4 py-3 border-b border-white/10">
-                          <p className="text-white text-sm font-medium truncate">
-                            {user?.firstName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || ''}
-                          </p>
-                          <p className="text-zinc-500 text-xs truncate mt-0.5">
-                            {user?.primaryEmailAddress?.emailAddress || ''}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => signOut()}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-red-400 hover:bg-white/5 transition-all text-sm"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          تسجيل الخروج
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </>
               ) : (

@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-const publicPages = ['/', '/sign-in', '/sign-up'];
+const publicPages = ['/', '/sign-in'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth();

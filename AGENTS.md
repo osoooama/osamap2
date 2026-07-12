@@ -91,11 +91,23 @@ osamap2/
 4. **animeslayer.to** - أنمي عربي (عبر مشغل خاص)
 
 ## 🛠️ التقنيات المستخدمة
-- **Frontend:** Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4 + shadcn/ui v4 + Framer Motion + react-player + Clerk → Firebase Auth
+- **Frontend:** Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4 + shadcn/ui v4 + Framer Motion + react-player
 - **Backend:** Node.js + Express + TypeScript + MongoDB (Mongoose) + JWT + bcrypt + Resend
 - **Scrapers:** Python 3.10+ + Crawlee + Playwright + BeautifulSoup + DeepSeek API
-- **Auth:** Firebase Auth (Google OAuth) + Clerk (deprecated)
+- **Auth:** Clerk (`@clerk/clerk-react` — not `@clerk/nextjs`, تجنباً لتعارض Server Actions مع static export)
 - **Deployment:** Cloudflare Pages (Frontend) + Render.com (Backend) + GitHub Actions (Scrapers)
+
+### ⚠️ مهم: Clerk مع static export
+- `@clerk/nextjs` يستخدم Server Actions → لا يعمل مع `output: 'export'`
+- الحل: استخدام `@clerk/clerk-react` بدلاً منه (واجهة React الخالصة بدون Next.js-specific features)
+- الاستيرادات المستخدمة: `ClerkProvider`, `useAuth`, `useUser`, `useClerk`, `useSignIn`
+- صفحة تسجيل الدخول: custom (ليست `<SignIn/>`) لتفادي Server Actions
+
+### الصفحات (static routes)
+- `/` — Landing page
+- `/sign-in` — Custom sign-in page
+- `/netflix`, `/shahid`, `/disney`, `/crunchyroll` — صفحات المنصات
+- `/player` — مشغل الفيديو
 
 ## 🔑 متغيرات البيئة
 ```env
@@ -111,7 +123,8 @@ TELEGRAM_CHAT_ID=6328505405
 FRONTEND_URL=http://localhost:3000
 
 # Frontend (.env.local في frontend/)
-NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_API_URL=https://osamap2.onrender.com
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_d2VsY29tZS1zaHJpbXAtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA
 
 # Scrapers (.env في scrapers/)
 MONGODB_URI=mongodb+srv://osamakreshan49_db_user:Osama995AA@cluster0.xiju5ao.mongodb.net/?appName=Cluster0

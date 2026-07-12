@@ -7,18 +7,19 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-
   --color-netflix: #E50914;
-  --color-shahid: #FF6700;
+  --color-shahid: #00ca97;
   --color-disney: #113CCF;
   --color-crunchyroll: #F47521;
+  --color-glass: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
   --radius: 0.625rem;
 }
 
@@ -27,22 +28,113 @@
   --foreground: oklch(0.985 0 0);
 }
 
-.bg-netflix { background-color: #141414; }
-.bg-shahid { background-color: #1A1A2E; }
-.bg-disney { background-color: #0A1B3A; }
-.bg-crunchyroll { background-color: #0B0B0B; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
 
-.text-netflix { color: #E50914; }
-.text-shahid { color: #FF6700; }
-.text-disney { color: #113CCF; }
-.text-crunchyroll { color: #F47521; }
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
 
-.border-netflix { border-color: #E50914; }
-.border-shahid { border-color: #FF6700; }
-.border-disney { border-color: #113CCF; }
-.border-crunchyroll { border-color: #F47521; }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 
-.hover\:bg-netflix:hover { background-color: #E50914; }
-.hover\:bg-shahid:hover { background-color: #FF6700; }
-.hover\:bg-disney:hover { background-color: #113CCF; }
-.hover\:bg-crunchyroll:hover { background-color: #F47521; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(229, 9, 20, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(229, 9, 20, 0.6); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardHover {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+@utility glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@utility glass-strong {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@utility glass-nav {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility text-gradient-netflix {
+  background: linear-gradient(135deg, #E50914, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient-shahid {
+  background: linear-gradient(135deg, #00ca97, #0098fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient-disney {
+  background: linear-gradient(135deg, #113CCF, #4a7aff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient-crunchyroll {
+  background: linear-gradient(135deg, #F47521, #ff9f43);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility platform-gradient-netflix {
+  background: linear-gradient(180deg, rgba(229,9,20,0.15) 0%, rgba(229,9,20,0.05) 40%, transparent 100%);
+}
+
+@utility platform-gradient-shahid {
+  background: linear-gradient(180deg, rgba(0,202,151,0.15) 0%, rgba(0,202,151,0.05) 40%, transparent 100%);
+}
+
+@utility platform-gradient-disney {
+  background: linear-gradient(180deg, rgba(17,60,207,0.15) 0%, rgba(17,60,207,0.05) 40%, transparent 100%);
+}
+
+@utility platform-gradient-crunchyroll {
+  background: linear-gradient(180deg, rgba(244,117,33,0.15) 0%, rgba(244,117,33,0.05) 40%, transparent 100%);
+}

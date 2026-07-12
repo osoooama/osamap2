@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Play, Star, Calendar, Tv } from 'lucide-react';
+import { Play, Star, Tv, Info } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface MovieCardProps {
   movie: {
@@ -22,43 +23,46 @@ interface MovieCardProps {
     media_type?: string;
   };
   accentColor?: string;
+  platformColor?: string;
 }
 
 export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardProps) {
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const tmdbId = movie.tmdb_id;
   const title = movie.title || 'Unknown';
   const mediaType = movie.media_type || 'movie';
   const posterUrl = movie.poster || movie.poster_path || '';
-  const imgSrc = posterUrl.startsWith('http')
-    ? posterUrl
-    : posterUrl
-      ? `https://image.tmdb.org/t/p/w500${posterUrl}`
-      : '';
+  const backdropUrl = movie.backdrop_path || '';
+  const imgSrc = posterUrl.startsWith('http') ? posterUrl : posterUrl ? `https://image.tmdb.org/t/p/w500${posterUrl}` : '';
+  const backdropSrc = backdropUrl ? `https://image.tmdb.org/t/p/w780${backdropUrl}` : imgSrc;
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
   const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
   const genreNames = movie.genres?.slice(0, 2).map(g => g.name).join('، ') || movie.genre || '';
   const overview = movie.overview || '';
 
-  const handleOpenPlayer = (e: React.MouseEvent) => {
+  const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (tmdbId) router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`);
   };
 
   return (
-    <div
+    <motion.div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onClick={() => tmdbId && router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`)}
       className="group relative flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] cursor-pointer"
+      layout
     >
-      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 group-hover:shadow-xl group-hover:shadow-black/40 transition-all duration-500">
+      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/50 group-hover:scale-[1.02]">
         {imgSrc && !imgError ? (
           <img
-            src={imgSrc}
+            src={backdropSrc || imgSrc}
             alt={title}
             loading="lazy"
-            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-[0.4]"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-50"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -67,17 +71,33 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-90 group-hover:scale-100">
-          <div
-            className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl"
-            style={{ backgroundColor: accentColor }}
-            onClick={handleOpenPlayer}
-          >
-            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+        <motion.div
+          initial={false}
+          animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute inset-0 flex flex-col justify-end p-4"
+        >
+          <div className="flex gap-2 mb-2">
+            <button
+              onClick={handlePlay}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-xl"
+              style={{ backgroundColor: accentColor }}
+            >
+              <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); if (tmdbId) router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`); }}
+              className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
+            >
+              <Info className="w-4 h-4 text-white" />
+            </button>
           </div>
-        </div>
+          {overview && (
+            <p className="text-[10px] text-zinc-300 line-clamp-2 leading-relaxed">{overview}</p>
+          )}
+        </motion.div>
 
         <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-xs border border-white/10">
           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
@@ -91,11 +111,6 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
               مسلسل
             </div>
           )}
-          {year && (
-            <div className="px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-xs text-zinc-300 border border-white/10">
-              {year}
-            </div>
-          )}
         </div>
       </div>
 
@@ -104,23 +119,18 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
           {title}
         </h3>
         <div className="flex items-center gap-2 text-xs text-zinc-500">
-          {year && (
+          {year && <span>{year}</span>}
+          {rating && (
             <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              {year}
+              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+              {rating}
             </span>
           )}
-          {rating && <Star className="w-3 h-3 text-yellow-500" />}
         </div>
         {genreNames && (
           <p className="text-xs text-zinc-600 truncate">{genreNames}</p>
         )}
-        {overview && (
-          <p className="text-xs text-zinc-700 line-clamp-2 leading-relaxed">
-            {overview}
-          </p>
-        )}
       </div>
-    </div>
+    </motion.div>
   );
 }

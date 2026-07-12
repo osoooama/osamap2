@@ -2,102 +2,124 @@
 
 import AuthGuard from '@/components/AuthGuard';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import { getMovieDetails } from '@/lib/api';
 import { getProviders } from '@/lib/providers';
 import MovieCard from '@/components/MovieCard';
-import { ArrowLeft, Star, Calendar, Tv, RefreshCw, Server, Film, Search, Monitor, Shield, Wifi, Globe, Hash, Clock, Eye, ThumbsUp, Layers } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Clock, ThumbsUp, Server, Film, Wifi, Layers } from 'lucide-react';
 
-interface MovieData {
-  tmdb_id: string;
-  title: string;
-  overview?: string;
-  poster_path?: string;
-  backdrop_path?: string;
-  links?: { embed_url: string; quality?: string; source?: string }[];
-  category?: string;
-  release_date?: string;
-  vote_average?: number;
-  vote_count?: number;
-  runtime?: number;
-  genres?: { id: number; name: string }[];
-  similar?: any[];
-}
+const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'screenscape', 'vidplays', 'modocine', 'vidcore', 'apiplayer', '2embed', 'vidfast', 'videasy', 'smashystream', 'frembed', 'vidking', 'vidnest', 'vidrift', 'vidlove', 'cinemana', 'hd1', 'anime3rb'];
 
 const qualityRank: Record<string, number> = { '360p': 0, '480p': 1, '720p': 2, '1080p': 3, '2K': 4, '4K': 5 };
+
+// Provider performance tracking (persisted in memory)
+let providerPerformance: Record<string, { success: number; fail: number; avgLoadTime: number }> = {};
+try {
+  const stored = localStorage.getItem('osk_provider_perf');
+  if (stored) providerPerformance = JSON.parse(stored);
+} catch {}
+
+function getBestProvider(providers: any[]): number {
+  if (providers.length === 0) return -1;
+  const scored = providers.map((p, i) => {
+    const perf = providerPerformance[p.name];
+    const score = perf ? (perf.success - perf.fail * 2) : 0;
+    return { index: i, score, name: p.name };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  const bestIdx = scored[0].index;
+  const bestEl = providers[bestIdx];
+  return bestEl?.needsResolution ? bestIdx : bestIdx;
+}
 
 function PlayerContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tmdbId = searchParams.get('tmdb_id');
-  const serverParam = searchParams.get('server');
-  const [movie, setMovie] = useState<MovieData | null>(null);
+  const [movie, setMovie] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [currentProvider, setCurrentProvider] = useState<number | null>(null);
   const [selectedQuality, setSelectedQuality] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
   const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
-  const mediaType = searchParams.get('type') || 'movie';
   const [iframeError, setIframeError] = useState(false);
-
+  const [autoTrying, setAutoTrying] = useState(false);
+  const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const mediaType = searchParams.get('type') || 'movie';
   const providers = getProviders(tmdbId || '', mediaType);
   const qualities = movie?.links
-    ?.filter(l => l.embed_url && l.embed_url.startsWith('http'))
-    .map(l => ({ label: l.quality || '720p', url: l.embed_url, source: l.source || '' }))
-    .sort((a, b) => (qualityRank[b.label] || 0) - (qualityRank[a.label] || 0))
-    .filter((v, i, a) => a.findIndex(x => x.url === v.url) === i) || [];
+    ?.filter((l: any) => l.embed_url && l.embed_url.startsWith('http'))
+    .map((l: any) => ({ label: l.quality || '720p', url: l.embed_url, source: l.source || '' }))
+    .sort((a: any, b: any) => (qualityRank[b.label] || 0) - (qualityRank[a.label] || 0))
+    .filter((v: any, i: number, a: any[]) => a.findIndex((x: any) => x.url === v.url) === i) || [];
 
   useEffect(() => {
     if (!tmdbId) { setLoading(false); return; }
+    setLoading(true);
     getMovieDetails(tmdbId)
       .then((data) => setMovie(data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [tmdbId]);
 
-  useEffect(() => {
-    if (serverParam) {
-      const idx = providers.findIndex((p: any) => p.name.toLowerCase() === serverParam.toLowerCase());
-      if (idx >= 0) { setCurrentProvider(idx); setSelectedQuality(null); }
-    }
-  }, [serverParam]);
-
-  useEffect(() => {
-    if (!tmdbId || currentProvider === null || currentProvider >= providers.length) return;
-    const p = providers[currentProvider] as any;
+  const startProvider = useCallback((index: number) => {
+    if (index < 0 || index >= providers.length) return;
+    setCurrentProvider(index);
+    setIframeError(false);
+    setResolvedUrl(null);
+    setSelectedQuality(null);
+    setAutoTrying(false);
+    const p = providers[index];
     if (p?.needsResolution) {
-      setResolvedUrl(null);
       setResolving(true);
       const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
       fetch(`${apiBase}/api/movies/resolve-provider/${tmdbId}?provider=${p.name.toLowerCase()}`)
         .then(r => r.json())
         .then(data => { setResolvedUrl(data.url); setResolving(false); })
-        .catch(() => { setResolvedUrl(null); setResolving(false); });
-    } else {
-      setResolvedUrl(null);
+        .catch(() => { setResolvedUrl(null); setResolving(false); setIframeError(true); });
     }
-  }, [currentProvider, tmdbId]);
+  }, [providers, tmdbId]);
 
-  const switchProvider = useCallback((index: number | null) => {
-    setCurrentProvider(index);
-    setIframeError(false);
-    setResolvedUrl(null);
-    if (index !== null) {
-      const name = providers[index]?.name?.toLowerCase();
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('server', name);
-      router.replace(`/player?${params.toString()}`, { scroll: false });
+  useEffect(() => {
+    if (!tmdbId || loading) return;
+    if (providers.length === 0) return;
+    const best = getBestProvider(providers);
+    if (best >= 0) startProvider(best);
+  }, [tmdbId, loading, providers.length]);
+
+  const handleIframeError = useCallback(() => {
+    if (!providers.length || currentProvider === null) return;
+    const perf = providerPerformance[providers[currentProvider]?.name];
+    if (perf) perf.fail = (perf.fail || 0) + 1;
+    providerPerformance[providers[currentProvider].name] = perf || { success: 0, fail: 1, avgLoadTime: 0 };
+    try { localStorage.setItem('osk_provider_perf', JSON.stringify(providerPerformance)); } catch {}
+
+    setIframeError(true);
+    const nextIdx = currentProvider + 1;
+    if (nextIdx < providers.length) {
+      setAutoTrying(true);
+      autoTimerRef.current = setTimeout(() => startProvider(nextIdx), 2000);
     }
-  }, [providers, searchParams, router]);
+  }, [providers, currentProvider, startProvider]);
+
+  useEffect(() => {
+    return () => { if (autoTimerRef.current) clearTimeout(autoTimerRef.current); };
+  }, []);
+
+  const switchProvider = useCallback((index: number) => {
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
+    setAutoTrying(false);
+    startProvider(index);
+  }, [startProvider]);
 
   const getActiveUrl = () => {
     if (selectedQuality) {
-      const q = qualities.find(q => q.label === selectedQuality);
+      const q = qualities.find((q: any) => q.label === selectedQuality);
       if (q) return q.url;
     }
     if (currentProvider !== null) {
-      const p = providers[currentProvider] as any;
+      const p = providers[currentProvider];
       if (p?.needsResolution) return resolvedUrl || '';
       return p?.url || '';
     }
@@ -105,11 +127,11 @@ function PlayerContent() {
   };
 
   const activeUrl = getActiveUrl();
-  const isEmbed = !selectedQuality && (activeUrl.includes('embed') || activeUrl.includes('vidsrc') || activeUrl.includes('vidlink') || activeUrl.includes('xpass') || activeUrl.includes('vidcore') || activeUrl.includes('apiplayer') || activeUrl.includes('2embed') || activeUrl.includes('vidfast') || activeUrl.includes('videasy') || activeUrl.includes('smashystream') || activeUrl.includes('frembed') || activeUrl.includes('vidking') || activeUrl.includes('vidnest') || activeUrl.includes('vidrift') || activeUrl.includes('vidlove') || activeUrl.includes('cinemana') || activeUrl.includes('hd1') || activeUrl.includes('anime3rb'));
+  const isEmbed = !selectedQuality && embedDomains.some(d => activeUrl.includes(d));
 
   if (!tmdbId) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#0a0a0a] via-[#0e0e0e] to-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-zinc-900/50 border border-white/5 flex items-center justify-center">
             <Film className="w-10 h-10 text-zinc-600" />
@@ -124,23 +146,8 @@ function PlayerContent() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-[#0a0a0a] via-[#0e0e0e] to-[#0a0a0a] flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-16 h-16 mx-auto mb-6">
-            <div className="absolute inset-0 border-4 border-red-600/20 rounded-full" />
-            <div className="absolute inset-0 border-4 border-transparent border-t-red-600 rounded-full animate-spin" />
-          </div>
-          <p className="text-zinc-400 text-sm">جاري تحميل معلومات الفيلم...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0a0a] via-[#0e0e0e] to-[#0a0a0a]">
-      {/* Header */}
+    <div className="min-h-screen bg-[#0a0a0a]">
       <div className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/[0.03]">
         <div className="max-w-[1800px] mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
           <button onClick={() => router.back()} className="flex items-center gap-2.5 text-zinc-500 hover:text-white transition-all duration-200 group">
@@ -156,25 +163,31 @@ function PlayerContent() {
         </div>
       </div>
 
-      {/* Main Layout */}
       <div className="max-w-[1800px] mx-auto px-4 lg:px-8 py-6 lg:py-8">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
-
-          {/* Left: Player */}
           <div className="flex-1 min-w-0">
-            {/* Player Container */}
             <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/[0.03]">
-              {iframeError ? (
+              {loading ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+                  <div className="text-center">
+                    <div className="relative w-12 h-12 mx-auto mb-4">
+                      <div className="absolute inset-0 border-3 border-red-600/20 rounded-full" />
+                      <div className="absolute inset-0 border-3 border-transparent border-t-red-600 rounded-full animate-spin" />
+                    </div>
+                    <p className="text-zinc-500 text-sm">جاري التحميل...</p>
+                  </div>
+                </div>
+              ) : iframeError ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/95 backdrop-blur">
                   <div className="text-center px-6">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                      <Shield className="w-8 h-8 text-red-400" />
+                      <Wifi className="w-8 h-8 text-red-400" />
                     </div>
                     <p className="text-zinc-300 font-bold text-lg mb-1">المشغل غير متاح</p>
-                    <p className="text-zinc-600 text-sm mb-6">قد يكون هذا السيرفر معطلاً حالياً، جرب سيرفر آخر</p>
+                    <p className="text-zinc-600 text-sm mb-6">جاري تجربة السيرفر التالي...</p>
                     <div className="flex flex-wrap gap-2 justify-center">
-                      {providers.slice(0, 4).map((p: any, i) => (
-                        <button key={p.name} onClick={() => switchProvider(i)} className="px-5 py-2.5 bg-white/5 hover:bg-white/10 hover:text-white rounded-xl text-xs text-zinc-400 transition-all border border-white/[0.03]">
+                      {providers.slice(0, 6).map((p: any, i) => (
+                        <button key={p.name} onClick={() => switchProvider(i)} className={`px-5 py-2.5 rounded-xl text-xs transition-all border ${currentProvider === i ? 'bg-red-600 text-white border-red-500' : 'bg-white/5 hover:bg-white/10 hover:text-white text-zinc-400 border-white/[0.03]'}`}>
                           {p.name}
                         </button>
                       ))}
@@ -184,13 +197,11 @@ function PlayerContent() {
               ) : resolving ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/95 backdrop-blur">
                   <div className="text-center">
-                    <Search className="w-8 h-8 text-zinc-600 mx-auto mb-4 animate-pulse" />
-                    <p className="text-zinc-400 text-sm">جاري البحث عن الرابط...</p>
-                    <div className="flex gap-1 justify-center mt-4">
-                      <span className="w-2 h-2 rounded-full bg-red-600/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-red-600/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-red-600/80 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="relative w-12 h-12 mx-auto mb-4">
+                      <div className="absolute inset-0 border-3 border-red-600/20 rounded-full" />
+                      <div className="absolute inset-0 border-3 border-transparent border-t-red-600 rounded-full animate-spin" />
                     </div>
+                    <p className="text-zinc-400 text-sm">جاري البحث عن الرابط...</p>
                   </div>
                 </div>
               ) : activeUrl ? (
@@ -200,7 +211,7 @@ function PlayerContent() {
                     className="w-full h-full"
                     allowFullScreen
                     allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                    onError={() => setIframeError(true)}
+                    onError={handleIframeError}
                   />
                 ) : (
                   <video
@@ -225,7 +236,6 @@ function PlayerContent() {
               )}
             </div>
 
-            {/* Quality Selection (from scraped links) */}
             {qualities.length > 0 && (
               <div className="mt-5">
                 <div className="flex items-center gap-2 mb-3">
@@ -233,17 +243,16 @@ function PlayerContent() {
                   <span className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">جودة البث</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {qualities.map((q) => (
+                  {qualities.map((q: any) => (
                     <button
                       key={q.label}
                       onClick={() => { setSelectedQuality(q.label); setCurrentProvider(null); setIframeError(false); }}
                       className={`relative px-5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 ${
                         selectedQuality === q.label
                           ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-600/20 ring-1 ring-red-400/30 scale-105'
-                          : 'bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800 hover:text-white border border-white/[0.03] hover:scale-102'
+                          : 'bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800 hover:text-white border border-white/[0.03]'
                       }`}
                     >
-                      <Hash className="w-3 h-3 inline mr-1.5 opacity-70" />
                       {q.label}
                     </button>
                   ))}
@@ -251,7 +260,6 @@ function PlayerContent() {
               </div>
             )}
 
-            {/* Provider Selection */}
             <div className="mt-6">
               {error ? (
                 <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/10 text-red-400 text-sm text-center">
@@ -262,6 +270,9 @@ function PlayerContent() {
                   <div className="flex items-center gap-2 mb-3">
                     <Server className="w-4 h-4 text-red-500" />
                     <span className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">اختر السيرفر</span>
+                    {autoTrying && (
+                      <span className="text-xs text-zinc-600 animate-pulse">(جاري تجربة السيرفر التالي...)</span>
+                    )}
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2">
                     {providers.map((p: any, i) => (
@@ -274,7 +285,6 @@ function PlayerContent() {
                             : 'bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-white/[0.03] hover:border-white/10'
                         }`}
                       >
-                        <Globe className={`w-3 h-3 inline mr-1.5 ${currentProvider === i && !selectedQuality ? 'text-red-200' : 'text-zinc-600'}`} />
                         {p.name}
                       </button>
                     ))}
@@ -283,34 +293,14 @@ function PlayerContent() {
               )}
             </div>
 
-            {/* Movie Info - Mobile */}
             <div className="mt-8 lg:hidden">
               <MovieInfo movie={movie} />
             </div>
-
-            {/* Similar - Mobile */}
-            {movie?.similar && movie.similar.length > 0 && (
-              <div className="mt-10 lg:hidden">
-                <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                  <Film className="w-4 h-4 text-red-500" />
-                  مقترحات
-                </h2>
-                <div className="flex gap-3 overflow-x-auto pb-4 snap-x">
-                  {movie.similar.slice(0, 10).map((m: any) => (
-                    <div key={m.tmdb_id || m.id} className="snap-start shrink-0 w-[140px]">
-                      <MovieCard movie={m} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Right: Movie Info Sidebar - Desktop */}
           <div className="hidden lg:block w-80 xl:w-96 flex-shrink-0">
             <div className="sticky top-24 space-y-8">
               <MovieInfo movie={movie} />
-
               {movie?.similar && movie.similar.length > 0 && (
                 <div>
                   <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
@@ -332,14 +322,11 @@ function PlayerContent() {
   );
 }
 
-function MovieInfo({ movie }: { movie: MovieData | null }) {
+function MovieInfo({ movie }: { movie: any }) {
   if (!movie) return null;
   return (
     <div className="space-y-5">
-      {/* Title */}
       <h1 className="text-2xl font-black text-white leading-tight">{movie.title}</h1>
-
-      {/* Meta */}
       <div className="flex flex-wrap items-center gap-3 text-xs">
         {movie.release_date && (
           <span className="flex items-center gap-1.5 text-zinc-500 bg-zinc-900/50 px-3 py-1.5 rounded-xl border border-white/[0.03]">
@@ -366,19 +353,15 @@ function MovieInfo({ movie }: { movie: MovieData | null }) {
           </span>
         )}
       </div>
-
-      {/* Genres */}
       {movie.genres && movie.genres.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {movie.genres.slice(0, 5).map((g) => (
-            <span key={g.id} className="px-3 py-1.5 rounded-xl bg-zinc-900/80 text-zinc-400 text-[10px] font-medium border border-white/[0.03] hover:bg-zinc-800 transition cursor-default">
+          {movie.genres.slice(0, 5).map((g: any) => (
+            <span key={g.id} className="px-3 py-1.5 rounded-xl bg-zinc-900/80 text-zinc-400 text-[10px] font-medium border border-white/[0.03] cursor-default">
               {g.name}
             </span>
           ))}
         </div>
       )}
-
-      {/* Overview */}
       {movie.overview && (
         <div>
           <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">القصة</h3>
@@ -395,7 +378,7 @@ export default function PlayerPage() {
   return (
     <AuthGuard>
       <Suspense fallback={
-        <div className="min-h-screen bg-gradient-to-b from-[#0a0a0a] via-[#0e0e0e] to-[#0a0a0a] flex items-center justify-center">
+        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-6">
               <div className="absolute inset-0 border-4 border-red-600/20 rounded-full" />

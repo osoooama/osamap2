@@ -38,7 +38,8 @@ export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose
     ? providers[currentProvider].url
     : qualities[0]?.url || '';
 
-  const isEmbed = activeUrl.includes('embed') || activeUrl.includes('vidsrc') || activeUrl.includes('vidlink') || activeUrl.includes('multiembed');
+  const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'screenscape', 'vidplays', 'modocine', 'vidcore', 'apiplayer', '2embed', 'vidfast', 'videasy', 'smashystream', 'frembed', 'vidking', 'vidnest', 'vidrift', 'vidlove'];
+  const isEmbed = embedDomains.some(d => activeUrl.includes(d));
 
   const handleProviderError = () => {
     if (currentProvider < providers.length - 1) {

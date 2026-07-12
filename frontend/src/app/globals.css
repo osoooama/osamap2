@@ -7,8 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-arabic: var(--font-arabic);
+  --font-english: var(--font-english);
   --color-netflix: #E50914;
   --color-shahid: #00ca97;
   --color-disney: #113CCF;
@@ -72,6 +72,10 @@
 @keyframes cardHover {
   0% { transform: translateY(0); }
   100% { transform: translateY(-8px); }
+}
+
+@utility font-english {
+  font-family: var(--font-english), 'Montserrat', sans-serif;
 }
 
 @utility glass {

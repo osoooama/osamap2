@@ -6,64 +6,28 @@ const PROVIDERS = [
     priority: 1,
   },
   {
-    name: '2embed',
+    name: 'vidcore',
     url: (tmdbId: string, type: string) =>
-      `https://www.2embed.skin/embed/${type}/${tmdbId}`,
+      `https://www.vidcore.org/embed/${type}/${tmdbId}`,
     priority: 2,
-  },
-  {
-    name: 'multiembed',
-    url: (tmdbId: string, type: string) =>
-      `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`,
-    priority: 3,
-  },
-  {
-    name: 'autoembed',
-    url: (tmdbId: string, type: string) =>
-      `https://autoembed.cc/embed/${type}/${tmdbId}`,
-    priority: 4,
-  },
-  {
-    name: 'showbox',
-    url: (tmdbId: string, type: string) =>
-      `https://showbox.media/embed/${type}/${tmdbId}`,
-    priority: 5,
   },
   {
     name: 'vidsrc.cc',
     url: (tmdbId: string, type: string) =>
       `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`,
-    priority: 6,
-  },
-  {
-    name: 'vidsrc.net',
-    url: (tmdbId: string, type: string) =>
-      `https://vidsrc.net/embed/${type}/${tmdbId}`,
-    priority: 7,
+    priority: 3,
   },
   {
     name: 'embed.su',
     url: (tmdbId: string, type: string) =>
       `https://embed.su/embed/${type}/${tmdbId}`,
-    priority: 8,
+    priority: 4,
   },
   {
-    name: 'febox',
+    name: 'vidsrc.net',
     url: (tmdbId: string, type: string) =>
-      `https://febox.net/embed/${type}/${tmdbId}`,
-    priority: 9,
-  },
-  {
-    name: 'vidsrcb',
-    url: (tmdbId: string, type: string) =>
-      `https://vidsrc.biz/embed/${type}/${tmdbId}`,
-    priority: 10,
-  },
-  {
-    name: '4khdhub',
-    url: (tmdbId: string, type: string) =>
-      `https://4khdhub.online/embed/${type}/${tmdbId}`,
-    priority: 11,
+      `https://vidsrc.net/embed/${type}/${tmdbId}`,
+    priority: 5,
   },
 ].sort((a, b) => a.priority - b.priority);
 

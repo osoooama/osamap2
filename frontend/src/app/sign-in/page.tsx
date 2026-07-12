@@ -1,6 +1,6 @@
 'use client';
 
-import { useSignIn } from '@clerk/clerk-react';
+import { useSignIn, useSignUp, useUser } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { Mail, Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
@@ -8,6 +8,8 @@ import { useToastStore } from '@/lib/useToast';
 
 export default function SignInPage() {
   const { signIn, isLoaded, setActive } = useSignIn();
+  const { signUp } = useSignUp();
+  const { isSignedIn } = useUser();
   const router = useRouter();
   const { addToast } = useToastStore();
   const [email, setEmail] = useState('');
@@ -17,9 +19,14 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [isNewUser, setIsNewUser] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (isSignedIn) router.push('/netflix');
+  }, [isSignedIn, router]);
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -29,7 +36,7 @@ export default function SignInPage() {
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signIn) return;
+    if (!signIn || !signUp) return;
     setLoading(true);
     setError('');
 
@@ -39,9 +46,14 @@ export default function SignInPage() {
         (f: any) => f.strategy === 'email_code'
       );
       if (!emailFactor) {
-        setError('البريد الإلكتروني غير مدعوم. يرجى التحقق من إعدادات Clerk.');
+        setIsNewUser(true);
+        await signUp.create({ emailAddress: email });
+        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+        setStep('code');
+        setResendTimer(30);
         return;
       }
+      setIsNewUser(false);
       await signIn.prepareFirstFactor({
         strategy: 'email_code',
         emailAddressId: (emailFactor as any).emailAddressId,
@@ -49,30 +61,54 @@ export default function SignInPage() {
       setStep('code');
       setResendTimer(30);
     } catch (err: any) {
-      setError(err?.errors?.[0]?.message || 'فشل إرسال الكود');
+      const code = err?.errors?.[0]?.code;
+      if (code === 'form_identifier_not_found') {
+        setIsNewUser(true);
+        try {
+          await signUp.create({ emailAddress: email });
+          await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+          setStep('code');
+          setResendTimer(30);
+        } catch (e2: any) {
+          setError(e2?.errors?.[0]?.message || 'فشل إنشاء الحساب');
+        }
+      } else {
+        setError(err?.errors?.[0]?.message || 'فشل إرسال الكود');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerifyCode = async () => {
-    if (!signIn) return;
+    if (!signIn || !signUp) return;
     const fullCode = code.join('');
     if (fullCode.length !== 6) return;
     setLoading(true);
     setError('');
 
     try {
-      const result = await signIn.attemptFirstFactor({
-        strategy: 'email_code',
-        code: fullCode,
-      });
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId });
+      let sessionId: string | null = null;
+      if (isNewUser) {
+        const result = await signUp.attemptEmailAddressVerification({ code: fullCode });
+        if (result.status === 'complete') {
+          sessionId = result.createdSessionId;
+        }
+      } else {
+        const result = await signIn.attemptFirstFactor({
+          strategy: 'email_code',
+          code: fullCode,
+        });
+        if (result.status === 'complete') {
+          sessionId = result.createdSessionId;
+        }
+      }
+      if (sessionId) {
+        await setActive({ session: sessionId });
         setStep('success');
         addToast({
-          title: 'مرحباً بعودتك! 👋',
-          description: 'تم تسجيل الدخول بنجاح، أهلاً بك في OSAMA/>Dev',
+          title: isNewUser ? 'أهلاً بك! 🎉' : 'مرحباً بعودتك! 👋',
+          description: isNewUser ? 'تم إنشاء الحساب بنجاح' : 'تم تسجيل الدخول بنجاح',
           type: 'success',
         });
         setTimeout(() => router.push('/netflix'), 1200);
@@ -106,17 +142,23 @@ export default function SignInPage() {
   };
 
   const handleResend = async () => {
-    if (!signIn || resendTimer > 0) return;
+    if (!signIn || !signUp || resendTimer > 0) return;
     setCode(['', '', '', '', '', '']);
     inputRefs.current[0]?.focus();
     try {
-      const emailFactor = (signIn as any).supportedFirstFactors?.find(
-        (f: any) => f.strategy === 'email_code'
-      );
-      await signIn.prepareFirstFactor({
-        strategy: 'email_code',
-        emailAddressId: (emailFactor as any)?.emailAddressId,
-      });
+      if (isNewUser) {
+        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      } else {
+        const emailFactor = (signIn as any).supportedFirstFactors?.find(
+          (f: any) => f.strategy === 'email_code'
+        );
+        if (emailFactor) {
+          await signIn.prepareFirstFactor({
+            strategy: 'email_code',
+            emailAddressId: (emailFactor as any)?.emailAddressId,
+          });
+        }
+      }
       setResendTimer(30);
     } catch {
       setError('فشل إعادة إرسال الكود');

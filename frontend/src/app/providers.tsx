@@ -10,7 +10,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <ClerkProvider publishableKey={CLERK_KEY}>
+    <ClerkProvider publishableKey={CLERK_KEY} {...{ '__experimental_disableRsc': true } as any}>
       <QueryClientProvider client={queryClient}>
         {children}
       </QueryClientProvider>

@@ -12,9 +12,9 @@ const PROVIDERS = [
     priority: 2,
   },
   {
-    name: 'vidcore',
+    name: 'core',
     url: (tmdbId: string, type: string) =>
-      `https://www.vidcore.org/embed/${type}/${tmdbId}`,
+      `https://vidcore.net/${type}/${tmdbId}`,
     priority: 3,
   },
   {
@@ -24,64 +24,82 @@ const PROVIDERS = [
     priority: 4,
   },
   {
-    name: 'vidsrc.cc',
+    name: 'vid2',
     url: (tmdbId: string, type: string) =>
-      `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`,
+      `https://airflix1.com/embed/${type}/${tmdbId}`,
     priority: 5,
   },
   {
-    name: 'embed.su',
+    name: 'peach',
     url: (tmdbId: string, type: string) =>
-      `https://embed.su/embed/${type}/${tmdbId}`,
+      `https://peachify.top/embed/${type}/${tmdbId}`,
     priority: 6,
   },
   {
-    name: 'vid2',
+    name: 'mapi',
     url: (tmdbId: string, type: string) =>
-      `https://vid2.su/embed/${type}/${tmdbId}`,
+      `https://vidzen.fun/${type}/${tmdbId}`,
     priority: 7,
   },
   {
-    name: 'movie-web',
+    name: 'vidplays',
     url: (tmdbId: string, type: string) =>
-      `https://movie-web.app/media/${type}?tmdb=${tmdbId}`,
+      `https://vidplays.fun/embed/${type}/${tmdbId}`,
     priority: 8,
   },
   {
-    name: 'vidplay',
+    name: 'videasy',
     url: (tmdbId: string, type: string) =>
-      `https://vidplay.su/embed/${type}/${tmdbId}`,
+      `https://player.videasy.to/${type}/${tmdbId}`,
     priority: 9,
   },
   {
-    name: 'superembed',
+    name: 'zxcstream',
     url: (tmdbId: string, type: string) =>
-      `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`,
+      `https://v1.zxcstream.xyz/player/${type}/${tmdbId}`,
     priority: 10,
   },
   {
     name: 'cinemaos',
     url: (tmdbId: string, type: string) =>
-      `https://cinemaos.sbs/embed/${type}/${tmdbId}`,
+      `https://cinemaos.tech/player/${tmdbId}`,
     priority: 11,
   },
   {
-    name: 'zxcstream',
+    name: 'screen',
     url: (tmdbId: string, type: string) =>
-      `https://zxcstream.com/embed/${type}/${tmdbId}`,
+      `https://screenscape.me/embed?tmdb=${tmdbId}&type=${type}`,
     priority: 12,
   },
   {
-    name: 'videasy',
+    name: 'vixsrc',
     url: (tmdbId: string, type: string) =>
-      `https://videasy.net/embed/${type}/${tmdbId}`,
+      `https://vixsrc.to/${type}/${tmdbId}?lang=en`,
     priority: 13,
   },
   {
-    name: 'mapi',
+    name: 'vidsrc.cc',
     url: (tmdbId: string, type: string) =>
-      `https://mapi.sbs/embed/${type}/${tmdbId}`,
+      `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`,
     priority: 14,
+  },
+  {
+    name: 'embed.su',
+    url: (tmdbId: string, type: string) =>
+      `https://embed.su/embed/${type}/${tmdbId}`,
+    priority: 15,
+  },
+  {
+    name: 'french',
+    url: (tmdbId: string, type: string) =>
+      `https://frembed.hair/embed/${type}/${tmdbId}?id=${tmdbId}`,
+    priority: 16,
+  },
+  {
+    name: 'spanish',
+    url: (tmdbId: string, type: string) =>
+      `https://play.modocine.com/play.php/embed/${type}/${tmdbId}`,
+    priority: 17,
   },
 ].sort((a, b) => a.priority - b.priority);
 

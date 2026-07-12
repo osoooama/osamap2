@@ -51,8 +51,8 @@ BLOCKED_PATH_PATTERNS = (
 )
 
 CDN_DOMAINS = (
-    '1x2.space', 'embedseek', 'xpass', 'vid3rb', 'cloudfront',
-    'akamai', 'fastly', 'xvi', 'cdn.', 'xstream',
+    '1x2.space', 'tik.1x2.space', 'embedseek', 'xpass', 'vid3rb',
+    'cloudfront', 'akamai', 'fastly', 'xvi', 'cdn.', 'xstream',
 )
 
 STREAM_PROTOCOLS = ('http://', 'https://', 'rtmp://', 'rtmps://',

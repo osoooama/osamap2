@@ -14,7 +14,7 @@ from sites.arabic_sites import crawl as crawl_arabic
 
 CRAWLER_MAP = {
     'cineby.cc': crawl_cineby,
-    'www.streamex.net': crawl_cineby,
+    'streamex.sh': crawl_cineby,
     'anime3rb.com': crawl_anime3rb,
     'animeslayer.to': crawl_animeslayer,
     'mycima.video': crawl_arabic,

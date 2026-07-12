@@ -2,13 +2,13 @@ import time
 import os
 import requests
 from playwright.sync_api import sync_playwright
-from sites.base import save_all_qualities, save_link, log_result, verify_stream_url
+from sites.base import save_link, save_all_qualities, log_result
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
 
 SITES = [
-    {'name': 'www.streamex.net', 'category': 'foreign'},
+    {'name': 'streamex.sh', 'category': 'foreign'},
 ]
 
 CLASSIC_IDS = [278, 238, 680, 550, 155, 497, 424, 807, 27205, 157336,
@@ -36,7 +36,7 @@ def get_tmdb_popular(media_type='movie', count=10):
     return ids[:count]
 
 
-def extract_from_xpass(page, xpass_url):
+def extract_stream_from_xpass(page, xpass_url):
     for attempt in range(3):
         try:
             page.goto(xpass_url, wait_until='domcontentloaded', timeout=30000)
@@ -46,30 +46,30 @@ def extract_from_xpass(page, xpass_url):
                 "() => performance.getEntriesByType('resource').map(e => e.name).filter(n => n.includes('.m3u8'))"
             )
             if m3u8:
-                return m3u8
+                return m3u8[0]
 
             video = page.query_selector('video')
             if video:
                 src = video.get_attribute('src') or video.get_attribute('currentSrc')
                 if src and '.m3u8' in src:
-                    return [src]
+                    return src
         except:
             pass
         time.sleep(2)
-    return []
+    return None
 
 
 def crawl(site_info):
     name = site_info['name']
     category = site_info.get('category', 'foreign')
     base_url = f'https://{name}/watch'
-    print(f'[CINEBY] Crawling {name} (category={category})...')
+    print(f'[STREAMEX] Crawling {name} (category={category})...')
 
     popular = get_tmdb_popular('movie', 15)
     for cid in CLASSIC_IDS:
         if cid not in [p['id'] for p in popular]:
             popular.append({'id': cid, 'title': '', 'year': '', 'media_type': 'movie'})
-    print(f'[CINEBY] Got {len(popular)} TMDB IDs')
+    print(f'[STREAMEX] Got {len(popular)} TMDB IDs')
 
     total = 0
     try:
@@ -97,12 +97,15 @@ def crawl(site_info):
 
                     if xpass_src:
                         print(f'    xpass iframe: {xpass_src[:100]}')
-                        saved = save_link(tid, watch_url, xpass_src, category, title)
-                        if saved:
-                            total += 1
-                            print(f'    Saved xpass URL')
+                        stream_url = extract_stream_from_xpass(page, xpass_src)
+                        if stream_url:
+                            print(f'    STREAM: {stream_url[:100]}...')
+                            saved = save_all_qualities(tid, watch_url, stream_url, category, title)
+                            if saved:
+                                total += saved
+                                print(f'    Saved {saved} variant(s)')
                         else:
-                            print(f'    xpass URL rejected')
+                            print(f'    Could not extract stream from xpass')
                     else:
                         print(f'    No xpass iframe found')
 
@@ -113,8 +116,8 @@ def crawl(site_info):
 
             browser.close()
     except Exception as e:
-        print(f'[CINEBY] Fatal: {e}')
+        print(f'[STREAMEX] Fatal: {e}')
 
     log_result(base_url, category, total)
-    print(f'[CINEBY] {name}: {total} streams')
+    print(f'[STREAMEX] {name}: {total} streams')
     return total

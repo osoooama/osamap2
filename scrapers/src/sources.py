@@ -1,6 +1,6 @@
 SITES = [
     {'name': 'cineby.cc', 'url': 'https://cineby.cc', 'category': 'foreign'},
-    {'name': 'www.streamex.net', 'url': 'https://www.streamex.net', 'category': 'foreign'},
+    {'name': 'streamex.sh', 'url': 'https://streamex.sh', 'category': 'foreign'},
     {'name': 'anime3rb.com', 'url': 'https://anime3rb.com', 'category': 'anime'},
     {'name': 'animeslayer.to', 'url': 'https://animeslayer.to', 'category': 'anime'},
     {'name': 'mycima.video', 'url': 'https://mycima.video', 'category': 'arabic'},

@@ -50,8 +50,7 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
     if (tmdbId) setPlaying(true);
   };
 
-  const handleOpenFull = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleOpenFull = () => {
     if (tmdbId) router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`);
   };
 
@@ -80,7 +79,7 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
         </div>
       ) : (
         <div
-          onClick={() => {}}
+          onClick={handleOpenFull}
           className="group relative flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] cursor-pointer"
         >
           <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 group-hover:shadow-xl group-hover:shadow-black/40 transition-all duration-500">

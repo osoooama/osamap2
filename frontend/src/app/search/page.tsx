@@ -1,12 +1,13 @@
 'use client';
 
+import AuthGuard from '@/components/AuthGuard';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, X, Loader2, Film, Tv, Star } from 'lucide-react';
 import MovieCard from '@/components/MovieRow';
 import api from '@/lib/api';
 
-export default function SearchPage() {
+function SearchContent() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
@@ -172,5 +173,13 @@ function Section({ title, items }: { title: string; items: any[] }) {
         })}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <AuthGuard>
+      <SearchContent />
+    </AuthGuard>
   );
 }

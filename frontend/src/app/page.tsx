@@ -1,5 +1,6 @@
 'use client';
 
+import { useUser } from '@clerk/clerk-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Film, Tv, Star, Clapperboard, Sparkles, ChevronDown, LogIn, Play, Lock, ArrowRight } from 'lucide-react';
@@ -154,13 +155,7 @@ function PlatformCard({ p, index, isSignedIn }: { p: typeof platforms[0]; index:
 }
 
 export default function HomePage() {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setIsLoaded(true);
-    setIsSignedIn(!!localStorage.getItem('auth_token'));
-  }, []);
+  const { isSignedIn, isLoaded } = useUser();
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {

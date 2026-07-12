@@ -32,7 +32,7 @@ jobs:
         working-directory: frontend
         env:
           NEXT_PUBLIC_API_URL: https://osamap2.onrender.com
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_d2VsY29tZS1zaHJpbXAtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA
 
       - name: Install Wrangler CLI
         run: npm i -g wrangler@4

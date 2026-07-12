@@ -21,10 +21,15 @@ AD_DOMAINS = [
 ]
 
 DB_URI = os.getenv('MONGODB_URI')
-client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000) if DB_URI else None
-db = client['OSAMAP2_DB'] if client else None
-links_col = db['links'] if db else None
-logs_col = db['crawl_logs'] if db else None
+links_col = logs_col = None
+if DB_URI:
+    try:
+        client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000)
+        db = client['OSAMAP2_DB']
+        links_col = db['links']
+        logs_col = db['crawl_logs']
+    except Exception as e:
+        print(f'[DB INIT WARN] {e}')
 
 
 def is_ad_url(url):

@@ -141,7 +141,7 @@ FRONTEND_URL=http://localhost:3000
 
 # Frontend (.env.local في frontend/)
 NEXT_PUBLIC_API_URL=https://osamap2.onrender.com
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_d2VsY29tZS1zaHJpbXAtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_Y2xlcmsub3NhbWFwMi5wYWdlcy5kZXYk
 
 # Scrapers (.env في scrapers/)
 MONGODB_URI=mongodb+srv://osamakreshan49_db_user:Osama995AA@cluster0.xiju5ao.mongodb.net/?appName=Cluster0

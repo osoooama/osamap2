@@ -43,15 +43,7 @@
 - **قاعدة البيانات:** MongoDB (PyMongo)
 - **الجدولة:** GitHub Actions (cron كل 6 ساعات)
 
-### آلية العمل (الجديدة)
-1. **TMDB API** يحصل على IDs لأشهر الأفلام والمسلسلات
-2. **لكل موقع** crawler مخصص يستخدم Playwright لفتح صفحة المشاهدة
-3. يستخرج رابط البث من iframe المشغل (play.xpass.top أو vid3rb.com)
-4. **ليس هناك حاجة لـ AI Classifier** - التصنيف حسب الموقع
-5. **Notifier** يرسل إشعار تلغرام بالروابط النظيفة
-6. **MongoDB** يحفظ النتائج
-
-### آلية العمل (الجديدة)
+### آلية العمل
 1. **TMDB API** يحصل على IDs لأشهر الأفلام والمسلسلات
 2. **لكل موقع** crawler مخصص يستخدم Playwright لفتح صفحة المشاهدة
 3. يستخرج رابط البث من iframe المشغل (play.xpass.top أو vid3rb.com)
@@ -156,4 +148,24 @@ DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 - **New scrapers**: cinemana.py, hd1brstej.py, anime3rb_v2.py added.
 - **Platform pages redesigned**: Netflix/Shahid/Crunchyroll/Disney with movie/TV separation.
 - **Cloudflare deploy**: https://9595f259.osamap2.pages.dev
+- **Clerk auth**: Email OTP only, custom sign-in page (`/sign-in`) with OSK+ logo, dark theme, animated transitions.
+- **Route protection**: AuthGuard on all platform/player/search pages. No middleware (static export).
+- **Scrapers**: 11 site crawlers run on GitHub Actions (`scrape.yml`, cron `*/15 * * * *`), each run completes in ~38s.
+- **MongoDB resilience**: All DB ops wrapped in try/except. Scrapers work without DB.
+
+### Active
+- **Scrapers** stored data in MongoDB (verified on GitHub Actions). Cannot check from local machine (TLS handshake blocked by network/VPN).
+- **Custom email template**: Designed (65k HTML, dark theme, OSK+ logo, social icons) but cannot save — Clerk Hobby plan blocks custom templates in production.
+
+### Blocked
+- **Local MongoDB**: `WinError 10054` TLS handshake failure from this machine. Workaround: GitHub Actions + `tlsInsecure=true` not sufficient.
+- **Custom email template**: Requires Clerk Growth plan ($12/mo) or Resend API webhook alternative.
+- **Scrapers produce 0 streams** from local run (anime3rb: no vid3rb iframes found). Needs investigation.
+
+### Known Issues
+- anime3rb.com blocked by Cloudflare (403 "Just a moment...") — crawler cannot access site.
+- animeslayer.to uses XOR/base64 encoded episode URLs + ad popups/redirects — crawler updated with decode logic.
+- Local MongoDB: `WinError 10054` TLS handshake failure (network/VPN block). Can only check via GitHub Actions.
+- Custom email template: Blocked by Clerk Hobby plan in production. Needs plan upgrade or Resend API.
+- Test files cleaned from repo history.
 

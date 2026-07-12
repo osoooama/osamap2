@@ -58,7 +58,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}`)}
+              onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=netflix`)}
               className="flex items-center gap-2.5 px-8 py-3.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-red-600/50"
             >
               <Play className="w-5 h-5 fill-white" />
@@ -66,7 +66,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
             </button>
             {featured?.tmdb_id && (
               <button
-                onClick={() => router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}`)}
+                onClick={() => router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=netflix`)}
                 className="flex items-center gap-2.5 px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-md border border-white/10 transition-all"
               >
                 <Info className="w-5 h-5" />
@@ -102,11 +102,11 @@ export default function NetflixPage() {
         <Billboard movies={movies || []} isLoading={isLoading} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 pb-16">
           <div className="space-y-6">
-            <MovieRow title="أفلام عالمية" subtitle="الأكثر مشاهدة هذا الأسبوع" movies={movies || []} accentColor={theme.primary} loading={isLoading} />
-            <MovieRow title="مسلسلات عالمية" subtitle="أشهر المسلسلات العالمية" movies={tvShows || []} accentColor={theme.primary} loading={tvLoading} />
-            <MovieRow title="الأكثر تقييماً" subtitle="أفضل الأفلام العالمية" movies={topRated || []} accentColor={theme.primary} loading={isLoading} />
+            <MovieRow title="أفلام عالمية" subtitle="الأكثر مشاهدة هذا الأسبوع" movies={movies || []} accentColor={theme.primary} loading={isLoading} platformRef="netflix" />
+            <MovieRow title="مسلسلات عالمية" subtitle="أشهر المسلسلات العالمية" movies={tvShows || []} accentColor={theme.primary} loading={tvLoading} platformRef="netflix" />
+            <MovieRow title="الأكثر تقييماً" subtitle="أفضل الأفلام العالمية" movies={topRated || []} accentColor={theme.primary} loading={isLoading} platformRef="netflix" />
             {trending && trending.length > 0 && (
-              <MovieRow title={movies?.[0]?.release_date?.slice(0, 4) === '2026' ? 'أفلام 2026' : 'أحدث الإضافات'} subtitle="جديد المكتبة" movies={trending} accentColor={theme.primary} loading={isLoading} />
+              <MovieRow title={movies?.[0]?.release_date?.slice(0, 4) === '2026' ? 'أفلام 2026' : 'أحدث الإضافات'} subtitle="جديد المكتبة" movies={trending} accentColor={theme.primary} loading={isLoading} platformRef="netflix" />
             )}
           </div>
         </div>

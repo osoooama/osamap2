@@ -47,6 +47,7 @@ function PlayerContent() {
   const [autoTrying, setAutoTrying] = useState(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaType = searchParams.get('type') || 'movie';
+  const ref = searchParams.get('ref') || 'netflix';
   const providers = getProviders(tmdbId || '', mediaType);
   const qualities = movie?.links
     ?.filter((l: any) => l.embed_url && l.embed_url.startsWith('http'))
@@ -150,7 +151,7 @@ function PlayerContent() {
     <div className="min-h-screen bg-[#0a0a0a]">
       <div className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/[0.03]">
         <div className="max-w-[1800px] mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
-          <button onClick={() => router.back()} className="flex items-center gap-2.5 text-zinc-500 hover:text-white transition-all duration-200 group">
+          <button onClick={() => router.push(`/${ref}`)} className="flex items-center gap-2.5 text-zinc-500 hover:text-white transition-all duration-200 group">
             <div className="w-8 h-8 rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-center group-hover:bg-zinc-800 transition">
               <ArrowLeft className="w-4 h-4" />
             </div>

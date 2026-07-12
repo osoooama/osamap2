@@ -58,7 +58,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}`)}
+              onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=disney`)}
               className="flex items-center gap-2.5 px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-blue-600/30"
             >
               <Play className="w-5 h-5 fill-white" />
@@ -66,7 +66,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
             </button>
             {featured?.tmdb_id && (
               <button
-                onClick={() => router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}`)}
+                onClick={() => router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=disney`)}
                 className="flex items-center gap-2.5 px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-md border border-white/10 transition-all"
               >
                 <Info className="w-5 h-5" />
@@ -101,9 +101,9 @@ export default function DisneyPage() {
         <Billboard movies={movies || []} isLoading={isLoading} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 pb-16">
           <div className="space-y-6">
-            <MovieRow title="أفلام أنيميشن" subtitle="أشهر أفلام الكرتون والأنيميشن" movies={movies || []} accentColor={theme.primary} loading={isLoading} />
-            <MovieRow title="مسلسلات أنيميشن" subtitle="مسلسلات كرتونية مميزة" movies={tvSeries || []} accentColor={theme.primary} loading={tvLoading} />
-            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أفلام الأنيميشن" movies={topRated || []} accentColor={theme.primary} loading={isLoading} />
+            <MovieRow title="أفلام أنيميشن" subtitle="أشهر أفلام الكرتون والأنيميشن" movies={movies || []} accentColor={theme.primary} loading={isLoading} platformRef="disney" />
+            <MovieRow title="مسلسلات أنيميشن" subtitle="مسلسلات كرتونية مميزة" movies={tvSeries || []} accentColor={theme.primary} loading={tvLoading} platformRef="disney" />
+            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أفلام الأنيميشن" movies={topRated || []} accentColor={theme.primary} loading={isLoading} platformRef="disney" />
           </div>
         </div>
       </div>

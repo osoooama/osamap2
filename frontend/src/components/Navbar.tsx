@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Search, Heart, LogOut, User, Wand2 } from 'lucide-react';
+import { Menu, X, Search, Heart, LogOut, User, Code } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const platforms = [
@@ -101,6 +101,13 @@ export default function Navbar() {
                   >
                     <Heart className="w-4.5 h-4.5" />
                   </Link>
+                  <Link
+                    href="/developer"
+                    className="hidden sm:flex w-9 h-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    title="المطور"
+                  >
+                    <Code className="w-4.5 h-4.5" />
+                  </Link>
 
                   <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
                     <User className="w-3.5 h-3.5 text-zinc-400" />
@@ -182,6 +189,14 @@ export default function Navbar() {
               >
                 <Heart className="w-5 h-5" />
                 المفضلة
+              </Link>
+              <Link
+                href="/developer"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+              >
+                <Code className="w-5 h-5" />
+                المطور
               </Link>
             </div>
           </div>

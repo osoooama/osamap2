@@ -58,7 +58,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'tv'}`)}
+              onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'tv'}&ref=crunchyroll`)}
               className="flex items-center gap-2.5 px-8 py-3.5 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-orange-600/30"
             >
               <Play className="w-5 h-5 fill-white" />
@@ -66,7 +66,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
             </button>
             {featured?.tmdb_id && (
               <button
-                onClick={() => router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'tv'}`)}
+                onClick={() => router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'tv'}&ref=crunchyroll`)}
                 className="flex items-center gap-2.5 px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-md border border-white/10 transition-all"
               >
                 <Info className="w-5 h-5" />
@@ -101,9 +101,9 @@ export default function CrunchyrollPage() {
         <Billboard movies={animeSeries || []} isLoading={seriesLoading} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 pb-16">
           <div className="space-y-6">
-            <MovieRow title="مسلسلات أنمي" subtitle="أشهر مسلسلات الأنمي" movies={animeSeries || []} accentColor={theme.primary} loading={seriesLoading} />
-            <MovieRow title="أفلام أنمي" subtitle="أفلام الأنمي المميزة" movies={animeMovies || []} accentColor={theme.primary} loading={moviesLoading} />
-            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أنمي حسب التقييم" movies={topRated || []} accentColor={theme.primary} loading={seriesLoading} />
+            <MovieRow title="مسلسلات أنمي" subtitle="أشهر مسلسلات الأنمي" movies={animeSeries || []} accentColor={theme.primary} loading={seriesLoading} platformRef="crunchyroll" />
+            <MovieRow title="أفلام أنمي" subtitle="أفلام الأنمي المميزة" movies={animeMovies || []} accentColor={theme.primary} loading={moviesLoading} platformRef="crunchyroll" />
+            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أنمي حسب التقييم" movies={topRated || []} accentColor={theme.primary} loading={seriesLoading} platformRef="crunchyroll" />
           </div>
         </div>
       </div>

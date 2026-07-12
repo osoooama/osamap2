@@ -84,7 +84,6 @@ export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose
               className="w-full h-full"
               allowFullScreen
               allow="autoplay; encrypted-media; fullscreen"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
               onError={handleProviderError}
             />
           ) : (

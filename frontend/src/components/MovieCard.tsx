@@ -23,10 +23,10 @@ interface MovieCardProps {
     media_type?: string;
   };
   accentColor?: string;
-  platformColor?: string;
+  platformRef?: string;
 }
 
-export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardProps) {
+export default function MovieCard({ movie, accentColor = '#E50914', platformRef }: MovieCardProps) {
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -43,16 +43,19 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
   const genreNames = movie.genres?.slice(0, 2).map(g => g.name).join('، ') || movie.genre || '';
   const overview = movie.overview || '';
 
+  const goToPlayer = () => {
+    if (tmdbId) router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}${platformRef ? `&ref=${platformRef}` : ''}`);
+  };
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (tmdbId) router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`);
+    goToPlayer();
   };
 
   return (
     <motion.div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => tmdbId && router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`)}
+      onClick={goToPlayer}
       className="group relative flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] cursor-pointer"
       layout
     >
@@ -88,7 +91,7 @@ export default function MovieCard({ movie, accentColor = '#E50914' }: MovieCardP
               <Play className="w-4 h-4 text-white fill-white ml-0.5" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); if (tmdbId) router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}`); }}
+              onClick={(e) => { e.stopPropagation(); goToPlayer(); }}
               className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
             >
               <Info className="w-4 h-4 text-white" />

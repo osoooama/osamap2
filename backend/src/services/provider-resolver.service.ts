@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { load } from 'cheerio';
 
 const CINEMANA_BASE = 'https://cinemana.cc';
 const HD1_BASE = 'https://hd1.brstej.com';
@@ -10,11 +9,11 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 
 async function getTmdbTitle(tmdbId: string): Promise<string | null> {
   try {
-    const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}`);
+    const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}`, { timeout: 8000 });
     return data.title || null;
   } catch {
     try {
-      const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdbId}?api_key=${TMDB_KEY}`);
+      const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdbId}?api_key=${TMDB_KEY}`, { timeout: 8000 });
       return data.name || null;
     } catch {
       return null;
@@ -27,16 +26,16 @@ export async function resolveCinemana(tmdbId: string): Promise<string | null> {
   if (!title) return null;
 
   try {
-    const searchUrl = `${CINEMANA_BASE}/?s=${encodeURIComponent(title)}`;
-    const { data } = await axios.get(searchUrl, {
+    const { data } = await axios.get(`${CINEMANA_BASE}/?s=${encodeURIComponent(title)}`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       timeout: 15000,
     });
-    const $ = load(data);
-    const firstLink = $('a[href*="/watch="]').first().attr('href');
-    if (!firstLink) return null;
-    const watchUrl = firstLink.startsWith('http') ? firstLink : `${CINEMANA_BASE}${firstLink}`;
-    return watchUrl;
+    const match = data.match(/href=["']([^"']*\/watch=\d+[^"']*)["']/);
+    if (match) {
+      const href = match[1];
+      return href.startsWith('http') ? href : `${CINEMANA_BASE}${href}`;
+    }
+    return null;
   } catch {
     return null;
   }
@@ -47,8 +46,7 @@ export async function resolveHd1(tmdbId: string): Promise<string | null> {
   if (!title) return null;
 
   try {
-    const searchUrl = `${HD1_BASE}/ajax-search.php`;
-    const { data } = await axios.post(searchUrl,
+    const { data } = await axios.post(`${HD1_BASE}/ajax-search.php`,
       new URLSearchParams({ q: title }),
       { headers: { 'User-Agent': 'Mozilla/5.0', 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 10000 }
     );
@@ -68,13 +66,11 @@ export async function resolveAnime3rb(tmdbId: string): Promise<string | null> {
 
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   try {
-    const epUrl = `${ANIME3RB_BASE}/episode/${slug}/1`;
-    const { data } = await axios.get(epUrl, {
+    const { data } = await axios.get(`${ANIME3RB_BASE}/episode/${slug}/1`, {
       headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 10000,
     });
-    const $ = load(data);
-    const iframeSrc = $('iframe[src*="vid3rb"]').first().attr('src');
-    return iframeSrc || null;
+    const match = data.match(/<iframe[^>]*src=["']([^"']*vid3rb[^"']*)["']/);
+    return match ? match[1] : null;
   } catch {
     return null;
   }
@@ -84,7 +80,7 @@ export async function resolveProvider(tmdbId: string, provider: string): Promise
   switch (provider) {
     case 'cinemana': return resolveCinemana(tmdbId);
     case 'hd1': return resolveHd1(tmdbId);
-    case 'vid3rb': return resolveAnime3rb(tmdbId);
+    case 'anime3rb': return resolveAnime3rb(tmdbId);
     default: return null;
   }
 }

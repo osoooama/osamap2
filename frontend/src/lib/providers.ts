@@ -27,10 +27,24 @@ const PROVIDERS: Provider[] = [
   { name: 'Anime3rb', url: () => 'https://anime3rb.com', priority: 20, needsResolution: true },
 ];
 
+const AD_BLOCK_PARAMS = ['ads=0', 'ad=0', 'no-ad=1', 'anti_ad=1', 'hideAd=1'];
+
+export function addArabicSubs(url: string): string {
+  let result = url;
+  const separator = result.includes('?') ? '&' : '?';
+  if (!result.includes('sub=')) result = `${result}${separator}sub=ar`;
+  for (const p of AD_BLOCK_PARAMS) {
+    if (!result.includes(p.split('=')[0])) {
+      result = `${result}${result.includes('?') ? '&' : '?'}${p}`;
+    }
+  }
+  return result;
+}
+
 export function getProviders(tmdbId: string, mediaType = 'movie') {
   return PROVIDERS.map(p => ({
     name: p.name,
-    url: p.url(tmdbId, mediaType),
+    url: addArabicSubs(p.url(tmdbId, mediaType)),
     priority: p.priority,
     needsResolution: p.needsResolution,
   }));

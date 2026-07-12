@@ -5,32 +5,15 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import { getMovieDetails } from '@/lib/api';
 import { getProviders } from '@/lib/providers';
+import { getProviderPerf, getProviderScore, trackProviderEvent, getBestProviderIndex } from '@/lib/providerPerf';
 import MovieCard from '@/components/MovieCard';
-import { ArrowLeft, Star, Calendar, Clock, ThumbsUp, Server, Film, Wifi, Layers } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Clock, ThumbsUp, Server, Film, Wifi, Layers, ShieldCheck, ShieldX } from 'lucide-react';
 
 const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'screenscape', 'vidplays', 'modocine', 'vidcore', 'apiplayer', '2embed', 'vidfast', 'videasy', 'smashystream', 'frembed', 'vidking', 'vidnest', 'vidrift', 'vidlove', 'cinemana', 'hd1', 'anime3rb'];
 
 const qualityRank: Record<string, number> = { '360p': 0, '480p': 1, '720p': 2, '1080p': 3, '2K': 4, '4K': 5 };
 
-// Provider performance tracking (persisted in memory)
-let providerPerformance: Record<string, { success: number; fail: number; avgLoadTime: number }> = {};
-try {
-  const stored = localStorage.getItem('osk_provider_perf');
-  if (stored) providerPerformance = JSON.parse(stored);
-} catch {}
-
-function getBestProvider(providers: any[]): number {
-  if (providers.length === 0) return -1;
-  const scored = providers.map((p, i) => {
-    const perf = providerPerformance[p.name];
-    const score = perf ? (perf.success - perf.fail * 2) : 0;
-    return { index: i, score, name: p.name };
-  });
-  scored.sort((a, b) => b.score - a.score);
-  const bestIdx = scored[0].index;
-  const bestEl = providers[bestIdx];
-  return bestEl?.needsResolution ? bestIdx : bestIdx;
-}
+const providerPerformance = getProviderPerf();
 
 function PlayerContent() {
   const searchParams = useSearchParams();
@@ -46,6 +29,18 @@ function PlayerContent() {
   const [iframeError, setIframeError] = useState(false);
   const [autoTrying, setAutoTrying] = useState(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const loadStartTime = useRef<number>(0);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const [useSandbox, setUseSandbox] = useState(true);
+  const sandboxCompatRef = useRef<Record<string, boolean>>({});
+
+  // Block popup ads from iframes
+  useEffect(() => {
+    const origOpen = window.open;
+    const origCreateElement = document.createElement.bind(document);
+    window.open = () => null;
+    return () => { window.open = origOpen; };
+  }, []);
   const mediaType = searchParams.get('type') || 'movie';
   const ref = searchParams.get('ref') || 'netflix';
   const providers = getProviders(tmdbId || '', mediaType);
@@ -71,6 +66,7 @@ function PlayerContent() {
     setResolvedUrl(null);
     setSelectedQuality(null);
     setAutoTrying(false);
+    loadStartTime.current = Date.now();
     const p = providers[index];
     if (p?.needsResolution) {
       setResolving(true);
@@ -78,24 +74,21 @@ function PlayerContent() {
       fetch(`${apiBase}/api/movies/resolve-provider/${tmdbId}?provider=${p.name.toLowerCase()}`)
         .then(r => r.json())
         .then(data => { setResolvedUrl(data.url); setResolving(false); })
-        .catch(() => { setResolvedUrl(null); setResolving(false); setIframeError(true); });
+        .catch(() => { setResolvedUrl(null); setResolving(false); if (p) trackProviderEvent(p.name, false); setIframeError(true); });
     }
   }, [providers, tmdbId]);
 
   useEffect(() => {
     if (!tmdbId || loading) return;
     if (providers.length === 0) return;
-    const best = getBestProvider(providers);
+    const best = getBestProviderIndex(providers);
     if (best >= 0) startProvider(best);
   }, [tmdbId, loading, providers.length]);
 
   const handleIframeError = useCallback(() => {
     if (!providers.length || currentProvider === null) return;
-    const perf = providerPerformance[providers[currentProvider]?.name];
-    if (perf) perf.fail = (perf.fail || 0) + 1;
-    providerPerformance[providers[currentProvider].name] = perf || { success: 0, fail: 1, avgLoadTime: 0 };
-    try { localStorage.setItem('osk_provider_perf', JSON.stringify(providerPerformance)); } catch {}
-
+    const p = providers[currentProvider];
+    if (p) trackProviderEvent(p.name, false, Date.now() - loadStartTime.current);
     setIframeError(true);
     const nextIdx = currentProvider + 1;
     if (nextIdx < providers.length) {
@@ -103,6 +96,24 @@ function PlayerContent() {
       autoTimerRef.current = setTimeout(() => startProvider(nextIdx), 2000);
     }
   }, [providers, currentProvider, startProvider]);
+
+  const requestFullscreen = useCallback(() => {
+    const el = playerContainerRef.current;
+    if (el?.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
+    if (resolvedUrl && currentProvider !== null) requestFullscreen();
+  }, [resolvedUrl, currentProvider, requestFullscreen]);
+
+  const handleIframeLoad = useCallback(() => {
+    if (currentProvider === null) return;
+    const p = providers[currentProvider];
+    if (p) trackProviderEvent(p.name, true, Date.now() - loadStartTime.current);
+    requestFullscreen();
+  }, [providers, currentProvider, requestFullscreen]);
 
   useEffect(() => {
     return () => { if (autoTimerRef.current) clearTimeout(autoTimerRef.current); };
@@ -125,6 +136,12 @@ function PlayerContent() {
       return p?.url || '';
     }
     return qualities[0]?.url || '';
+  };
+
+  const ensureArabicSubs = (url: string) => {
+    if (!url || url.includes('sub=')) return url;
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}sub=ar`;
   };
 
   const activeUrl = getActiveUrl();
@@ -167,7 +184,7 @@ function PlayerContent() {
       <div className="max-w-[1800px] mx-auto px-4 lg:px-8 py-6 lg:py-8">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
           <div className="flex-1 min-w-0">
-            <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/[0.03]">
+            <div ref={playerContainerRef} className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/[0.03]">
               {loading ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
                   <div className="text-center">
@@ -208,10 +225,12 @@ function PlayerContent() {
               ) : activeUrl ? (
                 isEmbed ? (
                   <iframe
-                    src={activeUrl}
+                    src={ensureArabicSubs(activeUrl)}
                     className="w-full h-full"
                     allowFullScreen
                     allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                    sandbox={useSandbox ? 'allow-scripts allow-same-origin allow-forms allow-presentation' : undefined}
+                    onLoad={handleIframeLoad}
                     onError={handleIframeError}
                   />
                 ) : (
@@ -274,21 +293,39 @@ function PlayerContent() {
                     {autoTrying && (
                       <span className="text-xs text-zinc-600 animate-pulse">(جاري تجربة السيرفر التالي...)</span>
                     )}
+                    <button
+                      onClick={() => setUseSandbox(!useSandbox)}
+                      className={`mr-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition border ${
+                        useSandbox ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-zinc-800/50 border-white/5 text-zinc-500'
+                      }`}
+                      title={useSandbox ? 'حماية الإعلانات مفعلة' : 'حماية الإعلانات معطلة'}
+                    >
+                      {useSandbox ? <ShieldCheck className="w-3 h-3" /> : <ShieldX className="w-3 h-3" />}
+                      {useSandbox ? 'حماية' : 'بدون حماية'}
+                    </button>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2">
-                    {providers.map((p: any, i) => (
-                      <button
-                        key={p.name}
-                        onClick={() => switchProvider(i)}
-                        className={`relative px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
-                          currentProvider === i && !selectedQuality
-                            ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg shadow-red-600/20 ring-1 ring-red-400/30'
-                            : 'bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-white/[0.03] hover:border-white/10'
-                        }`}
-                      >
-                        {p.name}
-                      </button>
-                    ))}
+                    {providers.map((p: any, i) => {
+                      const perf = providerPerformance[p.name];
+                      const pScore = perf && perf.events.length >= 3 ? Math.round(getProviderScore(perf)) : null;
+                      const pBadge = pScore !== null ? (pScore >= 8 ? 'bg-emerald-500' : pScore >= 5 ? 'bg-yellow-500' : 'bg-red-500') : null;
+                      return (
+                        <button
+                          key={p.name}
+                          onClick={() => switchProvider(i)}
+                          className={`relative px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
+                            currentProvider === i && !selectedQuality
+                              ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg shadow-red-600/20 ring-1 ring-red-400/30'
+                              : 'bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-white/[0.03] hover:border-white/10'
+                          }`}
+                        >
+                          <span>{p.name}</span>
+                          {pBadge && (
+                            <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${pBadge} ring-2 ring-[#0a0a0a]`} />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </>
               )}

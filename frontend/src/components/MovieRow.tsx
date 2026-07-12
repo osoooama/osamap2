@@ -17,6 +17,8 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, scrollLeft: 0 });
 
   const updateArrows = () => {
     if (!scrollRef.current) return;
@@ -43,6 +45,23 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
     });
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    dragStart.current = { x: e.pageX - scrollRef.current.offsetLeft, scrollLeft: scrollRef.current.scrollLeft };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - dragStart.current.x) * 1.5;
+    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseLeave = () => setIsDragging(false);
+
   return (
     <div className="relative group/row mb-8">
       <div className="flex items-end gap-3 mb-5 px-0">
@@ -61,24 +80,27 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
       </div>
 
       <div className="relative">
-        {showLeftArrow && (
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-0 top-0 bottom-0 z-20 w-12 sm:w-16 flex items-center justify-center bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
-          >
-            <ChevronLeft className="w-6 h-6 text-white/70 hover:text-white transition-colors drop-shadow-lg" />
-          </button>
-        )}
+        <button
+          onClick={() => scroll('left')}
+          style={{ opacity: showLeftArrow ? 1 : 0, pointerEvents: showLeftArrow ? 'auto' : 'none' }}
+          className="absolute left-0 top-0 bottom-0 z-20 w-10 sm:w-14 flex items-center justify-center bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent transition-opacity duration-300"
+        >
+          <ChevronLeft className="w-5 h-5 text-white/80 hover:text-white transition-colors drop-shadow-lg" />
+        </button>
 
         <div
           ref={scrollRef}
-          className="flex gap-2.5 sm:gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 snap-x snap-mandatory"
+          className="flex gap-2.5 sm:gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 cursor-grab active:cursor-grabbing select-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           onScroll={updateArrows}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
         >
           {loading
             ? Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px]">
+                <div key={i} className="flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] pointer-events-none">
                   <div className="aspect-[2/3] rounded-xl bg-zinc-900 animate-pulse" />
                   <div className="mt-3 space-y-2">
                     <div className="h-3 bg-zinc-900 rounded animate-pulse w-3/4" />
@@ -87,20 +109,19 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
                 </div>
               ))
             : movies.map((movie: any, i: number) => (
-                <div key={movie.tmdb_id || movie._id || i} className="snap-start flex-shrink-0">
+                <div key={movie.tmdb_id || movie._id || i} className="flex-shrink-0 pointer-events-auto">
                   <MovieCard movie={movie} accentColor={accentColor} platformRef={platformRef} />
                 </div>
               ))}
         </div>
 
-        {showRightArrow && (
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-0 top-0 bottom-0 z-20 w-12 sm:w-16 flex items-center justify-center bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
-          >
-            <ChevronRight className="w-6 h-6 text-white/70 hover:text-white transition-colors drop-shadow-lg" />
-          </button>
-        )}
+        <button
+          onClick={() => scroll('right')}
+          style={{ opacity: showRightArrow ? 1 : 0, pointerEvents: showRightArrow ? 'auto' : 'none' }}
+          className="absolute right-0 top-0 bottom-0 z-20 w-10 sm:w-14 flex items-center justify-center bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent transition-opacity duration-300"
+        >
+          <ChevronRight className="w-5 h-5 text-white/80 hover:text-white transition-colors drop-shadow-lg" />
+        </button>
       </div>
 
       {!loading && movies.length === 0 && (

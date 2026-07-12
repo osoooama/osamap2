@@ -5,8 +5,9 @@ import MovieRow from '@/components/MovieRow';
 import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Sparkles, Play, Info } from 'lucide-react';
+import { Sparkles, Play, Info, Search, X, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useState, useEffect, useCallback } from 'react';
 
 const theme = { primary: '#F47521' };
 
@@ -105,6 +106,79 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
   );
 }
 
+function AnimeSearch() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  const doSearch = useCallback(async (q: string) => {
+    if (!q.trim()) { setResults([]); setSearched(false); return; }
+    setLoading(true);
+    setSearched(true);
+    try {
+      const key = process.env.NEXT_PUBLIC_TMDB_API_KEY || 'b4905ea858601abd0565baa117b69b24';
+      const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${key}&query=${encodeURIComponent(q)}&language=ja-JA&page=1`);
+      const data = await res.json();
+      const anime = (data.results || []).filter((m: any) => {
+        if (m.original_language !== 'ja') return false;
+        const genreIds = m.genre_ids || [];
+        if (!genreIds.includes(16) && !genreIds.includes(14)) return false;
+        const title = (m.title || m.name || '').toLowerCase();
+        if (['documentary', 'reality', 'talk show', 'news', 'sport'].some(k => title.includes(k))) return false;
+        return true;
+      }).map((m: any) => ({
+        tmdb_id: m.id,
+        title: m.title || m.name,
+        poster_path: m.poster_path,
+        backdrop_path: m.backdrop_path,
+        vote_average: m.vote_average,
+        release_date: m.release_date || m.first_air_date,
+        media_type: m.media_type === 'tv' ? 'tv' : 'movie',
+        overview: m.overview,
+        genre: 'anime',
+      }));
+      setResults(anime.slice(0, 20));
+    } catch { setResults([]); }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => doSearch(query), 400);
+    return () => clearTimeout(timer);
+  }, [query, doSearch]);
+
+  return (
+    <div>
+      <div className="relative mb-4">
+        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="ابحث عن أنمي ياباني…"
+          className="w-full pr-11 pl-11 py-3 rounded-xl bg-zinc-900/80 border border-white/10 text-white text-sm focus:outline-none focus:border-orange-500/50 transition placeholder:text-zinc-600"
+          dir="auto"
+        />
+        {query && (
+          <button onClick={() => { setQuery(''); setResults([]); setSearched(false); }} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition">
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
+        </div>
+      ) : searched && results.length > 0 ? (
+        <MovieRow title="نتائج البحث الياباني" subtitle={`${results.length} نتيجة`} movies={results} accentColor={theme.primary} platformRef="crunchyroll" />
+      ) : searched && results.length === 0 ? (
+        <p className="text-zinc-600 text-sm text-center py-4">لا توجد نتائج أنمي يابانية</p>
+      ) : null}
+    </div>
+  );
+}
+
 export default function CrunchyrollPage() {
   const { data: rawSeries, isLoading: seriesLoading } = useMovies('anime', 1, 'tv');
   const { data: rawMovies, isLoading: moviesLoading } = useMovies('anime', 1, 'movie');
@@ -123,6 +197,11 @@ export default function CrunchyrollPage() {
             <MovieRow title="مسلسلات أنمي" subtitle="أشهر مسلسلات الأنمي" movies={animeSeries} accentColor={theme.primary} loading={seriesLoading} platformRef="crunchyroll" />
             <MovieRow title="أفلام أنمي" subtitle="أفلام الأنمي المميزة" movies={animeMovies} accentColor={theme.primary} loading={moviesLoading} platformRef="crunchyroll" />
             <MovieRow title="الأكثر تقييماً" subtitle="أفضل أنمي حسب التقييم" movies={topRated} accentColor={theme.primary} loading={topLoading} platformRef="crunchyroll" />
+            <div className="pt-6 border-t border-white/5">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-4">بحث ياباني</h2>
+              <p className="text-xs sm:text-sm text-zinc-500 mb-4">ابحث عن أنمي باللغة اليابانية</p>
+              <AnimeSearch />
+            </div>
           </div>
         </div>
       </div>

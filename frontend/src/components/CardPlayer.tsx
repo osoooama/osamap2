@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { getProviders } from '@/lib/providers';
 import { getMovieDetails } from '@/lib/api';
-import { X, ExternalLink, RefreshCw, Monitor } from 'lucide-react';
+import { getBestProviderIndex, trackProviderEvent, getProviderPerf, getProviderScore } from '@/lib/providerPerf';
+import { X, ExternalLink, RefreshCw, Monitor, ShieldCheck } from 'lucide-react';
 
 interface CardPlayerProps {
   tmdbId: string;
@@ -15,10 +16,20 @@ interface CardPlayerProps {
 
 export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose }: CardPlayerProps) {
   const [providers] = useState(() => getProviders(tmdbId, mediaType));
-  const [currentProvider, setCurrentProvider] = useState(0);
+  const [currentProvider, setCurrentProvider] = useState(() => {
+    const best = getBestProviderIndex(getProviders(tmdbId, mediaType));
+    return best >= 0 ? best : 0;
+  });
   const [qualities, setQualities] = useState<{ label: string; url: string }[]>([]);
   const [linkError, setLinkError] = useState(false);
   const [loadingLinks, setLoadingLinks] = useState(true);
+  const loadStartRef = useRef(0);
+
+  useEffect(() => {
+    const origOpen = window.open;
+    window.open = () => null;
+    return () => { window.open = origOpen; };
+  }, []);
 
   useEffect(() => {
     getMovieDetails(tmdbId)
@@ -40,14 +51,24 @@ export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose
 
   const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'screenscape', 'vidplays', 'modocine', 'vidcore', 'apiplayer', '2embed', 'vidfast', 'videasy', 'smashystream', 'frembed', 'vidking', 'vidnest', 'vidrift', 'vidlove'];
   const isEmbed = embedDomains.some(d => activeUrl.includes(d));
+  const providerPerf = getProviderPerf();
 
   const handleProviderError = () => {
+    const p = providers[currentProvider];
+    if (p) trackProviderEvent(p.name, false, Date.now() - loadStartRef.current);
     if (currentProvider < providers.length - 1) {
       setCurrentProvider((p) => p + 1);
       setLinkError(false);
     } else {
       setLinkError(true);
     }
+  };
+
+  const handleProviderLoad = () => {
+    const p = providers[currentProvider];
+    if (p) trackProviderEvent(p.name, true, Date.now() - loadStartRef.current);
+    const el = document.querySelector('iframe') || document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
   };
 
   return (
@@ -80,10 +101,12 @@ export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose
         ) : activeUrl ? (
           isEmbed ? (
             <iframe
-              src={activeUrl}
+              src={!activeUrl.includes('sub=') && !activeUrl.includes('subtitle=') ? activeUrl + (activeUrl.includes('?') ? '&' : '?') + 'sub=ar' : activeUrl}
               className="w-full h-full"
               allowFullScreen
               allow="autoplay; encrypted-media; fullscreen"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+              onLoad={handleProviderLoad}
               onError={handleProviderError}
             />
           ) : (
@@ -122,19 +145,27 @@ export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose
             <span className="text-[10px] text-zinc-500">المزود:</span>
           </div>
           <div className="flex flex-wrap gap-1">
-            {providers.slice(0, 6).map((p, i) => (
-              <button
-                key={p.name}
-                onClick={() => { setCurrentProvider(i); setLinkError(false); }}
-                className={`px-2 py-1 rounded text-[10px] font-medium transition ${
-                  i === currentProvider
-                    ? 'bg-red-600 text-white'
-                    : 'bg-white/5 text-zinc-400 hover:bg-white/10'
-                }`}
-              >
-                {p.name}
-              </button>
-            ))}
+            {providers.slice(0, 6).map((p, i) => {
+              const perf = providerPerf[p.name];
+              const pScore = perf && perf.events.length >= 3 ? Math.round(getProviderScore(perf)) : null;
+              const pBadge = pScore !== null ? (pScore >= 8 ? 'bg-emerald-500' : pScore >= 5 ? 'bg-yellow-500' : 'bg-red-500') : null;
+              return (
+                <button
+                  key={p.name}
+                  onClick={() => { setCurrentProvider(i); setLinkError(false); loadStartRef.current = Date.now(); }}
+                  className={`relative px-2 py-1 rounded text-[10px] font-medium transition ${
+                    i === currentProvider
+                      ? 'bg-red-600 text-white'
+                      : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                  }`}
+                >
+                  {p.name}
+                  {pBadge && (
+                    <span className={`absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ${pBadge} ring-2 ring-zinc-900`} />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

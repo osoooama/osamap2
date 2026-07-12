@@ -1,9 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Play, Star, Tv, Info } from 'lucide-react';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { Play, Star, Tv, Info, Heart, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface MovieCardProps {
   movie: {
@@ -30,6 +30,11 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [isFav, setIsFav] = useState(false);
+  const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+  const hoverTimer = useRef<NodeJS.Timeout | null>(null);
 
   const tmdbId = movie.tmdb_id;
   const title = movie.title || 'Unknown';
@@ -43,6 +48,33 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
   const genreNames = movie.genres?.slice(0, 2).map(g => g.name).join('، ') || movie.genre || '';
   const overview = movie.overview || '';
 
+  useEffect(() => {
+    return () => { if (hoverTimer.current) clearTimeout(hoverTimer.current); };
+  }, []);
+
+  useEffect(() => {
+    if (!tmdbId) return;
+    try {
+      const favs = JSON.parse(localStorage.getItem('osk_favorites') || '[]');
+      setIsFav(favs.some((f: any) => f.tmdb_id === tmdbId));
+    } catch {}
+  }, [tmdbId]);
+
+  const toggleFav = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!tmdbId) return;
+    try {
+      let favs = JSON.parse(localStorage.getItem('osk_favorites') || '[]');
+      if (isFav) {
+        favs = favs.filter((f: any) => f.tmdb_id !== tmdbId);
+      } else {
+        favs.push({ tmdb_id: tmdbId, title, poster: posterUrl, media_type: mediaType, backdrop_path: backdropUrl, vote_average: movie.vote_average, release_date: movie.release_date, genres: movie.genres, overview });
+      }
+      localStorage.setItem('osk_favorites', JSON.stringify(favs));
+      setIsFav(!isFav);
+    } catch {}
+  };
+
   const goToPlayer = () => {
     if (tmdbId) router.push(`/player?tmdb_id=${tmdbId}&type=${mediaType}${platformRef ? `&ref=${platformRef}` : ''}`);
   };
@@ -51,13 +83,34 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
     goToPlayer();
   };
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    hoverTimer.current = setTimeout(() => {
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        const popupWidth = 300;
+        let left = rect.left + rect.width / 2 - popupWidth / 2;
+        if (left < 8) left = 8;
+        if (left + popupWidth > window.innerWidth - 8) left = window.innerWidth - popupWidth - 8;
+        setPopupPos({ top: rect.top - 10, left });
+        setShowPopup(true);
+      }
+    }, 800);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    setShowPopup(false);
+  };
+
   return (
-    <motion.div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <div
+      ref={cardRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={goToPlayer}
-      className="group relative flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] cursor-pointer"
-      layout
+      className="relative flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] cursor-pointer z-0 hover:z-50"
     >
       <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/50 group-hover:scale-[1.02]">
         {imgSrc && !imgError ? (
@@ -117,12 +170,12 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
         </div>
       </div>
 
-      <div className="mt-2.5 px-0.5 space-y-1">
-        <h3 className="text-sm font-semibold text-white truncate group-hover:text-white transition-colors">
+      <div className="mt-2.5 px-0.5 space-y-1" dir="auto">
+        <h3 className="text-sm font-semibold text-white truncate transition-colors mixed-text" dir="auto">
           {title}
         </h3>
-        <div className="flex items-center gap-2 text-xs text-zinc-500">
-          {year && <span>{year}</span>}
+        <div className="flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
+          {year && <span className="mixed-text" dir="auto">{year}</span>}
           {rating && (
             <span className="flex items-center gap-1">
               <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
@@ -131,9 +184,53 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
           )}
         </div>
         {genreNames && (
-          <p className="text-xs text-zinc-600 truncate">{genreNames}</p>
+          <p className="text-xs text-zinc-600 truncate mixed-text" dir="auto">{genreNames}</p>
         )}
       </div>
-    </motion.div>
+
+      <AnimatePresence>
+        {showPopup && backdropUrl && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: -10 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            style={{ position: 'fixed', top: popupPos.top, left: popupPos.left, zIndex: 9999 }}
+            className="w-[300px] rounded-2xl overflow-hidden shadow-2xl shadow-black/70 border border-white/10 pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative aspect-video">
+              <img src={backdropSrc} alt={title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
+                <button onClick={handlePlay} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black font-bold text-sm hover:bg-white/90 transition shadow-lg">
+                  <Play className="w-4 h-4 fill-black" />
+                  تشغيل
+                </button>
+                <button onClick={toggleFav} className={`p-2 rounded-xl border transition ${isFav ? 'bg-red-500/20 border-red-500/40 text-red-400' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}>
+                  <Heart className={`w-4 h-4 ${isFav ? 'fill-red-400' : ''}`} />
+                </button>
+              </div>
+            </div>
+            <div className="p-3 bg-zinc-900 space-y-2">
+              <h4 className="text-white font-bold text-sm">{title}</h4>
+              <div className="flex items-center gap-2 text-[10px] text-zinc-400">
+                {year && <span>{year}</span>}
+                {rating && (
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                    {rating}
+                  </span>
+                )}
+                {genreNames && <span>{genreNames}</span>}
+              </div>
+              {overview && (
+                <p className="text-[10px] text-zinc-500 line-clamp-3 leading-relaxed">{overview}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

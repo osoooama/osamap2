@@ -33,25 +33,49 @@
   scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
 
-html {
-  word-spacing: normal;
+body {
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-body {
-  line-height: 1.7;
-  letter-spacing: 0.01em;
-}
-
 h1, h2, h3, h4, h5, h6 {
-  line-height: 1.3;
-  letter-spacing: -0.01em;
+  line-height: 1.5;
+  letter-spacing: 0;
 }
 
-body, p, span, div, a, button, input, textarea, select, option, li, label {
+p, span, div, a, button, input, textarea, select, option, li, label {
   font-variant-ligatures: none;
+}
+
+[dir="rtl"] {
+  unicode-bidi: plaintext;
+}
+
+.rtl-safe {
+  unicode-bidi: isolate;
+}
+
+.mixed-text {
+  unicode-bidi: plaintext;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.truncate-ar {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
+  unicode-bidi: plaintext;
 }
 
 @keyframes float {
@@ -162,4 +186,68 @@ body, p, span, div, a, button, input, textarea, select, option, li, label {
 
 @utility platform-gradient-crunchyroll {
   background: linear-gradient(180deg, rgba(244,117,33,0.15) 0%, rgba(244,117,33,0.05) 40%, transparent 100%);
+}
+
+/* === Mobile & PWA Fixes === */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Fix 100vh on mobile browsers (address bar) */
+.min-h-screen {
+  min-height: 100dvh;
+}
+
+/* Prevent overflow on mobile */
+img, video, iframe {
+  max-width: 100%;
+}
+
+/* Better input readability on mobile */
+input, textarea, select {
+  font-size: 16px !important;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* PWA standalone mode tweaks */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (display-mode: standalone) and (orientation: portrait) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Android specific: smooth scrolling */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for mobile tap to play */
+button, a, [role="button"] {
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* Prevent pull-to-refresh on PWA */
+html {
+  overscroll-behavior-y: none;
 }

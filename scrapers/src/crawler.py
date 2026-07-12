@@ -20,10 +20,11 @@ AD_DOMAINS = [
     'bc.vc', 'linkbucks', 'adfocus', 'dtscout', 'sharethis',
 ]
 
-client = pymongo.MongoClient(os.getenv('MONGODB_URI'))
-db = client['OSAMAP2_DB']
-links_col = db['links']
-logs_col = db['crawl_logs']
+DB_URI = os.getenv('MONGODB_URI')
+client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000) if DB_URI else None
+db = client['OSAMAP2_DB'] if client else None
+links_col = db['links'] if db else None
+logs_col = db['crawl_logs'] if db else None
 
 
 def is_ad_url(url):
@@ -85,12 +86,17 @@ class StreamCrawler:
             html = fetch_page_requests(url)
             if not html:
                 print(f'  [FAIL] cloudscraper failed for {url}')
-                self.log.append({
+                entry = {
                     'url': url, 'category': self.category,
                     'streams_found': 0, 'error': 'cloudscraper failed',
                     'timestamp': datetime.now(timezone.utc),
-                })
-                logs_col.insert_one(self.log[-1])
+                }
+                self.log.append(entry)
+                if logs_col is not None:
+                    try:
+                        logs_col.insert_one(entry)
+                    except:
+                        pass
                 continue
 
             soup = BeautifulSoup(html, 'lxml')
@@ -110,27 +116,37 @@ class StreamCrawler:
             else:
                 print(f'  [NO STREAMS] {url}')
 
-            self.log.append({
+            entry = {
                 'url': url, 'category': self.category,
                 'streams_found': len(stream_urls),
                 'timestamp': datetime.now(timezone.utc),
-            })
-            logs_col.insert_one(self.log[-1])
+            }
+            self.log.append(entry)
+            if logs_col is not None:
+                try:
+                    logs_col.insert_one(entry)
+                except:
+                    pass
             time.sleep(1)
 
     def save_to_db(self, tmdb_id, source, stream_url, category):
-        links_col.update_one(
-            {'stream_url': stream_url},
-            {'$set': {
-                'stream_url': stream_url,
-                'source_url': source,
-                'category': category,
-                'is_active': True,
-                'last_checked': datetime.now(timezone.utc),
-                'tmdb_id': tmdb_id or '',
-            }},
-            upsert=True,
-        )
+        if links_col is None:
+            return
+        try:
+            links_col.update_one(
+                {'stream_url': stream_url},
+                {'$set': {
+                    'stream_url': stream_url,
+                    'source_url': source,
+                    'category': category,
+                    'is_active': True,
+                    'last_checked': datetime.now(timezone.utc),
+                    'tmdb_id': tmdb_id or '',
+                }},
+                upsert=True,
+            )
+        except Exception as e:
+            print(f'    [DB SAVE ERROR] {e}')
 
     def extract_tmdb_id(self, url):
         match = re.search(r'(?:tmdb/|/movie/|/tv/|tmdb_id=)(\d+)', url)

@@ -13,10 +13,11 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent.parent.parent.joinpath('.env'))
 
-client = pymongo.MongoClient(os.getenv('MONGODB_URI'))
-db = client['OSAMAP2_DB']
-links_col = db['links']
-logs_col = db['crawl_logs']
+DB_URI = os.getenv('MONGODB_URI')
+client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000) if DB_URI else None
+db = client['OSAMAP2_DB'] if client else None
+links_col = db['links'] if db else None
+logs_col = db['crawl_logs'] if db else None
 
 CATEGORY_PLATFORM = {
     'foreign': 'netflix',
@@ -230,21 +231,25 @@ def save_link(tmdb_id, source_url, stream_url, category, title=''):
         return False
     quality = detect_quality(stream_url)
 
-    links_col.update_one(
-        {'embed_url': stream_url},
-        {'$set': {
-            'embed_url': stream_url,
-            'source': source_url,
-            'category': category,
-            'platform': CATEGORY_PLATFORM.get(category, category),
-            'title': title,
-            'quality': quality,
-            'tmdb_id': str(tmdb_id) if tmdb_id else '',
-            'is_active': True,
-            'last_checked': datetime.now(timezone.utc),
-        }},
-        upsert=True,
-    )
+    if links_col is not None:
+        try:
+            links_col.update_one(
+                {'embed_url': stream_url},
+                {'$set': {
+                    'embed_url': stream_url,
+                    'source': source_url,
+                    'category': category,
+                    'platform': CATEGORY_PLATFORM.get(category, category),
+                    'title': title,
+                    'quality': quality,
+                    'tmdb_id': str(tmdb_id) if tmdb_id else '',
+                    'is_active': True,
+                    'last_checked': datetime.now(timezone.utc),
+                }},
+                upsert=True,
+            )
+        except Exception as e:
+            print(f'    [DB SAVE ERROR] {e}')
 
     from notifier import send_telegram_alert
     try:
@@ -268,40 +273,46 @@ def save_all_qualities(tmdb_id, source_url, stream_url, category, title=''):
     for v in variants:
         if not is_media_url(v['url']):
             continue
-        try:
-            links_col.update_one(
-                {'embed_url': v['url']},
-                {'$set': {
-                    'embed_url': v['url'],
-                    'source': source_url,
-                    'category': category,
-                    'platform': CATEGORY_PLATFORM.get(category, category),
-                    'title': title,
-                    'quality': v['quality'],
-                    'tmdb_id': str(tmdb_id) if tmdb_id else '',
-                    'is_active': True,
-                    'last_checked': datetime.now(timezone.utc),
-                }},
-                upsert=True,
-            )
-            from notifier import send_telegram_alert
+        if links_col is not None:
             try:
-                send_telegram_alert(title, category, v['quality'], v['url'])
-            except:
-                pass
-            saved += 1
+                links_col.update_one(
+                    {'embed_url': v['url']},
+                    {'$set': {
+                        'embed_url': v['url'],
+                        'source': source_url,
+                        'category': category,
+                        'platform': CATEGORY_PLATFORM.get(category, category),
+                        'title': title,
+                        'quality': v['quality'],
+                        'tmdb_id': str(tmdb_id) if tmdb_id else '',
+                        'is_active': True,
+                        'last_checked': datetime.now(timezone.utc),
+                    }},
+                    upsert=True,
+                )
+            except Exception as e:
+                print(f'    [DB SAVE ERROR] {e}')
+        from notifier import send_telegram_alert
+        try:
+            send_telegram_alert(title, category, v['quality'], v['url'])
         except:
             pass
+        saved += 1
     return saved
 
 
 def log_result(url, category, streams_found, error=None):
-    logs_col.insert_one({
-        'url': url, 'category': category,
-        'streams_found': streams_found,
-        'error': error or '',
-        'timestamp': datetime.now(timezone.utc),
-    })
+    if logs_col is None:
+        return
+    try:
+        logs_col.insert_one({
+            'url': url, 'category': category,
+            'streams_found': streams_found,
+            'error': error or '',
+            'timestamp': datetime.now(timezone.utc),
+        })
+    except Exception as e:
+        print(f'    [DB LOG ERROR] {e}')
 
 
 def extract_tmdb_id(url):

@@ -7,7 +7,7 @@ import { getMovieDetails } from '@/lib/api';
 import { getProviders } from '@/lib/providers';
 import { getProviderPerf, getProviderScore, trackProviderEvent, getBestProviderIndex } from '@/lib/providerPerf';
 import MovieCard from '@/components/MovieCard';
-import { ArrowLeft, Star, Calendar, Clock, ThumbsUp, Server, Film, Wifi, Layers, ShieldCheck, ShieldX } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Clock, ThumbsUp, Server, Film, Wifi, Layers } from 'lucide-react';
 
 const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'screenscape', 'vidplays', 'modocine', 'vidcore', 'apiplayer', '2embed', 'vidfast', 'videasy', 'smashystream', 'frembed', 'vidking', 'vidnest', 'vidrift', 'vidlove', 'cinemana', 'hd1', 'anime3rb'];
 
@@ -31,8 +31,6 @@ function PlayerContent() {
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const loadStartTime = useRef<number>(0);
   const playerContainerRef = useRef<HTMLDivElement>(null);
-  const [useSandbox, setUseSandbox] = useState(true);
-  const sandboxCompatRef = useRef<Record<string, boolean>>({});
 
   // Block popup ads from iframes
   useEffect(() => {
@@ -229,7 +227,6 @@ function PlayerContent() {
                     className="w-full h-full"
                     allowFullScreen
                     allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                    sandbox={useSandbox ? 'allow-scripts allow-same-origin allow-forms allow-presentation' : undefined}
                     onLoad={handleIframeLoad}
                     onError={handleIframeError}
                   />
@@ -293,16 +290,6 @@ function PlayerContent() {
                     {autoTrying && (
                       <span className="text-xs text-zinc-600 animate-pulse">(جاري تجربة السيرفر التالي...)</span>
                     )}
-                    <button
-                      onClick={() => setUseSandbox(!useSandbox)}
-                      className={`mr-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition border ${
-                        useSandbox ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-zinc-800/50 border-white/5 text-zinc-500'
-                      }`}
-                      title={useSandbox ? 'حماية الإعلانات مفعلة' : 'حماية الإعلانات معطلة'}
-                    >
-                      {useSandbox ? <ShieldCheck className="w-3 h-3" /> : <ShieldX className="w-3 h-3" />}
-                      {useSandbox ? 'حماية' : 'بدون حماية'}
-                    </button>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2">
                     {providers.map((p: any, i) => {

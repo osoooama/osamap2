@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { getProviders } from '@/lib/providers';
 import { getMovieDetails } from '@/lib/api';
 import { getBestProviderIndex, trackProviderEvent, getProviderPerf, getProviderScore } from '@/lib/providerPerf';
-import { X, ExternalLink, RefreshCw, Monitor, ShieldCheck } from 'lucide-react';
+import { X, ExternalLink, RefreshCw, Monitor } from 'lucide-react';
 
 interface CardPlayerProps {
   tmdbId: string;
@@ -105,7 +105,6 @@ export default function CardPlayer({ tmdbId, mediaType = 'movie', title, onClose
               className="w-full h-full"
               allowFullScreen
               allow="autoplay; encrypted-media; fullscreen"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
               onLoad={handleProviderLoad}
               onError={handleProviderError}
             />

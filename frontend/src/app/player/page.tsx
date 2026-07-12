@@ -5,7 +5,7 @@ import { useState, useEffect, Suspense, useCallback } from 'react';
 import { getMovieDetails } from '@/lib/api';
 import { getProvidersWithPriority } from '@/lib/providers';
 import MovieCard from '@/components/MovieCard';
-import { ArrowLeft, Star, Calendar, Tv, RefreshCw, Server, Film, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Tv, RefreshCw, Server, Film, BadgeCheck, Search } from 'lucide-react';
 
 interface MovieData {
   tmdb_id: string;
@@ -32,6 +32,8 @@ function PlayerContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [currentProvider, setCurrentProvider] = useState(0);
+  const [resolving, setResolving] = useState(false);
+  const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
   const mediaType = searchParams.get('type') || 'movie';
   const [iframeError, setIframeError] = useState(false);
 
@@ -53,9 +55,26 @@ function PlayerContent() {
     if (initialProvider >= 0) setCurrentProvider(initialProvider);
   }, [serverParam]);
 
+  useEffect(() => {
+    if (!tmdbId || currentProvider >= providers.length) return;
+    const p = providers[currentProvider] as any;
+    if (p?.needsResolution) {
+      setResolvedUrl(null);
+      setResolving(true);
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+      fetch(`${apiBase}/api/movies/resolve-provider/${tmdbId}?provider=${p.name.toLowerCase()}`)
+        .then(r => r.json())
+        .then(data => { setResolvedUrl(data.url); setResolving(false); })
+        .catch(() => { setResolvedUrl(null); setResolving(false); });
+    } else {
+      setResolvedUrl(null);
+    }
+  }, [currentProvider, tmdbId]);
+
   const switchServer = useCallback((index: number) => {
     setCurrentProvider(index);
     setIframeError(false);
+    setResolvedUrl(null);
     const name = providers[index]?.name?.toLowerCase();
     const params = new URLSearchParams(searchParams.toString());
     params.set('server', name);
@@ -91,11 +110,12 @@ function PlayerContent() {
     .sort((a, b) => b.rank - a.rank)
     .filter((v, i, a) => a.findIndex(x => x.url === v.url) === i) || [];
 
-  const embedUrl = currentProvider < providers.length
-    ? providers[currentProvider].url
-    : qualities[0]?.url || movie?.links?.[0]?.embed_url || '';
+  const currentProv = currentProvider < providers.length ? providers[currentProvider] as any : null;
+  const embedUrl = currentProv?.needsResolution
+    ? (resolvedUrl || '')
+    : currentProv?.url || qualities[0]?.url || movie?.links?.[0]?.embed_url || '';
 
-  const isEmbed = embedUrl.includes('embed') || embedUrl.includes('vidsrc') || embedUrl.includes('vidlink') || embedUrl.includes('vidcore') || embedUrl.includes('xpass');
+  const isEmbed = embedUrl.includes('embed') || embedUrl.includes('vidsrc') || embedUrl.includes('vidlink') || embedUrl.includes('vidcore') || embedUrl.includes('xpass') || embedUrl.includes('cinemana') || embedUrl.includes('hd1') || embedUrl.includes('anime3rb');
 
   return (
     <div className="min-h-screen bg-[#0e0e0e]">
@@ -137,6 +157,13 @@ function PlayerContent() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                </div>
+              ) : resolving ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+                  <div className="text-center">
+                    <Search className="w-10 h-10 text-zinc-600 mx-auto mb-3 animate-pulse" />
+                    <p className="text-zinc-400 text-sm">جاري البحث عن الرابط...</p>
                   </div>
                 </div>
               ) : embedUrl ? (

@@ -3,6 +3,7 @@ export interface Provider {
   url: (tmdbId: string, type: string) => string;
   priority: number;
   working: boolean;
+  needsResolution?: boolean;
 }
 
 const PROVIDERS: Provider[] = [
@@ -11,6 +12,9 @@ const PROVIDERS: Provider[] = [
   { name: 'screen', url: (tmdbId: string, type: string) => `https://screenscape.me/embed?tmdb=${tmdbId}&type=${type}`, priority: 3, working: true },
   { name: 'vidplays', url: (tmdbId: string, type: string) => `https://vidplays.fun/embed/${type}/${tmdbId}`, priority: 4, working: true },
   { name: 'spanish', url: (tmdbId: string, type: string) => `https://play.modocine.com/play.php/embed/${type}/${tmdbId}`, priority: 5, working: true },
+  { name: 'Cinemana', url: (tmdbId: string, type: string) => `https://cinemana.cc`, priority: 18, working: true, needsResolution: true },
+  { name: 'HD1', url: (tmdbId: string, type: string) => `https://hd1.brstej.com`, priority: 19, working: true, needsResolution: true },
+  { name: 'Anime3rb', url: (tmdbId: string, type: string) => `https://anime3rb.com`, priority: 20, working: true, needsResolution: true },
   { name: 'core', url: (tmdbId: string, type: string) => `https://vidcore.net/${type}/${tmdbId}`, priority: 6, working: false },
   { name: 'vidsrc', url: (tmdbId: string, type: string) => `https://vidsrc.net/embed/${type}/${tmdbId}`, priority: 7, working: false },
   { name: 'vid2', url: (tmdbId: string, type: string) => `https://airflix1.com/embed/${type}/${tmdbId}`, priority: 8, working: false },
@@ -22,7 +26,6 @@ const PROVIDERS: Provider[] = [
   { name: 'vixsrc', url: (tmdbId: string, type: string) => `https://vixsrc.to/${type}/${tmdbId}?lang=en`, priority: 14, working: false },
   { name: 'vidsrc.cc', url: (tmdbId: string, type: string) => `https://vidsrc.cc/v2/embed/${type}/${tmdbId}`, priority: 15, working: false },
   { name: 'embed.su', url: (tmdbId: string, type: string) => `https://embed.su/embed/${type}/${tmdbId}`, priority: 16, working: false },
-  { name: 'french', url: (tmdbId: string, type: string) => `https://frembed.hair/embed/${type}/${tmdbId}?id=${tmdbId}`, priority: 17, working: false },
 ].sort((a, b) => a.priority - b.priority);
 
 export function getProviderUrls(tmdbId: string, mediaType: string = 'movie'): string[] {
@@ -35,5 +38,6 @@ export function getProvidersWithPriority(tmdbId: string, mediaType: string = 'mo
     url: p.url(tmdbId, mediaType),
     priority: p.priority,
     working: p.working,
+    needsResolution: p.needsResolution,
   }));
 }

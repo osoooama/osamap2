@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Movie from '../models/Movie.model';
 import Link from '../models/Link.model';
 import * as tmdb from '../services/tmdb.service';
+import { resolveProvider } from '../services/provider-resolver.service';
 
 export async function getMoviesByCategory(req: Request, res: Response) {
   try {
@@ -143,6 +144,21 @@ export async function getMovieDetails(req: Request, res: Response) {
     res.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to fetch movie details';
+    res.status(500).json({ error: message });
+  }
+}
+
+export async function resolveMovieProvider(req: Request, res: Response) {
+  try {
+    const tmdbId = req.params.tmdb_id as string;
+    const provider = req.query.provider as string;
+    if (!tmdbId || !provider) {
+      return res.status(400).json({ error: 'tmdb_id and provider are required' });
+    }
+    const url = await resolveProvider(tmdbId, provider);
+    res.json({ url, provider, tmdb_id: tmdbId });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to resolve provider';
     res.status(500).json({ error: message });
   }
 }

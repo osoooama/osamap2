@@ -167,7 +167,7 @@ export async function seedDatabase(req: Request, res: Response) {
     const categories = ['foreign', 'arabic', 'turkish', 'anime', 'animation'];
 
     for (const category of categories) {
-      const results = await tmdb.discoverByCategory(category);
+      const results = await tmdb.seedCategoryFull(category, 10);
       const docs = results.map((item: any) => ({
         tmdb_id: item.tmdb_id,
         title: item.title || item.name || 'Unknown',
@@ -197,6 +197,40 @@ export async function seedDatabase(req: Request, res: Response) {
     );
 
     res.json({ message: 'Seed complete', counts });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Seed failed';
+    res.status(500).json({ error: message });
+  }
+}
+
+export async function seedCategory(req: Request, res: Response) {
+  try {
+    const category = req.params.category as string;
+    const maxPages = parseInt(req.query.pages as string) || 10;
+
+    const results = await tmdb.seedCategoryFull(category, maxPages);
+    const docs = results.map((item: any) => ({
+      tmdb_id: item.tmdb_id,
+      title: item.title || item.name || 'Unknown',
+      overview: item.overview || '',
+      poster_path: item.poster_path || '',
+      backdrop_path: item.backdrop_path || '',
+      media_type: item.media_type || 'movie',
+      category,
+      images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
+      vote_average: item.vote_average || 0,
+      release_date: item.release_date || '',
+      genre_ids: item.genre_ids || [],
+      original_language: item.original_language || '',
+      popularity: item.popularity || 0,
+    }));
+
+    for (const doc of docs) {
+      await Movie.updateOne({ tmdb_id: doc.tmdb_id }, { $set: doc }, { upsert: true });
+    }
+
+    const count = await Movie.countDocuments({ category: category as any });
+    res.json({ message: `Seed complete for ${category}`, count });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Seed failed';
     res.status(500).json({ error: message });

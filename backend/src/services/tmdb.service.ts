@@ -104,7 +104,7 @@ export async function seedAllCategories() {
     const seen = new Map<string, any>();
 
     for (const source of sources) {
-      for (let p = 1; p <= 3; p++) {
+      for (let p = 1; p <= 5; p++) {
         try {
           const { data } = await axios.get(`${TMDB_BASE}${source.url}`, {
             params: { ...source.params, api_key: process.env.TMDB_API_KEY, page: p },
@@ -139,6 +139,48 @@ export async function seedAllCategories() {
   }
 
   return allResults;
+}
+
+export async function seedCategoryFull(category: string, maxPages = 10) {
+  const sources = CATEGORY_SOURCES[category];
+  if (!sources) return [];
+
+  const seen = new Map<string, any>();
+
+  for (const source of sources) {
+    for (let p = 1; p <= maxPages; p++) {
+      try {
+        const { data } = await axios.get(`${TMDB_BASE}${source.url}`, {
+          params: { ...source.params, api_key: process.env.TMDB_API_KEY, page: p },
+        });
+        const items = data.results || [];
+        if (items.length === 0) break;
+        for (const item of items) {
+          const id = String(item.id);
+          if (!seen.has(id)) {
+            seen.set(id, {
+              tmdb_id: id,
+              title: item.title || item.name || 'Unknown',
+              overview: item.overview || '',
+              poster_path: item.poster_path || '',
+              backdrop_path: item.backdrop_path || '',
+              media_type: source.type,
+              category,
+              vote_average: item.vote_average || 0,
+              release_date: item.release_date || item.first_air_date || '',
+              genre_ids: item.genre_ids || [],
+              original_language: item.original_language || '',
+              popularity: item.popularity || 0,
+            });
+          }
+        }
+      } catch {
+        break; // stop paginating this source on error
+      }
+    }
+  }
+
+  return [...seen.values()];
 }
 
 export async function searchTMDB(query: string) {

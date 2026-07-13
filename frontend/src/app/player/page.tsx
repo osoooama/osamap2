@@ -21,6 +21,8 @@ function PlayerContent() {
   const [anime, setAnime] = useState<AnimeEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [currentSeason, setCurrentSeason] = useState(1);
+  const [currentEpisode, setCurrentEpisode] = useState(1);
 
   useEffect(() => {
     if (animeId) {
@@ -41,6 +43,10 @@ function PlayerContent() {
 
   const displayTitle = anime?.title || movie?.title || title;
   const isAnime = !!animeId;
+  const isTV = mediaType === 'tv';
+
+  const totalSeasons = movie?.seasons?.length || 1;
+  const currentSeasonEpisodes = movie?.seasons?.find((s: any) => s.season_number === currentSeason)?.episode_count || 24;
 
   if (!tmdbId && !animeId) {
     return (
@@ -91,9 +97,24 @@ function PlayerContent() {
                   </div>
                 </div>
               ) : isAnime ? (
-                <SmartPlayer animeId={animeId!} mediaType="anime" />
+                <SmartPlayer
+                  animeId={animeId!}
+                  mediaType="anime"
+                  episode={currentEpisode}
+                  totalEpisodes={anime?.episodes || 24}
+                  onEpisodeChange={setCurrentEpisode}
+                />
               ) : (
-                <SmartPlayer tmdbId={tmdbId!} mediaType={mediaType} />
+                <SmartPlayer
+                  tmdbId={tmdbId!}
+                  mediaType={mediaType}
+                  season={currentSeason}
+                  episode={currentEpisode}
+                  totalSeasons={totalSeasons}
+                  totalEpisodes={currentSeasonEpisodes}
+                  onSeasonChange={setCurrentSeason}
+                  onEpisodeChange={setCurrentEpisode}
+                />
               )}
             </div>
 

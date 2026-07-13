@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getProviders, getAnimeProviders } from '@/lib/providers';
 import { trackProviderEvent } from '@/lib/providerPerf';
-import { ChevronDown, Zap, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Zap, Check, AlertCircle, Loader2, Tv, Film, MonitorPlay, ArrowLeft, ArrowRight, Layers } from 'lucide-react';
 
 const LOAD_TIMEOUT = 8000;
 const FAST_LOAD_THRESHOLD = 1500;
@@ -13,15 +13,53 @@ interface SmartPlayerProps {
   tmdbId?: string;
   animeId?: string;
   mediaType: string;
+  season?: number;
+  episode?: number;
+  totalSeasons?: number;
+  totalEpisodes?: number;
+  onSeasonChange?: (season: number) => void;
+  onEpisodeChange?: (episode: number) => void;
   onFullscreen?: () => void;
 }
 
-export default function SmartPlayer({ tmdbId, animeId, mediaType, onFullscreen }: SmartPlayerProps) {
+export default function SmartPlayer({
+  tmdbId, animeId, mediaType,
+  season = 1, episode = 1,
+  totalSeasons = 1, totalEpisodes = 24,
+  onSeasonChange, onEpisodeChange, onFullscreen
+}: SmartPlayerProps) {
   const isAnime = mediaType === 'anime' || !!animeId;
+  const isTV = mediaType === 'tv';
+
+  const [currentSeason, setCurrentSeason] = useState(season);
+  const [currentEpisode, setCurrentEpisode] = useState(episode);
+  const [showEpisodeSelector, setShowEpisodeSelector] = useState(false);
+
   const providers = isAnime && animeId
-    ? getAnimeProviders(Number(animeId), 1, 'sub')
-    : tmdbId ? getProviders(tmdbId, mediaType) : [];
+    ? getAnimeProviders(Number(animeId), currentEpisode, 'sub')
+    : tmdbId ? getProviders(tmdbId, mediaType, currentSeason, currentEpisode) : [];
   const iframeProviders = providers.filter((p: any) => !p.needsResolution);
+
+  const handleSeasonChange = useCallback((s: number) => {
+    setCurrentSeason(s);
+    setCurrentEpisode(1);
+    onSeasonChange?.(s);
+    onEpisodeChange?.(1);
+    setShowEpisodeSelector(false);
+    failedRef.current = new Set();
+    setFailedIndices(new Set());
+  }, [onSeasonChange, onEpisodeChange]);
+
+  const handleEpisodeChange = useCallback((e: number) => {
+    setCurrentEpisode(e);
+    onEpisodeChange?.(e);
+    setShowEpisodeSelector(false);
+    failedRef.current = new Set();
+    setFailedIndices(new Set());
+  }, [onEpisodeChange]);
+
+  useEffect(() => { setCurrentSeason(season); }, [season]);
+  useEffect(() => { setCurrentEpisode(episode); }, [episode]);
 
   const [mode, setMode] = useState<'auto' | 'manual'>('auto');
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
@@ -178,12 +216,14 @@ export default function SmartPlayer({ tmdbId, animeId, mediaType, onFullscreen }
   const activeProvider = currentIndex >= 0 ? iframeProviders[currentIndex] : null;
   const activeUrl = activeProvider ? activeProvider.url : '';
 
+  const showEpisodeUI = isAnime || isTV;
+
   return (
     <div className="relative w-full h-full bg-black">
       {activeUrl && (
         <iframe
           ref={iframeRef}
-          key={`${currentIndex}-${tmdbId}`}
+          key={`${currentIndex}-${tmdbId}-${animeId}-${currentSeason}-${currentEpisode}`}
           src={activeUrl}
           className="w-full h-full border-0"
           style={{ opacity: status === 'playing' ? 1 : 0, transition: 'opacity 0.3s' }}
@@ -226,10 +266,11 @@ export default function SmartPlayer({ tmdbId, animeId, mediaType, onFullscreen }
         </div>
       )}
 
-      <div className="absolute bottom-4 right-4 z-20">
+      {/* Server selector — TOP RIGHT */}
+      <div className="absolute top-3 right-3 z-20">
         <div className="relative">
           <button
-            onClick={() => setShowMenu(!showMenu)}
+            onClick={() => { setShowMenu(!showMenu); setShowEpisodeSelector(false); }}
             className="flex items-center gap-2 px-3 py-2 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all"
           >
             {mode === 'auto' ? (
@@ -247,7 +288,7 @@ export default function SmartPlayer({ tmdbId, animeId, mediaType, onFullscreen }
           </button>
 
           {showMenu && (
-            <div className="absolute bottom-full mb-2 right-0 w-56 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
+            <div className="absolute top-full mt-2 right-0 w-56 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
               <button
                 onClick={() => { setShowMenu(false); switchToAuto(); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-xs transition-all hover:bg-white/5 ${mode === 'auto' ? 'text-yellow-400' : 'text-zinc-400'}`}
@@ -293,8 +334,93 @@ export default function SmartPlayer({ tmdbId, animeId, mediaType, onFullscreen }
         </div>
       </div>
 
+      {/* Episode/Season selector — TOP LEFT */}
+      {showEpisodeUI && (
+        <div className="absolute top-3 left-3 z-20">
+          <div className="relative">
+            <button
+              onClick={() => { setShowEpisodeSelector(!showEpisodeSelector); setShowMenu(false); }}
+              className="flex items-center gap-2 px-3 py-2 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all"
+            >
+              <Layers className="w-3.5 h-3.5 text-purple-400" />
+              <span>
+                {isAnime ? `الحلقة ${currentEpisode}` : `S${currentSeason} E${currentEpisode}`}
+              </span>
+              <ChevronDown className={`w-3 h-3 transition-transform ${showEpisodeSelector ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showEpisodeSelector && (
+              <div className="absolute top-full mt-2 left-0 w-72 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
+                {isTV && totalSeasons > 1 && (
+                  <>
+                    <div className="px-3 py-2 border-b border-white/5">
+                      <span className="text-[10px] text-zinc-600 font-medium flex items-center gap-1.5">
+                        <Tv className="w-3 h-3" /> الموسم
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 px-3 py-2.5">
+                      {Array.from({ length: totalSeasons }, (_, i) => i + 1).map(s => (
+                        <button
+                          key={s}
+                          onClick={() => handleSeasonChange(s)}
+                          className={`w-9 h-9 rounded-lg text-xs font-semibold transition-all ${
+                            s === currentSeason
+                              ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                              : 'bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="border-t border-white/5" />
+                  </>
+                )}
+
+                <div className="px-3 py-2 border-b border-white/5">
+                  <span className="text-[10px] text-zinc-600 font-medium flex items-center gap-1.5">
+                    <MonitorPlay className="w-3 h-3" /> الحلقات
+                  </span>
+                </div>
+                <div className="max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-5 gap-1.5 p-3">
+                    {Array.from({ length: totalEpisodes }, (_, i) => i + 1).map(e => (
+                      <button
+                        key={e}
+                        onClick={() => handleEpisodeChange(e)}
+                        className={`h-9 rounded-lg text-xs font-semibold transition-all ${
+                          e === currentEpisode
+                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                            : 'bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                        }`}
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {isAnime && (
+                  <div className="border-t border-white/5 px-3 py-2.5 flex gap-2">
+                    {(['sub', 'dub'] as const).map(lang => (
+                      <button
+                        key={lang}
+                        className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white`}
+                      >
+                        {lang === 'sub' ? '🔍 مترجم' : '🔊 مدبلج'}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Auto mode progress — BOTTOM LEFT (small) */}
       {mode === 'auto' && status === 'loading' && (
-        <div className="absolute top-4 left-4 z-20">
+        <div className="absolute bottom-3 left-3 z-20">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
             <Loader2 className="w-3 h-3 text-yellow-400 animate-spin" />
             <span className="text-yellow-400 text-[10px] font-medium">

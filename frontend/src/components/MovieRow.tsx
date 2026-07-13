@@ -63,16 +63,16 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
   const handleMouseLeave = () => setIsDragging(false);
 
   return (
-    <div className="relative group/row mb-8">
-      <div className="flex items-end gap-3 mb-5 px-0">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-6 rounded-full" style={{ backgroundColor: accentColor }} />
+    <div className="relative group/row mb-5 sm:mb-8">
+      <div className="flex items-end gap-2 sm:gap-3 mb-3 sm:mb-5 px-0">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-0.5 sm:w-1 h-4 sm:h-6 rounded-full" style={{ backgroundColor: accentColor }} />
           <div>
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">
+            <h2 className="text-sm sm:text-lg md:text-2xl font-bold text-white">
               {title}
             </h2>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-zinc-500 mt-0.5">{subtitle}</p>
+              <p className="text-[10px] sm:text-sm text-zinc-500 mt-0.5">{subtitle}</p>
             )}
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
 
         <div
           ref={scrollRef}
-          className="flex gap-2.5 sm:gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 cursor-grab active:cursor-grabbing select-none"
+          className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 cursor-grab active:cursor-grabbing select-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           onScroll={updateArrows}
           onMouseDown={handleMouseDown}

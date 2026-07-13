@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getProviders, getAnimeProviders } from '@/lib/providers';
 import { trackProviderEvent } from '@/lib/providerPerf';
-import { ChevronDown, ChevronUp, Zap, Check, AlertCircle, Loader2, Tv, Film, MonitorPlay, ArrowLeft, ArrowRight, Layers } from 'lucide-react';
+import { ChevronDown, ChevronUp, Zap, Check, AlertCircle, Loader2, Tv, Film, MonitorPlay, ArrowLeft, ArrowRight, Layers, Maximize2 } from 'lucide-react';
 
 const LOAD_TIMEOUT = 8000;
 const FAST_LOAD_THRESHOLD = 1500;
@@ -217,9 +217,20 @@ export default function SmartPlayer({
   const activeUrl = activeProvider ? activeProvider.url : '';
 
   const showEpisodeUI = isAnime || isTV;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleFullscreen = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      el.requestFullscreen().catch(() => {});
+    }
+  }, []);
 
   return (
-    <div className="relative w-full h-full bg-black">
+    <div ref={containerRef} className="relative w-full h-full bg-black">
       {activeUrl && (
         <iframe
           ref={iframeRef}
@@ -415,6 +426,19 @@ export default function SmartPlayer({
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Fullscreen button — BOTTOM CENTER */}
+      {status === 'playing' && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20">
+          <button
+            onClick={handleFullscreen}
+            className="flex items-center gap-2 px-3 py-2 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all active:scale-95"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>ملء الشاشة</span>
+          </button>
         </div>
       )}
 

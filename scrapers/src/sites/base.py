@@ -166,8 +166,8 @@ def verify_stream_url(url):
                 return False
             return True
         return False
-    except:
-        return True
+    except Exception:
+        return False
 
 def save_link(tmdb_id, source_url, stream_url, category, title=''):
     if not is_media_url(stream_url):

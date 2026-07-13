@@ -10,9 +10,12 @@ interface Favorite {
   tmdb_id: string;
   title: string;
   poster: string;
-  type: string;
-  year?: string;
-  rating?: number;
+  media_type: string;
+  backdrop_path?: string;
+  release_date?: string;
+  vote_average?: number;
+  genres?: { id: number; name: string }[];
+  overview?: string;
 }
 
 function FavoritesContent() {
@@ -65,7 +68,7 @@ function FavoritesContent() {
               const imgSrc = movie.poster?.startsWith('http') ? movie.poster : movie.poster ? `https://image.tmdb.org/t/p/w500${movie.poster}` : '';
               return (
                 <div key={movie.tmdb_id} className="group relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900">
-                  <Link href={`/player?tmdb_id=${movie.tmdb_id}&type=${movie.type}`}>
+                  <Link href={`/player?tmdb_id=${movie.tmdb_id}&type=${movie.media_type}`}>
                     {imgSrc ? (
                       <img src={imgSrc} alt={movie.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" />
                     ) : (
@@ -77,8 +80,8 @@ function FavoritesContent() {
                     <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                       <p className="text-white text-sm font-bold truncate">{movie.title}</p>
                       <div className="flex items-center gap-2 text-xs text-zinc-400 mt-1">
-                        {movie.year && <span>{movie.year}</span>}
-                        {movie.rating && <span className="text-yellow-500">⭐ {movie.rating.toFixed(1)}</span>}
+                        {movie.release_date && <span>{movie.release_date.slice(0, 4)}</span>}
+                        {movie.vote_average != null && movie.vote_average > 0 && <span className="text-yellow-500">⭐ {movie.vote_average.toFixed(1)}</span>}
                       </div>
                     </div>
                   </Link>
@@ -88,7 +91,7 @@ function FavoritesContent() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  {movie.type === 'tv' && (
+                  {movie.media_type === 'tv' && (
                     <div className="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-blue-600/80 text-[10px] text-white">TV</div>
                   )}
                 </div>

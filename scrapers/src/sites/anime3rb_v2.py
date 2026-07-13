@@ -79,7 +79,7 @@ def crawl(site_info):
                         title_url = f'{base_url}/titles/{slug}'
                         page.goto(title_url, wait_until='domcontentloaded', timeout=20000)
                         time.sleep(2)
-                        ep_links = [a.get_attribute('href') for a in page.query_selector_all('a[href*="/episode/"]')]
+                        ep_links = [a.get_attribute('href') for a in page.query_selector_all('a[href*="/episode/"]') if a.get_attribute('href')]
                         if not ep_links:
                             print(f'    No episodes found')
                             continue

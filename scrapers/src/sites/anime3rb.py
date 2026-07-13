@@ -29,6 +29,7 @@ def crawl(site_info):
             episode_links = list(set(
                 a.get_attribute('href')
                 for a in page.query_selector_all('a[href*="/episode/"]')
+                if a.get_attribute('href')
             ))
             print(f'[ANIME3RB] Found {len(episode_links)} episode links on homepage')
 

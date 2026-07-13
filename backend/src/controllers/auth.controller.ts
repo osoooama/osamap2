@@ -30,21 +30,20 @@ export async function register(req: Request, res: Response) {
       await sendVerificationEmail(email, username, code);
       emailSent = true;
     } catch {
-      await User.findOneAndUpdate({ email }, { is_verified: true });
-      await VerificationCode.deleteOne({ email, code });
+      // Don't auto-verify on email failure — user must retry
     }
 
     const token = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 
     res.status(201).json({
-      message: emailSent ? 'تم التسجيل. يرجى التحقق من بريدك الإلكتروني.' : 'تم التسجيل بنجاح.',
+      message: emailSent
+        ? 'تم التسجيل. يرجى التحقق من بريدك الإلكتروني.'
+        : 'تم التسجيل. فشل إرسال البريد، يرجى طلب إعادة الإرسال.',
       token,
       user: { id: user._id, email: user.email, username: user.username },
-      autoVerified: !emailSent,
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Registration failed';
-    res.status(500).json({ error: message });
+  } catch {
+    res.status(500).json({ error: 'Registration failed' });
   }
 }
 
@@ -67,9 +66,8 @@ export async function login(req: Request, res: Response) {
       token,
       user: { id: user._id, email: user.email, username: user.username },
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Login failed';
-    res.status(500).json({ error: message });
+  } catch {
+    res.status(500).json({ error: 'Login failed' });
   }
 }
 
@@ -85,9 +83,8 @@ export async function verifyEmail(req: Request, res: Response) {
     await VerificationCode.deleteOne({ _id: record._id });
 
     res.json({ message: 'Email verified' });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Verification failed';
-    res.status(500).json({ error: message });
+  } catch {
+    res.status(500).json({ error: 'Verification failed' });
   }
 }
 
@@ -106,8 +103,7 @@ export async function resendVerification(req: Request, res: Response) {
     await sendVerificationEmail(email, user.username, code);
 
     res.json({ message: 'New code sent to your email' });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Resend failed';
-    res.status(500).json({ error: message });
+  } catch {
+    res.status(500).json({ error: 'Resend failed' });
   }
 }

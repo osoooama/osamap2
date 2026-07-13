@@ -12,8 +12,8 @@ import { seedAllCategories } from './services/tmdb.service';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
+app.use(express.json({ limit: '1mb' }));
 
 app.get('/', (_req, res) => res.json({ message: 'OSAMA/>Dev API V2', status: 'running' }));
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));

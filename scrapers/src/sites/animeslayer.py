@@ -54,7 +54,8 @@ def crawl(site_info):
                             player_src = ''
                             for f in iframes:
                                 src = f.get_attribute('src') or ''
-                                if 'player' in f.get_attribute('id') or '' or 'p_wit' in src:
+                                fid = f.get_attribute('id') or ''
+                                if 'player' in fid or 'p_wit' in src:
                                     player_src = src
                                     break
                             if not player_src and iframes:

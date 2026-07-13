@@ -13,12 +13,11 @@ const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'scre
 
 const qualityRank: Record<string, number> = { '360p': 0, '480p': 1, '720p': 2, '1080p': 3, '2K': 4, '4K': 5 };
 
-const providerPerformance = getProviderPerf();
-
 function PlayerContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tmdbId = searchParams.get('tmdb_id');
+  const providerPerformance = getProviderPerf();
   const [movie, setMovie] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

@@ -1,3 +1,5 @@
+import { randomInt } from 'crypto';
+
 export function generateCode(length = 6): string {
-  return Array.from({ length }, () => Math.floor(Math.random() * 10)).join('');
+  return Array.from({ length }, () => randomInt(10)).join('');
 }

@@ -103,9 +103,9 @@ def crawl(site_info):
 
                     for embed_url in embed_urls:
                         q = '720p'
-                        for srv_name, pat in SERVERS:
-                            if pat in embed_url:
-                                q = srv_name
+                        for srv in SERVERS:
+                            if srv['pattern'] in embed_url:
+                                q = srv['name']
                                 break
                         print(f'    [{q}] {embed_url[:80]}...')
                         save_link(tmdb_id or vid, play_url, embed_url, category, title)

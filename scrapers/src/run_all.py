@@ -8,7 +8,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from sources import get_all_sites
 from sites.cineby import crawl as crawl_cineby
-from sites.anime3rb import crawl as crawl_anime3rb_old
 from sites.anime3rb_v2 import crawl as crawl_anime3rb
 from sites.animeslayer import crawl as crawl_animeslayer
 from sites.cinemana import crawl as crawl_cinemana

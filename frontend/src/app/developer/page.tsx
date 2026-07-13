@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/clerk-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { GitBranch, Mail, Globe, Code, ExternalLink, ChevronLeft, Award, Sparkles } from 'lucide-react';
+import { GitBranch, Mail, Globe, Code, ChevronLeft, Award, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 export default function DeveloperPage() {

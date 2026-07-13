@@ -175,3 +175,35 @@ DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 - Custom email template: Blocked by Clerk Hobby plan in production. Needs plan upgrade or Resend API.
 - Test files cleaned from repo history.
 
+---
+
+## 🤖 MCP Usage Rules (Auto-enforced)
+
+### قاعدة ثابتة: يجب استخدام MCP تلقائياً في كل جلسة عمل
+
+**1. Context7 — التحقق من APIs والمكتبات**
+- عند العمل مع أي مكتبة أو framework (Next.js, React, Tailwind, Clerk, Playwright, etc.)
+- يجب استخدام Context7 للتحقق من الـ API الحالي قبل كتابة أي كود
+- لا تعتمد على المعرفة القديمة — اقرأ الوثائق دائماً
+- مثال: `use Context7 to check the current Next.js App Router API`
+
+**2. Playwright — التحقق من صفحات الويب**
+- قبل الانتهاء من أي مهمة تتعلق بـ UI أو صفحة ويب
+- يجب استخدام Playwright لفتح الصفحة والتحقق من عملها
+- تحقق من: عدم وجود أخطاء في Console، الظهور الصحيح، عمل الروابط
+- لا تقول "تم" إلا بعد التحقق الفعلي
+
+**3. SearXNG — البحث عن معلومات خارجية**
+- عند الحاجة لمعرفة: إصدار حديث لمكتبة، أفضل الممارسات، حل مشكلة معينة
+- يجب استخدام SearXNG للبحث في الويب
+- لا تعتمد على معلومات قديمة بدون التحقق
+
+### مثال على الاستخدام:
+```
+# عند إضافة feature جديدة:
+1. Context7: "check current Framer Motion API for staggered animations"
+2. اكتب الكود
+3. Playwright: "open /netflix and verify the new animation works"
+4. SearXNG: "if needed, search for best practices"
+```
+

@@ -54,9 +54,8 @@ export async function getMoviesByCategory(req: Request, res: Response) {
     });
 
     res.json({ items: enriched, total, page, totalPages: Math.ceil(total / limit) });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to fetch movies';
-    res.status(500).json({ error: message });
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch movies' });
   }
 }
 

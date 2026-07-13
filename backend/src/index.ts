@@ -11,8 +11,25 @@ import Movie from './models/Movie.model';
 import { seedAllCategories } from './services/tmdb.service';
 import { errorHandler } from './middleware/errorHandler';
 
+const ALLOWED_ORIGINS = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'https://osamap2.pages.dev',
+  'https://e09111c4.osamap2.pages.dev',
+  'https://1ff2ca94.osamap2.pages.dev',
+].filter(Boolean);
+
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/', (_req, res) => res.json({ message: 'OSAMA/>Dev API V2', status: 'running' }));

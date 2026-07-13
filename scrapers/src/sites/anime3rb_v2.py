@@ -35,7 +35,7 @@ def get_tmdb_popular(media_type='tv', count=5):
                     ids.append({'id': item['id'], 'title': item.get('name', item.get('title', '')), 'media_type': media_type})
                 if len(ids) >= count:
                     break
-        except:
+        except Exception:
             pass
     return ids[:count]
 

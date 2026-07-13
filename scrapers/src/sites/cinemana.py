@@ -35,7 +35,7 @@ def search_tmdb(title, api_key=TMDB_API_KEY):
             results = resp.json().get('results', [])
             if results:
                 return str(results[0]['id'])
-    except:
+    except Exception:
         pass
     return None
 
@@ -141,7 +141,7 @@ def crawl(site_info):
             browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
 
             for cat in CATEGORIES:
-                if cat['category'] == category or category == 'arabic' and cat['category'] in ('arabic', 'turkish'):
+                if cat['category'] == category or (category == 'arabic' and cat['category'] in ('arabic', 'turkish')):
                     count = crawl_category(browser, cat, limit=15)
                     total += count
 

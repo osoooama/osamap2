@@ -34,7 +34,7 @@ def get_tmdb_popular(media_type='movie', count=10):
                     })
             if len(ids) >= count:
                 break
-        except:
+        except Exception:
             pass
     return ids[:count]
 
@@ -99,7 +99,7 @@ def crawl(site_info):
                                             save_link(tid, link, src, category, title)
                                             found += 1
                                             total += 1
-                        except:
+                        except Exception:
                             pass
 
                     if found > 0:

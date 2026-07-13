@@ -31,7 +31,7 @@ def get_tmdb_popular(media_type='movie', count=10):
                     })
                 if len(ids) >= count:
                     break
-        except:
+        except Exception:
             pass
     return ids[:count]
 
@@ -53,7 +53,7 @@ def extract_stream_from_xpass(page, xpass_url):
                 src = video.get_attribute('src') or video.get_attribute('currentSrc')
                 if src and '.m3u8' in src:
                     return src
-        except:
+        except Exception:
             pass
         time.sleep(2)
     return None

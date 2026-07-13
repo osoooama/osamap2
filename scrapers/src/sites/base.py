@@ -134,7 +134,7 @@ def parse_m3u8_playlists(master_url):
         if not variants:
             return [{'url': master_url, 'quality': '720p'}]
         return variants
-    except:
+    except Exception:
         return [{'url': master_url, 'quality': '720p'}]
 
 
@@ -201,7 +201,7 @@ def save_link(tmdb_id, source_url, stream_url, category, title=''):
     from notifier import send_telegram_alert
     try:
         send_telegram_alert(title, category, quality, stream_url)
-    except:
+    except Exception:
         pass
 
     return True
@@ -242,7 +242,7 @@ def save_all_qualities(tmdb_id, source_url, stream_url, category, title=''):
         from notifier import send_telegram_alert
         try:
             send_telegram_alert(title, category, v['quality'], v['url'])
-        except:
+        except Exception:
             pass
         saved += 1
     return saved

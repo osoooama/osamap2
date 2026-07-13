@@ -27,7 +27,7 @@ def search_tmdb(title):
         if resp.ok:
             results = resp.json().get('results', [])
             return str(results[0]['id']) if results else None
-    except:
+    except Exception:
         pass
     return None
 

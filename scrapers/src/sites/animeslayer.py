@@ -8,7 +8,7 @@ def decode_href(encoded):
         decoded = base64.b64decode(encoded).decode('latin-1')
         result = ''.join(chr(ord(decoded[i]) ^ ord(key[i % len(key)])) for i in range(len(decoded)))
         return result
-    except:
+    except Exception:
         return ''
 
 def crawl(site_info):

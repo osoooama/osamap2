@@ -9,7 +9,7 @@ import { getProviderPerf, getProviderScore, trackProviderEvent, getBestProviderI
 import MovieCard from '@/components/MovieCard';
 import { ArrowLeft, Star, Calendar, Clock, ThumbsUp, Server, Film, Wifi, Layers } from 'lucide-react';
 
-const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'screenscape', 'vidplays', 'modocine', 'vidcore', 'apiplayer', '2embed', 'vidfast', 'videasy', 'smashystream', 'frembed', 'vidking', 'vidnest', 'vidrift', 'vidlove', 'cinemana', 'hd1', 'anime3rb'];
+const embedDomains = ['embed', 'vidsrc', 'vidlink', 'multiembed', 'xpass', 'screenscape', 'vidplays', 'modocine', 'vidcore', 'apiplayer', '2embed', 'vidfast', 'videasy', 'smashystream', 'frembed', 'vidking', 'vidnest', 'vidrift', 'vidlove', 'cinemana', 'hd1', 'anime3rb', 'ezvidapi', 'vixsrc', 'superembed', 'vidphantom'];
 
 const qualityRank: Record<string, number> = { '360p': 0, '480p': 1, '720p': 2, '1080p': 3, '2K': 4, '4K': 5 };
 

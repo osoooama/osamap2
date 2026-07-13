@@ -112,7 +112,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
       onClick={goToPlayer}
       className="relative flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] cursor-pointer z-0 hover:z-50"
     >
-      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/50 group-hover:scale-[1.02]">
+      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/50">
         {imgSrc && !imgError ? (
           <img
             src={backdropSrc || imgSrc}

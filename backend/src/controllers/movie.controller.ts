@@ -6,10 +6,20 @@ import { resolveProvider } from '../services/provider-resolver.service';
 
 const VALID_CATEGORIES = ['foreign', 'arabic', 'turkish', 'anime', 'animation'];
 
+function sanitizeCategory(input: unknown): string | null {
+  if (typeof input !== 'string') return null;
+  return VALID_CATEGORIES.includes(input) ? input : null;
+}
+
+function sanitizeId(input: unknown): string | null {
+  if (typeof input !== 'string') return null;
+  return /^\d+$/.test(input) ? input : null;
+}
+
 export async function getMoviesByCategory(req: Request, res: Response) {
   try {
-    const category = req.params.category as string;
-    if (!VALID_CATEGORIES.includes(category)) {
+    const category = sanitizeCategory(req.params.category);
+    if (!category) {
       return res.status(400).json({ error: 'Invalid category' });
     }
     const page = parseInt(req.query.page as string) || 1;
@@ -66,7 +76,8 @@ export async function getMoviesByCategory(req: Request, res: Response) {
 
 export async function getMovieDetails(req: Request, res: Response) {
   try {
-    const tmdb_id = req.params.tmdb_id as string;
+    const tmdb_id = sanitizeId(req.params.tmdb_id);
+    if (!tmdb_id) return res.status(400).json({ error: 'Invalid TMDB ID' });
     let movie = await Movie.findOne({ tmdb_id });
 
     if (!movie) {
@@ -154,7 +165,7 @@ export async function getMovieDetails(req: Request, res: Response) {
 
 export async function resolveMovieProvider(req: Request, res: Response) {
   try {
-    const tmdbId = req.params.tmdb_id as string;
+    const tmdbId = sanitizeId(req.params.tmdb_id);
     const provider = req.query.provider as string;
     if (!tmdbId || !provider) {
       return res.status(400).json({ error: 'tmdb_id and provider are required' });
@@ -225,7 +236,8 @@ export async function seedDatabase(req: Request, res: Response) {
 
 export async function seedCategory(req: Request, res: Response) {
   try {
-    const category = req.params.category as string;
+    const category = sanitizeCategory(req.params.category);
+    if (!category) return res.status(400).json({ error: 'Invalid category' });
     const maxPages = parseInt(req.query.pages as string) || 10;
 
     const results = await tmdb.seedCategoryFull(category, maxPages);

@@ -6,24 +6,30 @@ import VerificationCode from '../models/VerificationCode.model';
 import { generateCode } from '../utils/helpers';
 import { sendVerificationEmail } from '../services/email.service';
 
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function sanitizeEmail(input: unknown): string | null {
+  if (typeof input !== 'string') return null;
+  const parts = input.split('@');
+  if (parts.length !== 2) return null;
+  const [local, domain] = parts;
+  if (!local || !domain || !domain.includes('.')) return null;
+  if (local.length > 64 || domain.length > 255) return null;
+  if (!/^[a-zA-Z0-9._%+-]+$/.test(local) || !/^[a-zA-Z0-9.-]+$/.test(domain)) return null;
+  return `${local}@${domain}`;
 }
 
-function sanitizeString(input: string): string {
+function sanitizeString(input: unknown): string {
+  if (typeof input !== 'string') return '';
   return input.replace(/[<>"'`]/g, '').trim();
 }
 
 export async function register(req: Request, res: Response) {
   try {
-    const { email, username, password } = req.body;
-    if (!email || !username || !password) {
+    const { email: rawEmail, username: rawUsername, password } = req.body;
+    const email = sanitizeEmail(rawEmail);
+    const cleanUsername = sanitizeString(rawUsername);
+    if (!email || !cleanUsername || !password) {
       return res.status(400).json({ error: 'All fields are required' });
     }
-    if (!isValidEmail(email)) {
-      return res.status(400).json({ error: 'Invalid email format' });
-    }
-    const cleanUsername = sanitizeString(username);
     if (cleanUsername.length < 3 || cleanUsername.length > 30) {
       return res.status(400).json({ error: 'Username must be 3-30 characters' });
     }
@@ -64,8 +70,9 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   try {
-    const { email, password } = req.body;
-    if (!email || !isValidEmail(email)) {
+    const email = sanitizeEmail(req.body.email);
+    const { password } = req.body;
+    if (!email) {
       return res.status(400).json({ error: 'Valid email required' });
     }
     const user = await User.findOne({ email });
@@ -91,14 +98,15 @@ export async function login(req: Request, res: Response) {
 
 export async function verifyEmail(req: Request, res: Response) {
   try {
-    const { email, code } = req.body;
-    if (!email || !isValidEmail(email)) {
+    const email = sanitizeEmail(req.body.email);
+    const { code } = req.body;
+    if (!email) {
       return res.status(400).json({ error: 'Valid email required' });
     }
-    if (!code || !/^\d{6}$/.test(code)) {
+    if (!code || !/^\d{6}$/.test(String(code))) {
       return res.status(400).json({ error: 'Invalid code format' });
     }
-    const record = await VerificationCode.findOne({ email, code });
+    const record = await VerificationCode.findOne({ email, code: String(code) });
     if (!record || record.expires_at < new Date()) {
       return res.status(400).json({ error: 'Invalid or expired code' });
     }
@@ -114,8 +122,8 @@ export async function verifyEmail(req: Request, res: Response) {
 
 export async function resendVerification(req: Request, res: Response) {
   try {
-    const { email } = req.body;
-    if (!email || !isValidEmail(email)) {
+    const email = sanitizeEmail(req.body.email);
+    if (!email) {
       return res.status(400).json({ error: 'Valid email required' });
     }
     const user = await User.findOne({ email });

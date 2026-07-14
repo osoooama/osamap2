@@ -45,6 +45,16 @@ export interface AnimeEntry {
   media_type: 'anime';
 }
 
+function stripHtml(input: string): string {
+  if (!input) return '';
+  return input
+    .replace(/<\s*\/?\s*(script|style|iframe|object|embed|form)[^>]*>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&[a-z]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 const GENRE_MAP: Record<number, string> = {
   28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy',
   80: 'Crime', 99: 'Documentary', 18: 'Drama', 10751: 'Family',
@@ -110,7 +120,7 @@ export async function fetchAniListTrending(page = 1, perPage = 20): Promise<Anim
     mal_id: m.idMal,
     title: m.title.english || m.title.romaji || '',
     title_japanese: m.title.native || '',
-    overview: (m.description || '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<[^>]*>/g, '').substring(0, 300),
+    overview: stripHtml(m.description || '').substring(0, 300),
     cover_image: m.coverImage?.large || '',
     banner_image: m.bannerImage || '',
     episodes: m.episodes,
@@ -154,7 +164,7 @@ export async function searchAniList(keyword: string, page = 1): Promise<AnimeEnt
     mal_id: m.idMal,
     title: m.title.english || m.title.romaji || '',
     title_japanese: m.title.native || '',
-    overview: (m.description || '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<[^>]*>/g, '').substring(0, 300),
+    overview: stripHtml(m.description || '').substring(0, 300),
     cover_image: m.coverImage?.large || '',
     banner_image: m.bannerImage || '',
     episodes: m.episodes,
@@ -198,7 +208,7 @@ export async function fetchAniListById(id: number): Promise<AnimeEntry | null> {
     mal_id: m.idMal,
     title: m.title.english || m.title.romaji || '',
     title_japanese: m.title.native || '',
-    overview: (m.description || '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<[^>]*>/g, '').substring(0, 300),
+    overview: stripHtml(m.description || '').substring(0, 300),
     cover_image: m.coverImage?.large || '',
     banner_image: m.bannerImage || '',
     episodes: m.episodes,

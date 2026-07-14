@@ -1,13 +1,14 @@
 'use client';
 
-import { useUser } from '@clerk/clerk-react';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { GitBranch, Mail, Globe, Code, ChevronLeft, Award, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 export default function DeveloperPage() {
-  const { isSignedIn } = useUser();
+  const { user } = useAuth();
+  const isSignedIn = !!user;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">

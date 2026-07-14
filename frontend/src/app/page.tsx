@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@clerk/clerk-react';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -148,14 +148,16 @@ function PlatformCard({ p, index, isSignedIn }: { p: typeof platforms[0]; index:
 }
 
 export default function HomePage() {
-  const { isSignedIn, isLoaded } = useUser();
+  const { user, loading } = useAuth();
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (!loading) {
       setTimeout(() => setShowContent(true), 100);
     }
-  }, [isLoaded]);
+  }, [loading]);
+
+  const isSignedIn = !!user;
 
   return (
     <AnimatePresence>
@@ -167,7 +169,6 @@ export default function HomePage() {
         >
           <FloatingOrbs />
 
-          {/* Hero Section */}
           <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -256,7 +257,7 @@ export default function HomePage() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
                       <span className="text-white text-xs font-bold">✓</span>
                     </div>
-                    <span className="text-sm">تم تسجيل الدخول</span>
+                    <span className="text-sm">مرحباً {user?.username}</span>
                   </div>
                 )}
               </motion.div>
@@ -271,7 +272,6 @@ export default function HomePage() {
             </motion.div>
           </section>
 
-          {/* Platforms Section */}
           <section className="relative px-4 sm:px-6 lg:px-8 pb-32">
             <motion.div
               variants={containerVariants}
@@ -287,19 +287,18 @@ export default function HomePage() {
                 <p className="text-zinc-500 text-lg max-w-2xl mx-auto">
                   {isSignedIn
                     ? 'كل منصة لها هويتها ومحتواها الخاص، اختر ما يناسبك'
-                    : 'سجل دخولك واستمتع بأربع منصات بث حصرية'}
+                    : 'سجّل دخولك واستمتع بأربع منصات بث حصرية'}
                 </p>
               </motion.div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {platforms.map((p, i) => (
-                  <PlatformCard key={p.name} p={p} index={i} isSignedIn={!!isSignedIn} />
+                  <PlatformCard key={p.name} p={p} index={i} isSignedIn={isSignedIn} />
                 ))}
               </div>
             </motion.div>
           </section>
 
-          {/* Stats Section (only for non-signed-in) */}
           {!isSignedIn && (
             <section className="relative px-4 sm:px-6 lg:px-8 pb-32">
               <motion.div

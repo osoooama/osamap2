@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser, useClerk } from '@clerk/clerk-react';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -16,13 +16,12 @@ const platforms = [
 ];
 
 export default function Navbar() {
-  const { isSignedIn, user, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const { user, loading, logout } = useAuth();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isLanding = pathname === '/';
-  const hideNav = pathname.startsWith('/sign-in');
+  const hideNav = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -35,6 +34,8 @@ export default function Navbar() {
   }, [pathname]);
 
   if (hideNav) return null;
+
+  const isSignedIn = !!user;
 
   return (
     <>
@@ -77,7 +78,7 @@ export default function Navbar() {
                       <div className="w-5 h-5 rounded overflow-hidden shrink-0">
                         <Image src={p.logo} alt={p.name} width={20} height={20} className="w-full h-full object-cover" />
                       </div>
-                      <span className={active ? '' : ''} style={active ? { color: p.color } : undefined}>{p.name}</span>
+                      <span style={active ? { color: p.color } : undefined}>{p.name}</span>
                     </Link>
                   );
                 })}
@@ -85,7 +86,7 @@ export default function Navbar() {
             )}
 
             <div className="flex items-center gap-1.5 sm:gap-2">
-              {isLoaded && isSignedIn ? (
+              {!loading && isSignedIn ? (
                 <>
                   <Link
                     href="/search"
@@ -111,26 +112,24 @@ export default function Navbar() {
 
                   <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
                     <User className="w-3.5 h-3.5 text-zinc-400" />
-                    <span className="text-xs text-zinc-400 truncate max-w-20">
-                      {user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'مستخدم'}
-                    </span>
+                    <span className="text-xs text-zinc-400 truncate max-w-20">{user?.username}</span>
                   </div>
                   <button
-                    onClick={() => signOut()}
+                    onClick={logout}
                     className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-600/10 border border-red-600/20 text-red-400 hover:bg-red-600/20 hover:text-red-300 transition-all text-xs font-medium"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">تسجيل الخروج</span>
                   </button>
                 </>
-              ) : (
+              ) : !loading ? (
                 <Link
                   href="/sign-in"
                   className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-red-600/25 hover:shadow-red-600/40"
                 >
                   تسجيل الدخول
                 </Link>
-              )}
+              ) : null}
 
               {isSignedIn && (
                 <button

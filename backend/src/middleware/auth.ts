@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 export interface AuthRequest extends Request {
-  user?: { id: string; email: string };
+  user?: { id: string; username: string };
 }
 
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
@@ -12,7 +12,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   }
   try {
     const token = header.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; username: string };
     req.user = decoded;
     next();
   } catch {

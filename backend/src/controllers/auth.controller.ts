@@ -2,20 +2,6 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.model';
-import VerificationCode from '../models/VerificationCode.model';
-import { generateCode } from '../utils/helpers';
-import { sendVerificationEmail } from '../services/email.service';
-
-function sanitizeEmail(input: unknown): string | null {
-  if (typeof input !== 'string') return null;
-  const parts = input.split('@');
-  if (parts.length !== 2) return null;
-  const [local, domain] = parts;
-  if (!local || !domain || !domain.includes('.')) return null;
-  if (local.length > 64 || domain.length > 255) return null;
-  if (!/^[a-zA-Z0-9._%+-]+$/.test(local) || !/^[a-zA-Z0-9.-]+$/.test(domain)) return null;
-  return `${local}@${domain}`;
-}
 
 function sanitizeString(input: unknown): string {
   if (typeof input !== 'string') return '';
@@ -24,44 +10,31 @@ function sanitizeString(input: unknown): string {
 
 export async function register(req: Request, res: Response) {
   try {
-    const { email: rawEmail, username: rawUsername, password } = req.body;
-    const email = sanitizeEmail(rawEmail);
-    const cleanUsername = sanitizeString(rawUsername);
-    if (!email || !cleanUsername || !password) {
-      return res.status(400).json({ error: 'All fields are required' });
+    const { username: rawUsername, password } = req.body;
+    const username = sanitizeString(rawUsername);
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
     }
-    if (cleanUsername.length < 3 || cleanUsername.length > 30) {
+    if (username.length < 3 || username.length > 30) {
       return res.status(400).json({ error: 'Username must be 3-30 characters' });
     }
+    if (password.length < 4) {
+      return res.status(400).json({ error: 'Password must be at least 4 characters' });
+    }
 
-    const existing = await User.findOne({ $or: [{ email }, { username: cleanUsername }] });
+    const existing = await User.findOne({ username });
     if (existing) {
-      const field = existing.email === email ? 'Email' : 'Username';
-      return res.status(400).json({ error: `${field} already registered` });
+      return res.status(400).json({ error: 'Username already taken' });
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, username: cleanUsername, password: hashed, is_verified: false });
+    const user = await User.create({ username, password: hashed });
 
-    const code = generateCode(6);
-    await VerificationCode.create({ email, code, expires_at: new Date(Date.now() + 10 * 60 * 1000) });
-
-    let emailSent = false;
-    try {
-      await sendVerificationEmail(email, cleanUsername, code);
-      emailSent = true;
-    } catch {
-      // Don't auto-verify on email failure — user must retry
-    }
-
-    const token = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, username }, process.env.JWT_SECRET!, { expiresIn: '30d' });
 
     res.status(201).json({
-      message: emailSent
-        ? 'تم التسجيل. يرجى التحقق من بريدك الإلكتروني.'
-        : 'تم التسجيل. فشل إرسال البريد، يرجى طلب إعادة الإرسال.',
       token,
-      user: { id: user._id, email: user.email, username: user.username },
+      user: { id: user._id, username: user.username },
     });
   } catch {
     res.status(500).json({ error: 'Registration failed' });
@@ -70,75 +43,41 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   try {
-    const email = sanitizeEmail(req.body.email);
-    const { password } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: 'Valid email required' });
+    const { username: rawUsername, password } = req.body;
+    const username = sanitizeString(rawUsername);
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
     }
-    const user = await User.findOne({ email });
+
+    const user = await User.findOne({ username });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
 
-    if (!user.is_verified) {
-      return res.status(403).json({ error: 'Please verify your email first' });
-    }
-
-    const token = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, username }, process.env.JWT_SECRET!, { expiresIn: '30d' });
 
     res.json({
       token,
-      user: { id: user._id, email: user.email, username: user.username },
+      user: { id: user._id, username: user.username },
     });
   } catch {
     res.status(500).json({ error: 'Login failed' });
   }
 }
 
-export async function verifyEmail(req: Request, res: Response) {
+export async function verifyToken(req: Request, res: Response) {
   try {
-    const email = sanitizeEmail(req.body.email);
-    const { code } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: 'Valid email required' });
+    const header = req.headers.authorization;
+    if (!header || !header.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No token' });
     }
-    if (!code || !/^\d{6}$/.test(String(code))) {
-      return res.status(400).json({ error: 'Invalid code format' });
-    }
-    const record = await VerificationCode.findOne({ email, code: String(code) });
-    if (!record || record.expires_at < new Date()) {
-      return res.status(400).json({ error: 'Invalid or expired code' });
-    }
-
-    await User.findOneAndUpdate({ email }, { is_verified: true });
-    await VerificationCode.deleteOne({ _id: record._id });
-
-    res.json({ message: 'Email verified' });
+    const token = header.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; username: string };
+    const user = await User.findById(decoded.id).select('username _id');
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    res.json({ user: { id: user._id, username: user.username } });
   } catch {
-    res.status(500).json({ error: 'Verification failed' });
-  }
-}
-
-export async function resendVerification(req: Request, res: Response) {
-  try {
-    const email = sanitizeEmail(req.body.email);
-    if (!email) {
-      return res.status(400).json({ error: 'Valid email required' });
-    }
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    if (user.is_verified) return res.json({ message: 'Already verified' });
-
-    await VerificationCode.deleteMany({ email });
-
-    const code = generateCode(6);
-    await VerificationCode.create({ email, code, expires_at: new Date(Date.now() + 10 * 60 * 1000) });
-
-    await sendVerificationEmail(email, user.username, code);
-
-    res.json({ message: 'New code sent to your email' });
-  } catch {
-    res.status(500).json({ error: 'Resend failed' });
+    res.status(401).json({ error: 'Invalid token' });
   }
 }

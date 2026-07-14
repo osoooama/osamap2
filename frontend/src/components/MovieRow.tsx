@@ -11,9 +11,10 @@ interface MovieRowProps {
   accentColor?: string;
   loading?: boolean;
   platformRef?: string;
+  onInfo?: (movie: any) => void;
 }
 
-export default function MovieRow({ title, subtitle, movies, accentColor = '#E50914', loading, platformRef }: MovieRowProps) {
+export default function MovieRow({ title, subtitle, movies, accentColor = '#E50914', loading, platformRef, onInfo }: MovieRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -110,7 +111,7 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
               ))
             : movies.map((movie: any, i: number) => (
                 <div key={movie.tmdb_id || movie._id || i} className="flex-shrink-0 pointer-events-auto">
-                  <MovieCard movie={movie} accentColor={accentColor} platformRef={platformRef} />
+                  <MovieCard movie={movie} accentColor={accentColor} platformRef={platformRef} onInfo={onInfo} />
                 </div>
               ))}
         </div>

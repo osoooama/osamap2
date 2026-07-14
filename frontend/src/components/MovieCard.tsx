@@ -25,9 +25,10 @@ interface MovieCardProps {
   };
   accentColor?: string;
   platformRef?: string;
+  onInfo?: (movie: any) => void;
 }
 
-export default function MovieCard({ movie, accentColor = '#E50914', platformRef }: MovieCardProps) {
+export default function MovieCard({ movie, accentColor = '#E50914', platformRef, onInfo }: MovieCardProps) {
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -167,7 +168,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
               <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white fill-white ml-0.5" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); goToPlayer(); }}
+              onClick={(e) => { e.stopPropagation(); onInfo?.(movie); }}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
             >
               <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
@@ -243,6 +244,9 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef 
                 </button>
                 <button onClick={toggleFav} className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl border transition ${isFav ? 'bg-red-500/20 border-red-500/40 text-red-400' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}>
                   <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isFav ? 'fill-red-400' : ''}`} />
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); onInfo?.(movie); }} className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl border bg-white/10 border-white/20 text-white hover:bg-white/20 transition">
+                  <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
               {trailerLoading && (

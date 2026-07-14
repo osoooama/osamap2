@@ -33,10 +33,9 @@ const PROVIDERS: Provider[] = [
   { name: 'VidNest', url: (tmdbId, type, season, episode) => type === 'tv' && season && episode ? `https://vidnest.fun/tv/${tmdbId}/${season}/${episode}` : `https://vidnest.fun/${type}/${tmdbId}`, priority: 10 },
   { name: 'VidRift', url: (tmdbId, type, season, episode) => type === 'tv' && season && episode ? `https://vidrift.in/embed/tv/${tmdbId}/${season}/${episode}` : `https://vidrift.in/embed/${type}/${tmdbId}`, priority: 11 },
 
-  // Scraper-based (local, no iframe — requires backend scraper to resolve IDs)
-  { name: 'Cinemana', url: () => 'https://cinemana.cc', priority: 12, needsResolution: true },
-  { name: 'HD1', url: () => 'https://hd1.brstej.com', priority: 13, needsResolution: true },
-  { name: 'Anime3rb', url: () => 'https://anime3rb.com', priority: 14, needsResolution: true },
+  // Scraper-based (backend scrapers)
+  { name: 'HD1', url: () => 'https://hd1.brstej.com', priority: 12, needsResolution: true },
+  { name: 'AniSlayer', url: () => 'https://animeslayer.to', priority: 13, needsResolution: true, isAnime: true },
 ];
 
 export function getProviders(tmdbId: string, mediaType = 'movie', season?: number, episode?: number) {

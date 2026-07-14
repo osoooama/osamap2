@@ -30,22 +30,22 @@ const platforms = [
   },
   {
     name: 'Disney+',
-    tagline: 'أنيميشن فقط',
+    tagline: 'أنيميشن للعائلة',
     href: '/disney',
     color: '#113CCF',
     logo: '/disney.webp',
     icon: Palette,
-    desc: 'أفلام أنيميشن عالمية وforeign',
+    desc: 'أفلام أنيميشن عالمية ومحتوى عائلي',
     bgGradient: 'platform-gradient-disney',
   },
   {
     name: 'Crunchyroll',
-    tagline: 'أنمي فقط',
+    tagline: 'أنمي حصري',
     href: '/crunchyroll',
     color: '#F47521',
     logo: '/crunchyroll.webp',
     icon: Atom,
-    desc: 'مسلسلات وأفلام وفلرات أنمي',
+    desc: 'مسلسلات وأفلام أنمي حصرية',
     bgGradient: 'platform-gradient-crunchyroll',
   },
 ];
@@ -213,8 +213,7 @@ export default function HomePage() {
                 transition={{ delay: 0.5, duration: 0.6 }}
               >
                 أربع منصات عالمية في مكان واحد.{' '}
-                <span className="text-white font-semibold">أفلام، مسلسلات، أنمي، وأنيميشن</span>
-                <br className="hidden sm:block" />
+                <span className="text-white font-semibold">أفلام، مسلسلات، أنمي، وأنيميشن.</span>{' '}
                 كل ما تريد بمشغل فيديو متطور وجودة عالية.
               </motion.p>
 
@@ -312,7 +311,7 @@ export default function HomePage() {
                     { number: '4', label: 'منصات بث', color: '#E50914' },
                     { number: '80+', label: 'موقع زحف', color: '#00ca97' },
                     { number: '10K+', label: 'فيلم ومسلسل', color: '#113CCF' },
-                    { number: '16', label: 'مزود تشغيل', color: '#F47521' },
+                    { number: '16', label: 'مزودات تشغيل', color: '#F47521' },
                   ].map((stat, i) => (
                     <motion.div
                       key={stat.label}

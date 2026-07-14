@@ -4,106 +4,190 @@ import { useMovies } from '@/hooks/useMovies';
 import MovieRow from '@/components/MovieRow';
 import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Sparkles, Play, Info } from 'lucide-react';
-import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Info, ChevronLeft, ChevronRight, Volume2, VolumeX } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 
 const theme = { primary: '#113CCF' };
 
-function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
+const slides = [
+  { id: 1, title: 'Disney+', subtitle: 'عالم الأنيميشن السحري', genre: 'animation' as const, mediaType: 'movie' as const },
+  { id: 2, title: 'Pixar', subtitle: 'قصص لا تُنسى', genre: 'animation' as const, mediaType: 'movie' as const },
+  { id: 3, title: 'Marvel', subtitle: 'أبطال خارقون', genre: 'action' as const, mediaType: 'movie' as const },
+];
+
+function Banner({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
   const router = useRouter();
-  const featured = !isLoading && movies?.length > 0 ? movies[0] : null;
+  const [current, setCurrent] = useState(0);
+  const [muted, setMuted] = useState(true);
+  const [direction, setDirection] = useState(0);
+
+  const featured = !isLoading && movies?.length > 0 ? movies[current % movies.length] : null;
   const backdropUrl = featured?.backdrop_path ? `https://image.tmdb.org/t/p/original${featured.backdrop_path}` : null;
 
-  return (
-    <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] overflow-hidden">
-      {backdropUrl && (
-        <div className="absolute inset-0">
-          <img src={backdropUrl} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/80 via-transparent to-transparent" />
-        </div>
-      )}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(17,60,207,0.08) 0%, transparent 40%)' }} />
+  const next = useCallback(() => {
+    setDirection(1);
+    setCurrent(c => (c + 1) % (movies?.length || 1));
+  }, [movies?.length]);
 
+  const prev = useCallback(() => {
+    setDirection(-1);
+    setCurrent(c => (c - 1 + (movies?.length || 1)) % (movies?.length || 1));
+  }, [movies?.length]);
+
+  useEffect(() => {
+    if (movies?.length <= 1) return;
+    const timer = setInterval(next, 8000);
+    return () => clearInterval(timer);
+  }, [movies?.length, next]);
+
+  return (
+    <div className="relative h-[55vh] sm:h-[65vh] md:h-[75vh] overflow-hidden bg-[#0a0a0a]">
+      <AnimatePresence mode="wait" custom={direction}>
+        {backdropUrl && (
+          <motion.div
+            key={current}
+            custom={direction}
+            initial={{ opacity: 0, x: direction >= 0 ? 100 : -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction >= 0 ? -100 : 100 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0"
+          >
+            <img src={backdropUrl} alt="" className="w-full h-full object-cover" style={{ animation: 'kenBurns 20s ease-in-out infinite alternate' }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/90 via-[#0a0a0a]/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/40 via-transparent to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
+
+      {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 md:p-16">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           className="max-w-7xl mx-auto"
         >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl overflow-hidden ring-2 ring-blue-500/20 mb-3 sm:mb-5 shadow-2xl"
-          >
-            <Image src="/disney.webp" alt="Disney+" width={80} height={80} className="w-full h-full object-cover" />
-          </motion.div>
-
-          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-[0.9] mb-2 sm:mb-3">
-            Disney+
-          </h1>
-          <p className="text-zinc-400 text-xs sm:text-base md:text-lg max-w-xl mb-3 sm:mb-4 leading-relaxed">
-            أفلام ومسلسلات أنيميشن عالمية وأجنبية فقط. محتوى مخصص لعشاق الكرتون والأنيميشن.
-          </p>
+          {/* Disney+ Logo */}
+          <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl sm:rounded-2xl overflow-hidden ring-2 ring-blue-500/20 mb-4 sm:mb-6 shadow-2xl bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center">
+            <span className="text-white font-black text-lg sm:text-2xl md:text-3xl tracking-tighter">D+</span>
+          </div>
 
           {featured && (
-            <div className="mb-4 sm:mb-6">
-              <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-1.5 sm:mb-2">{featured.title}</h2>
-              <p className="text-zinc-400 text-xs sm:text-sm max-w-xl line-clamp-2">{featured.overview}</p>
-            </div>
+            <>
+              <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-[0.9] mb-2 sm:mb-3">
+                {featured.title}
+              </h1>
+              <p className="text-zinc-300 text-sm sm:text-base md:text-lg max-w-2xl mb-2 sm:mb-4 leading-relaxed line-clamp-2">
+                {featured.overview}
+              </p>
+
+              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                {featured.release_date && (
+                  <span className="text-zinc-400 text-xs sm:text-sm">{featured.release_date.split('-')[0]}</span>
+                )}
+                {featured.vote_average > 0 && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-xs font-bold">
+                    ★ {featured.vote_average.toFixed(1)}
+                  </span>
+                )}
+                {featured.genre_ids && (
+                  <span className="text-zinc-500 text-xs sm:text-sm">
+                    {featured.genre_ids.slice(0, 2).map((g: number) => {
+                      const names: Record<number, string> = { 28: 'أكشن', 12: 'مغامرة', 16: 'أنيميشن', 35: 'كوميدي', 878: 'خيال علمي', 99: 'وثائقي', 10751: 'عائلي' };
+                      return names[g] || '';
+                    }).filter(Boolean).join(' • ')}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=disney`)}
+                  className="flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-xl transition-all duration-300 shadow-lg shadow-blue-600/30"
+                >
+                  <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
+                  مشاهدة الآن
+                </button>
+                <button
+                  onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=disney`)}
+                  className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-white/10 hover:bg-white/20 text-white font-medium text-sm sm:text-base rounded-lg sm:rounded-xl backdrop-blur-md border border-white/10 transition-all"
+                >
+                  <Info className="w-4 h-4 sm:w-5 sm:h-5" />
+                  التفاصيل
+                </button>
+              </div>
+            </>
           )}
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=disney`)}
-              className="flex items-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-xl transition-all duration-300 shadow-lg shadow-blue-600/30"
-            >
-              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
-              مشاهدة الآن
-            </button>
-            {featured?.tmdb_id && (
-              <button
-                onClick={() => router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=disney`)}
-                className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-white/10 hover:bg-white/20 text-white font-medium text-sm sm:text-base rounded-lg sm:rounded-xl backdrop-blur-md border border-white/10 transition-all"
-              >
-                <Info className="w-4 h-4 sm:w-5 sm:h-5" />
-                التفاصيل
-              </button>
-            )}
-          </div>
-
-          <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
-            <span className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 text-[10px] sm:text-xs border border-white/[0.03]">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500" />
-              أنيميشن فقط
-            </span>
-            <span className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/5 text-zinc-400 text-[10px] sm:text-xs border border-white/[0.03]">
-              عالمي + foreign
-            </span>
-          </div>
         </motion.div>
       </div>
+
+      {/* Navigation arrows */}
+      {movies?.length > 1 && (
+        <>
+          <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all opacity-0 hover:opacity-100 group-hover:opacity-100 backdrop-blur-sm">
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+          <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all opacity-0 hover:opacity-100 group-hover:opacity-100 backdrop-blur-sm">
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+        </>
+      )}
+
+      {/* Slide indicators */}
+      {movies?.length > 1 && (
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+          {movies.slice(0, 5).map((_: any, i: number) => (
+            <button
+              key={i}
+              onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                i === current ? 'w-8 bg-blue-500' : 'w-2 bg-white/30 hover:bg-white/50'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Mute toggle */}
+      <button
+        onClick={() => setMuted(!muted)}
+        className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all backdrop-blur-sm border border-white/10"
+      >
+        {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+      </button>
     </div>
   );
 }
 
 export default function DisneyPage() {
-  const { data: movies, isLoading } = useMovies('animation', 1, 'movie');
-  const { data: tvSeries, isLoading: tvLoading } = useMovies('animation', 1, 'tv');
+  const { data: animation, isLoading } = useMovies('animation', 1, 'movie');
+  const { data: animationTv, isLoading: tvLoading } = useMovies('animation', 1, 'tv');
+  const { data: action } = useMovies('action', 1, 'movie');
+  const { data: scifi } = useMovies('science_fiction', 1, 'movie');
+  const { data: comedy } = useMovies('comedy', 1, 'movie');
+  const { data: family } = useMovies('family', 1, 'movie');
   const { data: topRated } = useMovies('animation', 2, 'movie');
 
   return (
     <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0a]">
-        <Billboard movies={movies || []} isLoading={isLoading} />
+        <Banner movies={animation || []} isLoading={isLoading} />
+
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 relative z-10 pb-12 sm:pb-16">
           <div className="space-y-4 sm:space-y-6">
-            <MovieRow title="أفلام أنيميشن" subtitle="أشهر أفلام الكرتون والأنيميشن" movies={movies || []} accentColor={theme.primary} loading={isLoading} platformRef="disney" />
-            <MovieRow title="مسلسلات أنيميشن" subtitle="مسلسلات كرتونية مميزة" movies={tvSeries || []} accentColor={theme.primary} loading={tvLoading} platformRef="disney" />
-            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أفلام الأنيميشن" movies={topRated || []} accentColor={theme.primary} loading={isLoading} platformRef="disney" />
+            <MovieRow title="أفلام أنيميشن" subtitle="أشهر أفلام الكرتون والأنيميشن" movies={animation || []} accentColor={theme.primary} loading={isLoading} platformRef="disney" />
+            <MovieRow title="مسلسلات أنيميشن" subtitle="مسلسلات كرتونية مميزة" movies={animationTv || []} accentColor={theme.primary} loading={tvLoading} platformRef="disney" />
+            <MovieRow title="أكشن ومغامرة" subtitle="أفلام الأكشن والمغامرة" movies={action || []} accentColor={theme.primary} loading={false} platformRef="disney" />
+            <MovieRow title="خيال علمي" subtitle="أفلام الخيال العلمي" movies={scifi || []} accentColor={theme.primary} loading={false} platformRef="disney" />
+            <MovieRow title="كوميدي" subtitle="أفلام الكوميديا" movies={comedy || []} accentColor={theme.primary} loading={false} platformRef="disney" />
+            <MovieRow title="عائلي" subtitle="للعائلات والأطفال" movies={family || []} accentColor={theme.primary} loading={false} platformRef="disney" />
+            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أفلام الأنيميشن" movies={topRated || []} accentColor={theme.primary} loading={false} platformRef="disney" />
           </div>
         </div>
       </div>

@@ -165,7 +165,7 @@ function Billboard({ movies, isLoading, onInfo }: { movies: any[]; isLoading: bo
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3, delay: 1 }}
           onClick={() => setIsMuted(!isMuted)}
-          className="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 border-white/30 flex items-center justify-center hover:border-white/60 transition-all duration-300 bg-black/30 backdrop-blur-sm hover:bg-black/50"
+          className="w-11 h-11 sm:w-11 sm:h-11 rounded-full border-2 border-white/30 flex items-center justify-center hover:border-white/60 transition-all duration-300 bg-black/30 backdrop-blur-sm hover:bg-black/50"
         >
           {isMuted ? (
             <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-white" />

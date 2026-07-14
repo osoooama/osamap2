@@ -89,24 +89,24 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/search"
-                    className="flex w-9 h-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    className="flex w-11 h-11 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     title="بحث"
                   >
-                    <Search className="w-4.5 h-4.5" />
+                    <Search className="w-5 h-5" />
                   </Link>
                   <Link
                     href="/favorites"
-                    className="flex w-9 h-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    className="flex w-11 h-11 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     title="المفضلة"
                   >
-                    <Heart className="w-4.5 h-4.5" />
+                    <Heart className="w-5 h-5" />
                   </Link>
                   <Link
-                    href="/developer"
-                    className="hidden sm:flex w-9 h-9 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-                    title="المطور"
+                    href="/netflix"
+                    className="hidden sm:flex w-11 h-11 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    title="المنصات"
                   >
-                    <Code className="w-4.5 h-4.5" />
+                    <Code className="w-5 h-5" />
                   </Link>
 
                   <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
@@ -191,12 +191,12 @@ export default function Navbar() {
                 المفضلة
               </Link>
               <Link
-                href="/developer"
+                href="/netflix"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
               >
                 <Code className="w-5 h-5" />
-                المطور
+                المنصات
               </Link>
             </div>
           </div>

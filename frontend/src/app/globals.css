@@ -195,6 +195,7 @@ html {
   text-size-adjust: 100%;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
+  overflow-x: hidden;
 }
 
 body {
@@ -202,6 +203,7 @@ body {
   -webkit-user-select: none;
   user-select: none;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow-x: hidden;
 }
 
 /* Fix 100vh on mobile browsers (address bar) */
@@ -236,8 +238,8 @@ input, textarea, select {
   }
 }
 
-/* Android specific: smooth scrolling */
-* {
+/* Android specific: smooth scrolling on scrollable containers only */
+.scrollbar-hide, .overflow-auto, .overflow-x-auto, .overflow-y-auto {
   -webkit-overflow-scrolling: touch;
 }
 

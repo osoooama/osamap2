@@ -93,7 +93,6 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
           ref={scrollRef}
           className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 cursor-grab active:cursor-grabbing select-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          onScroll={updateArrows}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}

@@ -2,6 +2,7 @@
 
 import { useMovies } from '@/hooks/useMovies';
 import MovieRow from '@/components/MovieRow';
+import InfoModal from '@/components/InfoModal';
 import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,7 +17,7 @@ const slides = [
   { id: 3, title: 'Marvel', subtitle: 'أبطال خارقون', genre: 'action' as const, mediaType: 'movie' as const },
 ];
 
-function Banner({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
+function Banner({ movies, isLoading, onInfo }: { movies: any[]; isLoading: boolean; onInfo: (movie: any) => void }) {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [muted, setMuted] = useState(true);
@@ -115,7 +116,7 @@ function Banner({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
                   مشاهدة الآن
                 </button>
                 <button
-                  onClick={() => featured?.tmdb_id && router.push(`/player?tmdb_id=${featured.tmdb_id}&type=${featured.media_type || 'movie'}&ref=disney`)}
+                  onClick={() => featured && onInfo(featured)}
                   className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-white/10 hover:bg-white/20 text-white font-medium text-sm sm:text-base rounded-lg sm:rounded-xl backdrop-blur-md border border-white/10 transition-all"
                 >
                   <Info className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -130,10 +131,10 @@ function Banner({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
       {/* Navigation arrows */}
       {movies?.length > 1 && (
         <>
-          <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all opacity-0 hover:opacity-100 group-hover:opacity-100 backdrop-blur-sm">
+          <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all md:opacity-0 md:hover:opacity-100 md:group-hover:opacity-100 backdrop-blur-sm">
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-          <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all opacity-0 hover:opacity-100 group-hover:opacity-100 backdrop-blur-sm">
+          <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all md:opacity-0 md:hover:opacity-100 md:group-hover:opacity-100 backdrop-blur-sm">
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </>
@@ -146,7 +147,7 @@ function Banner({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
             <button
               key={i}
               onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-              className={`h-1 rounded-full transition-all duration-300 ${
+              className={`min-h-[28px] min-w-[28px] rounded-full transition-all duration-300 ${
                 i === current ? 'w-8 bg-blue-500' : 'w-2 bg-white/30 hover:bg-white/50'
               }`}
             />
@@ -157,7 +158,7 @@ function Banner({ movies, isLoading }: { movies: any[]; isLoading: boolean }) {
       {/* Mute toggle */}
       <button
         onClick={() => setMuted(!muted)}
-        className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all backdrop-blur-sm border border-white/10"
+        className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all backdrop-blur-sm border border-white/10"
       >
         {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
       </button>
@@ -174,22 +175,37 @@ export default function DisneyPage() {
   const { data: family } = useMovies('family', 1, 'movie');
   const { data: topRated } = useMovies('animation', 2, 'movie');
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<any>(null);
+
+  const handleOpenInfo = useCallback((movie: any) => {
+    setSelectedMovie(movie);
+    setModalVisible(true);
+  }, []);
+
+  const handleCloseInfo = useCallback(() => {
+    setModalVisible(false);
+    setSelectedMovie(null);
+  }, []);
+
   return (
     <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0a]">
-        <Banner movies={animation || []} isLoading={isLoading} />
+        <Banner movies={animation || []} isLoading={isLoading} onInfo={handleOpenInfo} />
 
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 relative z-10 pb-12 sm:pb-16">
           <div className="space-y-4 sm:space-y-6">
-            <MovieRow title="أفلام أنيميشن" subtitle="أشهر أفلام الكرتون والأنيميشن" movies={animation || []} accentColor={theme.primary} loading={isLoading} platformRef="disney" />
-            <MovieRow title="مسلسلات أنيميشن" subtitle="مسلسلات كرتونية مميزة" movies={animationTv || []} accentColor={theme.primary} loading={tvLoading} platformRef="disney" />
-            <MovieRow title="أكشن ومغامرة" subtitle="أفلام الأكشن والمغامرة" movies={action || []} accentColor={theme.primary} loading={false} platformRef="disney" />
-            <MovieRow title="خيال علمي" subtitle="أفلام الخيال العلمي" movies={scifi || []} accentColor={theme.primary} loading={false} platformRef="disney" />
-            <MovieRow title="كوميدي" subtitle="أفلام الكوميديا" movies={comedy || []} accentColor={theme.primary} loading={false} platformRef="disney" />
-            <MovieRow title="عائلي" subtitle="للعائلات والأطفال" movies={family || []} accentColor={theme.primary} loading={false} platformRef="disney" />
-            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أفلام الأنيميشن" movies={topRated || []} accentColor={theme.primary} loading={false} platformRef="disney" />
+            <MovieRow title="أفلام أنيميشن" subtitle="أشهر أفلام الكرتون والأنيميشن" movies={animation || []} accentColor={theme.primary} loading={isLoading} platformRef="disney" onInfo={handleOpenInfo} />
+            <MovieRow title="مسلسلات أنيميشن" subtitle="مسلسلات كرتونية مميزة" movies={animationTv || []} accentColor={theme.primary} loading={tvLoading} platformRef="disney" onInfo={handleOpenInfo} />
+            <MovieRow title="أكشن ومغامرة" subtitle="أفلام الأكشن والمغامرة" movies={action || []} accentColor={theme.primary} loading={false} platformRef="disney" onInfo={handleOpenInfo} />
+            <MovieRow title="خيال علمي" subtitle="أفلام الخيال العلمي" movies={scifi || []} accentColor={theme.primary} loading={false} platformRef="disney" onInfo={handleOpenInfo} />
+            <MovieRow title="كوميدي" subtitle="أفلام الكوميديا" movies={comedy || []} accentColor={theme.primary} loading={false} platformRef="disney" onInfo={handleOpenInfo} />
+            <MovieRow title="عائلي" subtitle="للعائلات والأطفال" movies={family || []} accentColor={theme.primary} loading={false} platformRef="disney" onInfo={handleOpenInfo} />
+            <MovieRow title="الأكثر تقييماً" subtitle="أفضل أفلام الأنيميشن" movies={topRated || []} accentColor={theme.primary} loading={false} platformRef="disney" onInfo={handleOpenInfo} />
           </div>
         </div>
+
+        <InfoModal visible={modalVisible} onClose={handleCloseInfo} movie={selectedMovie} accentColor={theme.primary} platformRef="disney" />
       </div>
     </AuthGuard>
   );

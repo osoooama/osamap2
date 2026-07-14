@@ -78,8 +78,8 @@ function PlayerContent() {
       <div className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/[0.03]">
         <div className="max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 h-12 sm:h-16 flex items-center justify-between">
           <button onClick={() => router.push(`/${ref}`)} className="flex items-center gap-2 sm:gap-2.5 text-zinc-500 hover:text-white transition-all duration-200 group">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-center group-hover:bg-zinc-800 transition">
-              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-center group-hover:bg-zinc-800 transition">
+              <ArrowLeft className="w-4 h-4 sm:w-4 sm:h-4" />
             </div>
             <span className="text-xs sm:text-sm hidden sm:inline">رجوع</span>
           </button>

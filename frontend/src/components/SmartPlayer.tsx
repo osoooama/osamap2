@@ -282,7 +282,7 @@ export default function SmartPlayer({
         <div className="relative">
           <button
             onClick={() => { setShowMenu(!showMenu); setShowEpisodeSelector(false); }}
-            className="flex items-center gap-2 px-3 py-2 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all"
+            className="flex items-center gap-2 px-3.5 py-2.5 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all min-h-[44px]"
           >
             {mode === 'auto' ? (
               <>
@@ -351,7 +351,7 @@ export default function SmartPlayer({
           <div className="relative">
             <button
               onClick={() => { setShowEpisodeSelector(!showEpisodeSelector); setShowMenu(false); }}
-              className="flex items-center gap-2 px-3 py-2 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all"
+              className="flex items-center gap-2 px-3.5 py-2.5 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all min-h-[44px]"
             >
               <Layers className="w-3.5 h-3.5 text-purple-400" />
               <span>
@@ -374,11 +374,11 @@ export default function SmartPlayer({
                         <button
                           key={s}
                           onClick={() => handleSeasonChange(s)}
-                          className={`w-9 h-9 rounded-lg text-xs font-semibold transition-all ${
-                            s === currentSeason
-                              ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                              : 'bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white'
-                          }`}
+                        className={`min-h-[36px] min-w-[36px] rounded-lg text-xs font-semibold transition-all ${
+                          s === currentSeason
+                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                            : 'bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                        }`}
                         >
                           {s}
                         </button>
@@ -399,7 +399,7 @@ export default function SmartPlayer({
                       <button
                         key={e}
                         onClick={() => handleEpisodeChange(e)}
-                        className={`h-9 rounded-lg text-xs font-semibold transition-all ${
+                        className={`min-h-[36px] min-w-[36px] rounded-lg text-xs font-semibold transition-all ${
                           e === currentEpisode
                             ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
                             : 'bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white'
@@ -434,7 +434,7 @@ export default function SmartPlayer({
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20">
           <button
             onClick={handleFullscreen}
-            className="flex items-center gap-2 px-3 py-2 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all active:scale-95"
+            className="flex items-center gap-2 px-3.5 py-2.5 bg-black/70 backdrop-blur-md rounded-xl border border-white/10 text-white text-xs font-medium hover:bg-black/90 transition-all active:scale-95 min-h-[44px]"
           >
             <Maximize2 className="w-3.5 h-3.5" />
             <span>ملء الشاشة</span>

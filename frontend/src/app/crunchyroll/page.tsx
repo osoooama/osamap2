@@ -128,10 +128,10 @@ function Carousel({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a: AnimeE
       {/* Navigation arrows */}
       {animes.length > 1 && (
         <>
-          <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all opacity-0 hover:opacity-100 group-hover:opacity-100 backdrop-blur-sm">
+          <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all md:opacity-0 md:hover:opacity-100 md:group-hover:opacity-100 backdrop-blur-sm">
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-          <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all opacity-0 hover:opacity-100 group-hover:opacity-100 backdrop-blur-sm">
+          <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all md:opacity-0 md:hover:opacity-100 md:group-hover:opacity-100 backdrop-blur-sm">
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </>
@@ -144,7 +144,7 @@ function Carousel({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a: AnimeE
             <button
               key={i}
               onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-              className={`h-1 rounded-full transition-all duration-300 ${
+              className={`min-h-[28px] min-w-[28px] rounded-full transition-all duration-300 ${
                 i === current ? 'w-8 bg-[#F47521]' : 'w-2 bg-white/30 hover:bg-white/50'
               }`}
             />
@@ -155,7 +155,7 @@ function Carousel({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a: AnimeE
       {/* Mute toggle */}
       <button
         onClick={() => setMuted(!muted)}
-        className="absolute bottom-5 sm:bottom-8 right-4 sm:right-8 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all backdrop-blur-sm border border-white/10"
+        className="absolute bottom-5 sm:bottom-8 right-4 sm:right-8 w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all backdrop-blur-sm border border-white/10"
       >
         {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
       </button>
@@ -242,10 +242,10 @@ function AnimeRow({ title, subtitle, animeList, loading, onPlay }: { title: stri
             ))}
           </div>
           {/* Scroll arrows */}
-          <button onClick={() => scroll('right')} className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#141519]/90 hover:bg-[#F47521] text-white flex items-center justify-center transition-all opacity-0 group-hover/row:opacity-100 z-10 shadow-xl border border-white/10">
+          <button onClick={() => scroll('right')} className="absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#141519]/90 hover:bg-[#F47521] text-white flex items-center justify-center transition-all md:opacity-0 md:group-hover/row:opacity-100 z-10 shadow-xl border border-white/10">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <button onClick={() => scroll('left')} className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#141519]/90 hover:bg-[#F47521] text-white flex items-center justify-center transition-all opacity-0 group-hover/row:opacity-100 z-10 shadow-xl border border-white/10">
+          <button onClick={() => scroll('left')} className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#141519]/90 hover:bg-[#F47521] text-white flex items-center justify-center transition-all md:opacity-0 md:group-hover/row:opacity-100 z-10 shadow-xl border border-white/10">
             <ChevronRight className="w-5 h-5" />
           </button>
         </>

@@ -115,7 +115,7 @@ export default function InfoModal({ visible, onClose, movie, accentColor = '#E50
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/80 backdrop-blur-sm overflow-y-auto py-10 px-4"
+            className="fixed inset-0 z-[100] flex items-start justify-center bg-black/80 backdrop-blur-sm overflow-y-auto py-10 px-4"
           onClick={handleBackdropClick}
         >
           <motion.div
@@ -127,12 +127,12 @@ export default function InfoModal({ visible, onClose, movie, accentColor = '#E50
             className="relative w-full max-w-2xl bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl shadow-black/80 border border-white/5"
           >
             {/* Close button */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-zinc-800/90 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-zinc-700 transition-colors"
-            >
-              <X className="w-4 h-4 text-white" />
-            </button>
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 z-30 w-11 h-11 rounded-full bg-zinc-800/90 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-zinc-700 transition-colors"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
 
             {/* Backdrop / Trailer */}
             <div className="relative w-full aspect-video">

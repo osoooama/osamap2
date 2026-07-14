@@ -4,7 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 import Navbar from "@/components/Navbar";
 import ToastContainer from "@/components/ToastContainer";
-import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+
 
 const notoKufi = Noto_Kufi_Arabic({
   variable: "--font-arabic",
@@ -63,7 +63,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Navbar />
           <ToastContainer />
-          <PWAInstallPrompt />
           <main className="flex-1">{children}</main>
         </Providers>
       </body>

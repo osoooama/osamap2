@@ -87,7 +87,7 @@ function FavoritesContent() {
                   </Link>
                   <button
                     onClick={() => removeFavorite(movie.tmdb_id)}
-                    className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/70 text-zinc-400 hover:text-red-400 hover:bg-black/90 transition-all opacity-0 group-hover:opacity-100"
+                    className="absolute top-2 left-2 p-2.5 rounded-lg bg-black/70 text-zinc-400 hover:text-red-400 hover:bg-black/90 transition-all md:opacity-0 md:group-hover:opacity-100"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

@@ -1,5 +1,7 @@
 name: Test Crawl (4 sites)
 on: workflow_dispatch
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest

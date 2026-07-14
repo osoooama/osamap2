@@ -3,7 +3,7 @@
 import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Info, Search, X, Loader2, Star, ChevronLeft, ChevronRight, Volume2, VolumeX, Heart, Clock, MessageCircle } from 'lucide-react';
+import { Play, Info, Search, X, Loader2, Star, Volume2, VolumeX, Heart, Clock, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchAniListTrending, searchAniList, type AnimeEntry } from '@/lib/contentSources';
@@ -125,33 +125,6 @@ function Carousel({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a: AnimeE
         </motion.div>
       </div>
 
-      {/* Navigation arrows */}
-      {animes.length > 1 && (
-        <>
-          <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all md:opacity-0 md:hover:opacity-100 md:group-hover:opacity-100 backdrop-blur-sm">
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-          <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all md:opacity-0 md:hover:opacity-100 md:group-hover:opacity-100 backdrop-blur-sm">
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-        </>
-      )}
-
-      {/* Slide indicators */}
-      {animes.length > 1 && (
-        <div className="absolute bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-          {animes.slice(0, 6).map((_: any, i: number) => (
-            <button
-              key={i}
-              onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-              className={`min-h-[28px] min-w-[28px] rounded-full transition-all duration-300 ${
-                i === current ? 'w-8 bg-[#F47521]' : 'w-2 bg-white/30 hover:bg-white/50'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-
       {/* Mute toggle */}
       <button
         onClick={() => setMuted(!muted)}
@@ -206,15 +179,40 @@ function AnimeCard({ anime, onClick }: { anime: AnimeEntry; onClick: () => void 
 
 function AnimeRow({ title, subtitle, animeList, loading, onPlay }: { title: string; subtitle?: string; animeList: AnimeEntry[]; loading?: boolean; onPlay: (anime: AnimeEntry) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, scrollLeft: 0 });
 
-  const scroll = (dir: 'left' | 'right') => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.75;
-    scrollRef.current.scrollBy({ left: dir === 'right' ? -amount : amount, behavior: 'smooth' });
+    setIsDragging(true);
+    dragStart.current = { x: e.pageX - scrollRef.current.offsetLeft, scrollLeft: scrollRef.current.scrollLeft };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - dragStart.current.x) * 1.5;
+    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseLeave = () => setIsDragging(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    dragStart.current = { x: e.touches[0].pageX - scrollRef.current.offsetLeft, scrollLeft: scrollRef.current.scrollLeft };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
+    const walk = (x - dragStart.current.x) * 1.5;
+    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - walk;
   };
 
   return (
-    <div className="relative group/row">
+    <div className="relative">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div>
           <h2 className="text-base sm:text-lg font-bold text-[#c2c1c3]">{title}</h2>
@@ -233,22 +231,23 @@ function AnimeRow({ title, subtitle, animeList, loading, onPlay }: { title: stri
       ) : animeList.length === 0 ? (
         <p className="text-[#a0a0a0] text-sm py-4">لا توجد نتائج</p>
       ) : (
-        <>
-          <div ref={scrollRef} className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', scrollSnapType: 'x mandatory' }}>
+          <div
+            ref={scrollRef}
+            className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide select-none"
+            style={{ scrollbarWidth: 'none', scrollSnapType: 'x mandatory', cursor: isDragging ? 'grabbing' : 'grab' }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+          >
             {animeList.map((anime) => (
               <div key={anime.id} style={{ scrollSnapAlign: 'start' }}>
                 <AnimeCard anime={anime} onClick={() => onPlay(anime)} />
               </div>
             ))}
           </div>
-          {/* Scroll arrows */}
-          <button onClick={() => scroll('right')} className="absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#141519]/90 hover:bg-[#F47521] text-white flex items-center justify-center transition-all md:opacity-0 md:group-hover/row:opacity-100 z-10 shadow-xl border border-white/10">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button onClick={() => scroll('left')} className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#141519]/90 hover:bg-[#F47521] text-white flex items-center justify-center transition-all md:opacity-0 md:group-hover/row:opacity-100 z-10 shadow-xl border border-white/10">
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </>
       )}
     </div>
   );
@@ -262,7 +261,6 @@ function ContinueWatching({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-2">
           <h2 className="text-base sm:text-lg font-bold text-[#c2c1c3]">Seguir viendo</h2>
-          <ChevronRight className="w-4 h-4 text-[#a0a0a0] rotate-[-90deg]" />
         </div>
       </div>
       <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>

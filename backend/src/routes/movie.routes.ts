@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   getMoviesByCategory,
   getMovieDetails,
@@ -9,11 +10,15 @@ import {
 } from '../controllers/movie.controller';
 
 const router = Router();
-router.get('/movies/category/:category', getMoviesByCategory);
-router.get('/movies/details/:tmdb_id', getMovieDetails);
-router.get('/movies/search', searchMovies);
-router.post('/movies/seed', seedDatabase);
-router.post('/movies/seed/:category', seedCategory);
-router.get('/movies/resolve-provider/:tmdb_id', resolveMovieProvider);
+
+const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
+const seedLimiter = rateLimit({ windowMs: 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false });
+
+router.get('/movies/category/:category', generalLimiter, getMoviesByCategory);
+router.get('/movies/details/:tmdb_id', generalLimiter, getMovieDetails);
+router.get('/movies/search', generalLimiter, searchMovies);
+router.post('/movies/seed', seedLimiter, seedDatabase);
+router.post('/movies/seed/:category', seedLimiter, seedCategory);
+router.get('/movies/resolve-provider/:tmdb_id', generalLimiter, resolveMovieProvider);
 
 export default router;

@@ -4,9 +4,14 @@ import Link from '../models/Link.model';
 import * as tmdb from '../services/tmdb.service';
 import { resolveProvider } from '../services/provider-resolver.service';
 
+const VALID_CATEGORIES = ['foreign', 'arabic', 'turkish', 'anime', 'animation'];
+
 export async function getMoviesByCategory(req: Request, res: Response) {
   try {
     const category = req.params.category as string;
+    if (!VALID_CATEGORIES.includes(category)) {
+      return res.status(400).json({ error: 'Invalid category' });
+    }
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
     const type = req.query.type as string; // 'movie' | 'tv' | undefined (both)

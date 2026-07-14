@@ -2,22 +2,27 @@ import axios from 'axios';
 
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
+function validateTmdbId(id: string): string {
+  if (!/^\d+$/.test(id)) throw new Error('Invalid TMDB ID');
+  return id;
+}
+
 export async function getMovieDetails(tmdb_id: string) {
-  const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdb_id}`, {
+  const { data } = await axios.get(`${TMDB_BASE}/movie/${validateTmdbId(tmdb_id)}`, {
     params: { api_key: process.env.TMDB_API_KEY, language: 'ar' },
   });
   return data;
 }
 
 export async function getTVDetails(tmdb_id: string) {
-  const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdb_id}`, {
+  const { data } = await axios.get(`${TMDB_BASE}/tv/${validateTmdbId(tmdb_id)}`, {
     params: { api_key: process.env.TMDB_API_KEY, language: 'ar' },
   });
   return data;
 }
 
 export async function getTVSeasonDetails(tmdb_id: string, season: number) {
-  const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdb_id}/season/${season}`, {
+  const { data } = await axios.get(`${TMDB_BASE}/tv/${validateTmdbId(tmdb_id)}/season/${season}`, {
     params: { api_key: process.env.TMDB_API_KEY, language: 'ar' },
   });
   return data;

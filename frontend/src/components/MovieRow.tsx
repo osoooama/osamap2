@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRef, useState } from 'react';
 import MovieCard from './MovieCard';
 
 interface MovieRowProps {
@@ -16,35 +15,8 @@ interface MovieRowProps {
 
 export default function MovieRow({ title, subtitle, movies, accentColor = '#E50914', loading, platformRef, onInfo }: MovieRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, scrollLeft: 0 });
-
-  const updateArrows = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setShowLeftArrow(scrollLeft > 10);
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
-  };
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) {
-      el.addEventListener('scroll', updateArrows);
-      updateArrows();
-      return () => el.removeEventListener('scroll', updateArrows);
-    }
-  }, [movies]);
-
-  const scroll = (dir: 'left' | 'right') => {
-    if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.75;
-    scrollRef.current.scrollBy({
-      left: dir === 'right' ? amount : -amount,
-      behavior: 'smooth',
-    });
-  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;
@@ -63,8 +35,20 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
   const handleMouseUp = () => setIsDragging(false);
   const handleMouseLeave = () => setIsDragging(false);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    dragStart.current = { x: e.touches[0].pageX - scrollRef.current.offsetLeft, scrollLeft: scrollRef.current.scrollLeft };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
+    const walk = (x - dragStart.current.x) * 1.5;
+    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - walk;
+  };
+
   return (
-    <div className="relative group/row mb-5 sm:mb-8">
+    <div className="relative mb-5 sm:mb-8">
       <div className="flex items-end gap-2 sm:gap-3 mb-3 sm:mb-5 px-0">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-0.5 sm:w-1 h-4 sm:h-6 rounded-full" style={{ backgroundColor: accentColor }} />
@@ -81,22 +65,16 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
       </div>
 
       <div className="relative">
-        <button
-          onClick={() => scroll('left')}
-          style={{ opacity: showLeftArrow ? 1 : 0, pointerEvents: showLeftArrow ? 'auto' : 'none' }}
-          className="absolute left-0 top-0 bottom-0 z-20 w-10 sm:w-14 flex items-center justify-center bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent transition-opacity duration-300"
-        >
-          <ChevronLeft className="w-5 h-5 text-white/80 hover:text-white transition-colors drop-shadow-lg" />
-        </button>
-
         <div
           ref={scrollRef}
-          className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 cursor-grab active:cursor-grabbing select-none"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 select-none"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', cursor: isDragging ? 'grabbing' : 'grab' }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
         >
           {loading
             ? Array.from({ length: 8 }).map((_, i) => (
@@ -114,14 +92,6 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
                 </div>
               ))}
         </div>
-
-        <button
-          onClick={() => scroll('right')}
-          style={{ opacity: showRightArrow ? 1 : 0, pointerEvents: showRightArrow ? 'auto' : 'none' }}
-          className="absolute right-0 top-0 bottom-0 z-20 w-10 sm:w-14 flex items-center justify-center bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent transition-opacity duration-300"
-        >
-          <ChevronRight className="w-5 h-5 text-white/80 hover:text-white transition-colors drop-shadow-lg" />
-        </button>
       </div>
 
       {!loading && movies.length === 0 && (

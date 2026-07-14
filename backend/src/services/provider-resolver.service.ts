@@ -15,6 +15,7 @@ async function getLinkModel() {
 }
 
 async function getTmdbTitle(tmdbId: string): Promise<string | null> {
+  if (!/^\d+$/.test(tmdbId)) return null;
   try {
     const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}`, { timeout: 8000 });
     return data.title || data.original_title || null;

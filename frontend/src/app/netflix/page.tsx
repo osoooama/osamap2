@@ -197,7 +197,7 @@ export default function NetflixPage() {
   const { data: movies, isLoading } = useMovies('foreign', 1, 'movie');
   const { data: tvShows, isLoading: tvLoading } = useMovies('foreign', 1, 'tv');
   const { data: trending } = useMovies('foreign', 2, 'movie');
-  const { data: topRated } = useMovies('foreign', 3, 'movie');
+  const { data: topRated } = useMovies('foreign', 2, 'movie');
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<any>(null);

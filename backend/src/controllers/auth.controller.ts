@@ -6,28 +6,43 @@ import VerificationCode from '../models/VerificationCode.model';
 import { generateCode } from '../utils/helpers';
 import { sendVerificationEmail } from '../services/email.service';
 
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function sanitizeString(input: string): string {
+  return input.replace(/[<>"'`]/g, '').trim();
+}
+
 export async function register(req: Request, res: Response) {
   try {
     const { email, username, password } = req.body;
     if (!email || !username || !password) {
       return res.status(400).json({ error: 'All fields are required' });
     }
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+    const cleanUsername = sanitizeString(username);
+    if (cleanUsername.length < 3 || cleanUsername.length > 30) {
+      return res.status(400).json({ error: 'Username must be 3-30 characters' });
+    }
 
-    const existing = await User.findOne({ $or: [{ email }, { username }] });
+    const existing = await User.findOne({ $or: [{ email }, { username: cleanUsername }] });
     if (existing) {
       const field = existing.email === email ? 'Email' : 'Username';
       return res.status(400).json({ error: `${field} already registered` });
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, username, password: hashed, is_verified: false });
+    const user = await User.create({ email, username: cleanUsername, password: hashed, is_verified: false });
 
     const code = generateCode(6);
     await VerificationCode.create({ email, code, expires_at: new Date(Date.now() + 10 * 60 * 1000) });
 
     let emailSent = false;
     try {
-      await sendVerificationEmail(email, username, code);
+      await sendVerificationEmail(email, cleanUsername, code);
       emailSent = true;
     } catch {
       // Don't auto-verify on email failure — user must retry
@@ -50,6 +65,9 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   try {
     const { email, password } = req.body;
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
@@ -74,6 +92,12 @@ export async function login(req: Request, res: Response) {
 export async function verifyEmail(req: Request, res: Response) {
   try {
     const { email, code } = req.body;
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+    if (!code || !/^\d{6}$/.test(code)) {
+      return res.status(400).json({ error: 'Invalid code format' });
+    }
     const record = await VerificationCode.findOne({ email, code });
     if (!record || record.expires_at < new Date()) {
       return res.status(400).json({ error: 'Invalid or expired code' });
@@ -91,6 +115,9 @@ export async function verifyEmail(req: Request, res: Response) {
 export async function resendVerification(req: Request, res: Response) {
   try {
     const { email } = req.body;
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (user.is_verified) return res.json({ message: 'Already verified' });

@@ -181,7 +181,7 @@ function ContentInfo({ movie, anime, error, isAnime, trailerKey }: { movie: any;
           )}
           {anime.status && (
             <span className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-400 text-[10px] font-medium border border-purple-500/20">
-              {anime.status}
+              {anime.status === 'RELEASING' ? 'يُعرض حالياً' : anime.status === 'FINISHED' ? 'مكتمل' : anime.status === 'NOT_YET_RELEASED' ? 'قريباً' : anime.status === 'HIATUS' ? 'متوقف مؤقتاً' : anime.status === 'CANCELLED' ? 'ملغي' : anime.status}
             </span>
           )}
         </div>
@@ -243,7 +243,7 @@ function ContentInfo({ movie, anime, error, isAnime, trailerKey }: { movie: any;
         {movie.runtime && (
           <span className="flex items-center gap-1.5 text-zinc-500 bg-zinc-900/50 px-3 py-1.5 rounded-xl border border-white/[0.03]">
             <Clock className="w-3.5 h-3.5" />
-            {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
+            {Math.floor(movie.runtime / 60)} س {movie.runtime % 60} د
           </span>
         )}
         {movie.vote_count && (

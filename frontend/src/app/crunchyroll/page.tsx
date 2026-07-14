@@ -163,7 +163,7 @@ function AnimeCard({ anime, onClick }: { anime: AnimeEntry; onClick: () => void 
         {/* Status badge */}
         <div className="absolute top-1.5 left-1.5">
           <span className="px-1.5 py-0.5 rounded bg-[#F47521]/80 backdrop-blur-sm text-[9px] text-white font-bold uppercase">
-            {anime.status === 'RELEASING' ? 'جديد' : anime.status === 'FINISHED' ? 'مكتمل' : anime.status}
+            {anime.status === 'RELEASING' ? 'جديد' : anime.status === 'FINISHED' ? 'مكتمل' : anime.status === 'NOT_YET_RELEASED' ? 'قريباً' : anime.status === 'HIATUS' ? 'متوقف مؤقتاً' : anime.status === 'CANCELLED' ? 'ملغي' : 'غير معروف'}
           </span>
         </div>
       </div>
@@ -260,7 +260,7 @@ function ContinueWatching({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a
     <div>
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-base sm:text-lg font-bold text-[#c2c1c3]">Seguir viendo</h2>
+          <h2 className="text-base sm:text-lg font-bold text-[#c2c1c3]">المتابعة لاحقاً</h2>
         </div>
       </div>
       <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
@@ -288,7 +288,7 @@ function ContinueWatching({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a
                   </div>
                   {/* Time badge */}
                   <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] font-semibold text-white">
-                    {minsLeft} min
+                    {minsLeft} دقيقة
                   </div>
                 </div>
                 {/* Progress bar */}
@@ -410,7 +410,7 @@ function AnimeSearch({ onPlay }: { onPlay: (anime: AnimeEntry) => void }) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search anime... Naruto, One Piece, Evangelion..."
+          placeholder="ابحث عن أنمي... ناروتو، قطعة واحدة، إيفانجيليون..."
           className="w-full pr-11 pl-11 py-3 rounded bg-[#23252b] border border-[#4a4e58] text-[#c2c1c3] text-sm focus:outline-none focus:border-[#F47521] transition placeholder:text-[#a0a0a0]"
           dir="auto"
         />
@@ -473,7 +473,7 @@ export default function CrunchyrollPage() {
         <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 -mt-12 sm:-mt-16 relative z-10 pb-12 sm:pb-16 space-y-8 sm:space-y-10">
           {/* New Episodes */}
           <AnimeRow
-            title="Episodios Nuevos"
+            title="أحدث الحلقات"
             subtitle="أحدث حلقات الأنمي"
             animeList={trending}
             loading={loading}
@@ -495,7 +495,7 @@ export default function CrunchyrollPage() {
 
           {/* Popular */}
           <AnimeRow
-            title="Popular"
+            title="الأشهر"
             subtitle="الأنمي الأكثر شعبية"
             animeList={popular}
             loading={loading}
@@ -514,7 +514,7 @@ export default function CrunchyrollPage() {
 
           {/* Top Rated */}
           <AnimeRow
-            title="Top Rated"
+            title="الأعلى تقييماً"
             subtitle="الأعلى تقييماً"
             animeList={topRated}
             loading={loading}
@@ -524,7 +524,7 @@ export default function CrunchyrollPage() {
           {/* Search */}
           <div className="pt-6 border-t border-white/5">
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-base sm:text-lg font-bold text-[#c2c1c3]">Search</h2>
+              <h2 className="text-base sm:text-lg font-bold text-[#c2c1c3]">بحث</h2>
             </div>
             <p className="text-[11px] text-[#a0a0a0] mb-4">ابحث عن أي أنمي في AniList</p>
             <AnimeSearch onPlay={handlePlay} />

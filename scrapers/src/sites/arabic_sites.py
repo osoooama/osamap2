@@ -21,7 +21,7 @@ SITE_CONFIGS = {
 def get_tmdb_popular(media_type='movie', count=10):
     ids = []
     for page in range(1, 3):
-        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&page={page}'
+        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=ar&page={page}'
         try:
             resp = requests.get(url, timeout=10)
             if resp.ok:

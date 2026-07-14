@@ -39,10 +39,10 @@ const CATEGORY_SOURCES: Record<string, CategorySource[]> = {
     { type: 'movie', url: '/movie/popular', params: { language: 'ar' } },
     { type: 'movie', url: '/movie/top_rated', params: { language: 'ar' } },
     { type: 'movie', url: '/movie/now_playing', params: { language: 'ar' } },
-    { type: 'movie', url: '/trending/movie/week', params: {} },
+    { type: 'movie', url: '/trending/movie/week', params: { language: 'ar' } },
     { type: 'tv', url: '/tv/popular', params: { language: 'ar' } },
     { type: 'tv', url: '/tv/top_rated', params: { language: 'ar' } },
-    { type: 'tv', url: '/trending/tv/week', params: {} },
+    { type: 'tv', url: '/trending/tv/week', params: { language: 'ar' } },
   ],
   arabic: [
     { type: 'movie', url: '/discover/movie', params: { with_original_language: 'ar', sort_by: 'popularity.desc', language: 'ar' } },
@@ -60,8 +60,8 @@ const CATEGORY_SOURCES: Record<string, CategorySource[]> = {
     { type: 'tv', url: '/discover/tv', params: { with_keywords: '210024', sort_by: 'popularity.desc', language: 'ar' } },
     { type: 'movie', url: '/discover/movie', params: { with_genres: '16', sort_by: 'popularity.desc', language: 'ar' } },
     { type: 'tv', url: '/discover/tv', params: { with_genres: '16', sort_by: 'popularity.desc', language: 'ar' } },
-    { type: 'movie', url: '/trending/movie/week', params: {} },
-    { type: 'tv', url: '/trending/tv/week', params: {} },
+    { type: 'movie', url: '/trending/movie/week', params: { language: 'ar' } },
+    { type: 'tv', url: '/trending/tv/week', params: { language: 'ar' } },
   ],
   animation: [
     { type: 'movie', url: '/discover/movie', params: { with_genres: '16', sort_by: 'popularity.desc', language: 'ar' } },
@@ -120,7 +120,7 @@ export async function seedAllCategories() {
             if (!seen.has(id)) {
               seen.set(id, {
                 tmdb_id: id,
-                title: item.title || item.name || 'Unknown',
+                title: item.title || item.name || 'غير معروف',
                 overview: item.overview || '',
                 poster_path: item.poster_path || '',
                 backdrop_path: item.backdrop_path || '',

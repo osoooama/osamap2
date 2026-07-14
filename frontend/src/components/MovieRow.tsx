@@ -48,7 +48,7 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
   };
 
   return (
-    <div className="relative mb-5 sm:mb-8">
+    <div className="relative mb-5 sm:mb-8" style={{ overflow: 'visible' }}>
       <div className="flex items-end gap-2 sm:gap-3 mb-3 sm:mb-5 px-0">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-0.5 sm:w-1 h-4 sm:h-6 rounded-full" style={{ backgroundColor: accentColor }} />

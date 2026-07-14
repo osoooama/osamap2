@@ -27,7 +27,7 @@ ANIME_TMDB_IDS = [
 def get_tmdb_popular(media_type='tv', count=5):
     ids = []
     for page in range(1, 4):
-        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&page={page}&with_original_language=ja'
+        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=ar&page={page}&with_original_language=ja'
         try:
             resp = requests.get(url, timeout=10)
             if resp.ok:

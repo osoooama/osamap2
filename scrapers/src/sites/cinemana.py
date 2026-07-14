@@ -12,11 +12,11 @@ TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 BASE = 'https://cinemana.cc'
 
 CATEGORIES = [
-    {'slug': 'أفلام-أجنبي', 'category': 'foreign', 'label': 'Foreign Movies'},
-    {'slug': 'مسلسلات-أجنبي', 'category': 'foreign', 'label': 'Foreign Series'},
-    {'slug': 'مسلسلات-تركية', 'category': 'turkish', 'label': 'Turkish Series'},
-    {'slug': 'أفلام-عربية', 'category': 'arabic', 'label': 'Arabic Movies'},
-    {'slug': 'مسلسلات-عربية', 'category': 'arabic', 'label': 'Arabic Series'},
+    {'slug': 'أفلام-أجنبي', 'category': 'foreign', 'label': 'أفلام أجنبية'},
+    {'slug': 'مسلسلات-أجنبي', 'category': 'foreign', 'label': 'مسلسلات أجنبية'},
+    {'slug': 'مسلسلات-تركية', 'category': 'turkish', 'label': 'مسلسلات تركية'},
+    {'slug': 'أفلام-عربية', 'category': 'arabic', 'label': 'أفلام عربية'},
+    {'slug': 'مسلسلات-عربية', 'category': 'arabic', 'label': 'مسلسلات عربية'},
 ]
 
 SERVER_URL = f'{BASE}/wp-content/themes/EEE/Inc/Ajax/Single/Server.php'
@@ -30,7 +30,7 @@ def search_tmdb(title, api_key=TMDB_API_KEY):
     if not title or len(title) < 3:
         return None
     try:
-        resp = requests.get(f'{TMDB_SEARCH}?api_key={api_key}&query={title[:50]}', timeout=10)
+        resp = requests.get(f'{TMDB_SEARCH}?api_key={api_key}&language=ar&query={title[:50]}', timeout=10)
         if resp.ok:
             results = resp.json().get('results', [])
             if results:

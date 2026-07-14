@@ -23,7 +23,7 @@ def search_tmdb(title):
     if not title or len(title) < 3:
         return None
     try:
-        resp = requests.get(f'{TMDB_SEARCH}?api_key={TMDB_API_KEY}&query={title[:50]}', timeout=10)
+        resp = requests.get(f'{TMDB_SEARCH}?api_key={TMDB_API_KEY}&language=ar&query={title[:50]}', timeout=10)
         if resp.ok:
             results = resp.json().get('results', [])
             return str(results[0]['id']) if results else None

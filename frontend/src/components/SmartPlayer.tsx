@@ -255,7 +255,14 @@ export default function SmartPlayer({
                 {mode === 'auto' ? 'جاري تجربة السيرفر...' : 'جاري التحميل...'}
               </p>
               {activeProvider && (
-                <p className="text-zinc-700 text-[10px] mt-1">{activeProvider.name}</p>
+                <p className="text-zinc-700 text-[10px] mt-1">
+                  {activeProvider.displayName || activeProvider.name}
+                  {mode === 'auto' && (
+                    <span className="text-zinc-800 ml-1">
+                      ({failedIndices.size + 1}/{iframeProviders.length})
+                    </span>
+                  )}
+                </p>
               )}
             </div>
           </div>
@@ -269,7 +276,7 @@ export default function SmartPlayer({
                 <AlertCircle className="w-6 h-6 text-red-400" />
               </div>
               <p className="text-zinc-300 font-semibold text-sm mb-1">جميع السيرفرات غير متاحة</p>
-              <p className="text-zinc-600 text-xs mb-4">جرب مرة أخرى أو اختر سيرفر يدوياً</p>
+              <p className="text-zinc-600 text-xs mb-4">تم تجربة {iframeProviders.length} سيرفر — جرب مرة أخرى أو اختر يدوياً</p>
               <button onClick={switchToAuto} className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold transition-all">
                 إعادة المحاولة
               </button>
@@ -416,8 +423,9 @@ export default function SmartPlayer({
                   {mode === 'auto' && <Check className="w-3.5 h-3.5 mr-auto text-yellow-400" />}
                 </button>
 
-                <div className="border-t border-white/5 px-3 py-1.5">
+                <div className="border-t border-white/5 px-3 py-1.5 flex items-center justify-between">
                   <span className="text-[10px] text-zinc-600 font-medium">السيرفرات</span>
+                  <span className="text-[10px] text-zinc-700">{iframeProviders.length} متاح</span>
                 </div>
 
                 <div className="max-h-64 overflow-y-auto">

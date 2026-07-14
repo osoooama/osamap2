@@ -42,7 +42,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
   const isMobile = useRef(false);
 
   const tmdbId = movie.tmdb_id;
-  const title = movie.title || 'Unknown';
+  const title = movie.title || 'غير معروف';
   const mediaType = movie.media_type || 'movie';
   const posterUrl = movie.poster || movie.poster_path || '';
   const backdropUrl = movie.backdrop_path || '';
@@ -104,11 +104,48 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
       if (cardRef.current) {
         const rect = cardRef.current.getBoundingClientRect();
         const popupWidth = 300;
+        const popupHeight = 340;
+        const safeMargin = 16;
+        const vh = window.innerHeight;
+
         let left = rect.left + rect.width / 2 - popupWidth / 2;
-        if (left < 8) left = 8;
-        if (left + popupWidth > window.innerWidth - 8) left = window.innerWidth - popupWidth - 8;
-        let top = rect.top - 10;
-        if (top < 8) top = rect.bottom + 10;
+        if (left < safeMargin) left = safeMargin;
+        if (left + popupWidth > window.innerWidth - safeMargin) left = window.innerWidth - popupWidth - safeMargin;
+
+        const aboveTop = rect.top - 10;
+        const belowTop = rect.bottom + 10;
+
+        let titleBottom = 0;
+        let el = cardRef.current.parentElement;
+        while (el && el !== document.body) {
+          const title = el.querySelector(':scope > div h2, :scope > h2') as HTMLElement | null;
+          if (title) {
+            titleBottom = title.getBoundingClientRect().bottom;
+            break;
+          }
+          el = el.parentElement;
+        }
+        if (titleBottom === 0) {
+          const allH2 = document.querySelectorAll('h2');
+          for (const h of allH2) {
+            const hBox = h.getBoundingClientRect();
+            if (hBox.bottom > rect.top) continue;
+            if (hBox.bottom > titleBottom) titleBottom = hBox.bottom;
+          }
+        }
+
+        const canPlaceAbove = aboveTop >= safeMargin && (titleBottom === 0 || aboveTop - popupHeight >= titleBottom);
+        const canPlaceBelow = belowTop + popupHeight <= vh - safeMargin;
+
+        let top: number;
+        if (canPlaceAbove) {
+          top = aboveTop - popupHeight;
+        } else if (canPlaceBelow) {
+          top = belowTop;
+        } else {
+          top = vh - popupHeight - safeMargin;
+        }
+
         setPopupPos({ top, left });
         setShowPopup(true);
         loadTrailer();
@@ -219,7 +256,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: -5 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            style={{ position: 'fixed', top: popupPos.top, left: popupPos.left, zIndex: 9999 }}
+            style={{ position: 'fixed', top: popupPos.top, left: popupPos.left, zIndex: 60 }}
             className="w-[280px] sm:w-[300px] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-black/70 border border-white/10 pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
             onMouseEnter={() => { setIsHovered(true); }}

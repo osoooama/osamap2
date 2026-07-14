@@ -210,11 +210,11 @@ export default function InfoModal({ visible, onClose, movie, accentColor = '#E50
                 {runtime && (
                   <span className="flex items-center gap-1 text-zinc-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
                     <Clock className="w-3 h-3" />
-                    {Math.floor(runtime / 60)}h {runtime % 60}m
+                    {Math.floor(runtime / 60)} س {runtime % 60} د
                   </span>
                 )}
                 <span className="px-2.5 py-1 rounded-lg bg-white/5 text-zinc-400 border border-white/5 font-medium">
-                  HD
+                  جودة عالية
                 </span>
               </div>
 

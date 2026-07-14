@@ -56,23 +56,23 @@ function stripHtml(input: string): string {
 }
 
 const GENRE_MAP: Record<number, string> = {
-  28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy',
-  80: 'Crime', 99: 'Documentary', 18: 'Drama', 10751: 'Family',
-  14: 'Fantasy', 36: 'History', 27: 'Horror', 10402: 'Music',
-  9648: 'Mystery', 10749: 'Romance', 878: 'Sci-Fi', 10770: 'TV Movie',
-  53: 'Thriller', 10752: 'War', 37: 'Western',
+  28: 'أكشن', 12: 'مغامرة', 16: 'رسوم متحركة', 35: 'كوميدي',
+  80: 'جريمة', 99: 'وثائقي', 18: 'دراما', 10751: 'عائلي',
+  14: 'فانتازيا', 36: 'تاريخي', 27: 'رعب', 10402: 'موسيقي',
+  9648: 'غموض', 10749: 'رومانسي', 878: 'خيال علمي', 10770: 'فيلم تلفزيوني',
+  53: 'إثارة', 10752: 'حرب', 37: 'غربي',
 };
 
 export async function fetchTrending(category: 'movie' | 'tv' = 'movie', timeWindow: 'day' | 'week' = 'week'): Promise<ExternalMovie[] | ExternalTVShow[]> {
   const res = await fetch(`${TMDB_BASE}/trending/${category}/${timeWindow}?api_key=${TMDB_KEY}&language=ar`);
-  if (!res.ok) throw new Error('Failed to fetch trending');
+  if (!res.ok) throw new Error('فشل في جلب المحتوى الرائج');
   const data = await res.json();
   return data.results || [];
 }
 
 export async function fetchTopRated(category: 'movie' | 'tv' = 'movie'): Promise<ExternalMovie[] | ExternalTVShow[]> {
   const res = await fetch(`${TMDB_BASE}/${category}/top_rated?api_key=${TMDB_KEY}&language=ar&page=1`);
-  if (!res.ok) throw new Error('Failed to fetch top rated');
+  if (!res.ok) throw new Error('فشل في جلب الأعلى تقييماً');
   const data = await res.json();
   return data.results || [];
 }
@@ -81,7 +81,7 @@ export async function searchTMDB(query: string, category?: 'movie' | 'tv'): Prom
   const multi = !category;
   const endpoint = multi ? 'search/multi' : `search/${category}`;
   const res = await fetch(`${TMDB_BASE}/${endpoint}?api_key=${TMDB_KEY}&language=ar&query=${encodeURIComponent(query)}`);
-  if (!res.ok) throw new Error('Search failed');
+  if (!res.ok) throw new Error('فشل البحث');
   const data = await res.json();
   return (data.results || []).filter((r: any) => r.media_type === 'movie' || r.media_type === 'tv');
 }
@@ -111,7 +111,7 @@ export async function fetchAniListTrending(page = 1, perPage = 20): Promise<Anim
     body: JSON.stringify({ query, variables: { page, perPage } }),
   });
 
-  if (!res.ok) throw new Error('AniList API error');
+  if (!res.ok) throw new Error('خطأ في خدمة AniList');
   const data = await res.json();
 
   return (data.data?.Page?.media || []).map((m: any) => ({
@@ -155,7 +155,7 @@ export async function searchAniList(keyword: string, page = 1): Promise<AnimeEnt
     body: JSON.stringify({ query, variables: { search: keyword, page } }),
   });
 
-  if (!res.ok) throw new Error('AniList search failed');
+  if (!res.ok) throw new Error('فشل البحث في AniList');
   const data = await res.json();
 
   return (data.data?.Page?.media || []).map((m: any) => ({
@@ -220,7 +220,7 @@ export async function fetchAniListById(id: number): Promise<AnimeEntry | null> {
 }
 
 export function getGenreName(id: number): string {
-  return GENRE_MAP[id] || 'Unknown';
+  return GENRE_MAP[id] || 'غير معروف';
 }
 
 export function getGenreNames(ids: number[]): string {

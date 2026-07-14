@@ -43,7 +43,7 @@ export function trackProviderEvent(name: string, success: boolean, loadMs: numbe
   const p = perf[name] || { events: [], lastUsed: now };
   p.lastUsed = now;
   p.events.push({ success, loadMs, timestamp: now });
-  if (p.events.length > 20) p.events = p.events.slice(-20);
+  if (p.events.length > 30) p.events = p.events.slice(-30);
   perf[name] = p;
   try { localStorage.setItem('osk_provider_perf', JSON.stringify(perf)); } catch {}
 }
@@ -58,4 +58,16 @@ export function getBestProviderIndex(providers: { name: string }[]): number {
   });
   scored.sort((a, b) => b.score - a.score);
   return scored[0].index;
+}
+
+export function getProviderStats() {
+  const perf = getProviderPerf();
+  const providers = Object.keys(perf);
+  const totalEvents = providers.reduce((sum, name) => sum + perf[name].events.length, 0);
+  const successEvents = providers.reduce((sum, name) => sum + perf[name].events.filter(e => e.success).length, 0);
+  return {
+    trackedProviders: providers.length,
+    totalEvents,
+    successRate: totalEvents > 0 ? (successEvents / totalEvents) * 100 : 0,
+  };
 }

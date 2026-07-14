@@ -129,7 +129,7 @@ function Section({ title, items }: { title: string; items: any[] }) {
           const poster = movie.poster || movie.poster_path || '';
           const imgSrc = poster.startsWith('http') ? poster : poster ? `https://image.tmdb.org/t/p/w500${poster}` : '';
           const tmdbId = movie.tmdb_id || movie.id;
-          const title = movie.title || movie.name || 'Unknown';
+          const title = movie.title || movie.name || 'غير معروف';
           const mediaType = movie.media_type || 'movie';
           const year = (movie.release_date || '').slice(0, 4) || (movie.first_air_date || '').slice(0, 4);
           const rating = movie.vote_average;
@@ -162,7 +162,7 @@ function Section({ title, items }: { title: string; items: any[] }) {
               )}
               <div className="absolute top-2 left-2">
                 {mediaType === 'tv' && (
-                  <div className="px-2 py-0.5 rounded-lg bg-blue-600/80 text-[10px] text-white">TV</div>
+                  <div className="px-2 py-0.5 rounded-lg bg-blue-600/80 text-[10px] text-white">مسلسل</div>
                 )}
               </div>
             </a>

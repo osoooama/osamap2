@@ -18,7 +18,7 @@ CLASSIC_IDS = [278, 238, 680, 550, 155, 497, 424, 807, 27205, 157336,
 def get_tmdb_popular(media_type='movie', count=10):
     ids = []
     for page in range(1, 5):
-        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&page={page}'
+        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=ar&page={page}'
         try:
             resp = requests.get(url, timeout=10)
             if resp.ok:

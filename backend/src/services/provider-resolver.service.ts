@@ -5,7 +5,7 @@ const CINEMANA_BASE = 'https://cinemana.cc';
 const HD1_BASE = 'https://hd1.brstej.com';
 const ANIME3RB_BASE = 'https://anime3rb.com';
 
-const TMDB_KEY = process.env.TMDB_API_KEY || 'b4905ea858601abd0565baa117b69b24';
+const TMDB_KEY = process.env.TMDB_API_KEY || '';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
 let Link: mongoose.Model<any>;

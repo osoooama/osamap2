@@ -181,7 +181,7 @@ export async function resolveMovieProvider(req: Request, res: Response) {
 export async function searchMovies(req: Request, res: Response) {
   try {
     const q = (req.query.q as string) || '';
-    if (!q.trim()) return res.json([]);
+    if (!q.trim()) return res.json({ local: [], tmdb: [] });
 
     const local = await Movie.find({ $text: { $search: q } }).limit(20);
     const tmdbResults = await tmdb.searchTMDB(q);

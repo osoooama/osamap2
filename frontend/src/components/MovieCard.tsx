@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Play, Star, Tv, Info, Heart, X, Maximize2 } from 'lucide-react';
+import { Play, Star, Tv, Info, Heart } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getTMDBTrailer } from '@/lib/api';

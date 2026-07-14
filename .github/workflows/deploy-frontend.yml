@@ -36,6 +36,7 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: https://osamap2.onrender.com
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_d2VsY29tZS1zaHJpbXAtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA
+          NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
 
       - name: Install Wrangler CLI
         run: npm i -g wrangler@4

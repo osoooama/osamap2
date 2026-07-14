@@ -6,7 +6,7 @@ const api = axios.create({
 
 export default api;
 
-const TMDB_KEY = 'b4905ea858601abd0565baa117b69b24';
+const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
 
 export async function getMovies(category: string, page = 1, type?: string) {
   const params: any = { page };

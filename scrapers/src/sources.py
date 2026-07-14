@@ -9,7 +9,7 @@ def get_all_sites():
     return SITES
 
 
-SOURCES = {'foreign': [], 'arabic': [], 'turkish': [], 'anime': []}
+SOURCES = {'foreign': [], 'arabic': [], 'turkish': [], 'anime': [], 'animation': []}
 for s in SITES:
     cat = s['category']
     if cat not in SOURCES:

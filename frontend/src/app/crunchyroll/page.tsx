@@ -4,7 +4,7 @@ import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Info, Search, X, Loader2, Star, Volume2, VolumeX, Heart, Clock, MessageCircle } from 'lucide-react';
-import Image from 'next/image';
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchAniListTrending, searchAniList, type AnimeEntry } from '@/lib/contentSources';
 import { getAnimeProviders } from '@/lib/providers';

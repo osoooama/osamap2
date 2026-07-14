@@ -14,16 +14,3 @@ export function useMovies(category: string, page = 1, type?: string) {
     retry: 2,
   });
 }
-
-export function useMovieDetails(tmdbId: string) {
-  return useQuery({
-    queryKey: ['movie', tmdbId],
-    queryFn: async () => {
-      const { default: api } = await import('@/lib/api');
-      const { data } = await api.get(`/api/movies/details/${tmdbId}`);
-      return data;
-    },
-    enabled: !!tmdbId,
-    staleTime: 10 * 60 * 1000,
-  });
-}

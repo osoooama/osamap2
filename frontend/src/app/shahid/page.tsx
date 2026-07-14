@@ -6,7 +6,7 @@ import InfoModal from '@/components/InfoModal';
 import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Play, Info, Volume2, VolumeX, ChevronDown, Globe } from 'lucide-react';
+import { Sparkles, Play, Info, Volume2, VolumeX, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useRef, useCallback } from 'react';
 

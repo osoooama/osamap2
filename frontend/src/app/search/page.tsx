@@ -2,12 +2,10 @@
 
 import AuthGuard from '@/components/AuthGuard';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, X, Loader2, Film, Tv, Star } from 'lucide-react';
+import { Search, X, Loader2, Film } from 'lucide-react';
 import api from '@/lib/api';
 
 function SearchContent() {
-  const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [localResults, setLocalResults] = useState<any[]>([]);

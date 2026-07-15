@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { getProviders, getAnimeProviders } from '@/lib/providers';
 import { trackProviderEvent, getProviderPerf, getProviderScore, type ProviderPerf } from '@/lib/providerPerf';
 import { ChevronDown, Zap, Check, AlertCircle, Loader2, Tv, MonitorPlay, Layers, Maximize2, Minimize2, Volume2, VolumeX, Keyboard, PictureInPicture2 } from 'lucide-react';
@@ -56,10 +56,12 @@ export default function SmartPlayer({
   const [currentEpisode, setCurrentEpisode] = useState(episode);
   const [showEpisodeSelector, setShowEpisodeSelector] = useState(false);
 
-  const providers = isAnime && animeId
-    ? getAnimeProviders(Number(animeId), currentEpisode, 'sub')
-    : tmdbId ? getProviders(tmdbId, mediaType, currentSeason, currentEpisode) : [];
-  const iframeProviders = providers.filter((p: any) => !p.needsResolution);
+  const providers = useMemo(() => {
+    return isAnime && animeId
+      ? getAnimeProviders(Number(animeId), currentEpisode, 'sub')
+      : tmdbId ? getProviders(tmdbId, mediaType, currentSeason, currentEpisode) : [];
+  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, isAnime]);
+  const iframeProviders = useMemo(() => providers.filter((p: any) => !p.needsResolution), [providers]);
 
   const handleSeasonChange = useCallback((s: number) => {
     setCurrentSeason(s);
@@ -227,11 +229,17 @@ export default function SmartPlayer({
     setShowMenu(false);
   }, [cleanup]);
 
+  const switchToAutoRef = useRef(switchToAuto);
+  useEffect(() => { switchToAutoRef.current = switchToAuto; }, [switchToAuto]);
+
+  const cleanupRef = useRef(cleanup);
+  useEffect(() => { cleanupRef.current = cleanup; }, [cleanup]);
+
   useEffect(() => {
     if (iframeProviders.length === 0) return;
-    switchToAuto();
-    return () => cleanup();
-  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, switchToAuto, cleanup]);
+    switchToAutoRef.current();
+    return () => cleanupRef.current();
+  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, iframeProviders.length]);
 
   const activeProvider = currentIndex >= 0 ? iframeProviders[currentIndex] : null;
   const activeUrl = activeProvider ? activeProvider.url : '';

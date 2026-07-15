@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import api from '@/lib/api';
 
 interface User {
   id: string;
@@ -10,8 +9,11 @@ interface User {
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   loading: boolean;
+}
+
+function generateId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
 export function useAuth(): AuthState & {
@@ -19,48 +21,49 @@ export function useAuth(): AuthState & {
   register: (username: string, password: string) => Promise<void>;
   logout: () => void;
 } {
-  const [state, setState] = useState<AuthState>({ user: null, token: null, loading: true });
+  const [state, setState] = useState<AuthState>({ user: null, loading: true });
 
   useEffect(() => {
-    const token = localStorage.getItem('osk_token');
-    const savedUser = localStorage.getItem('osk_user');
-    if (token && savedUser) {
-      try {
+    try {
+      const savedUser = localStorage.getItem('osk_user');
+      if (savedUser) {
         const parsed = JSON.parse(savedUser);
-        setState({ user: parsed, token, loading: false });
-        api.get('/api/auth/me').catch(() => {
-          localStorage.removeItem('osk_token');
-          localStorage.removeItem('osk_user');
-          setState({ user: null, token: null, loading: false });
-        });
-      } catch {
-        localStorage.removeItem('osk_token');
-        localStorage.removeItem('osk_user');
-        setState({ user: null, token: null, loading: false });
+        setState({ user: parsed, loading: false });
+      } else {
+        setState({ user: null, loading: false });
       }
-    } else {
-      setState({ user: null, token: null, loading: false });
+    } catch {
+      setState({ user: null, loading: false });
     }
   }, []);
 
   const login = useCallback(async (username: string, password: string) => {
-    const { data } = await api.post('/api/auth/login', { username, password });
-    localStorage.setItem('osk_token', data.token);
-    localStorage.setItem('osk_user', JSON.stringify(data.user));
-    setState({ user: data.user, token: data.token, loading: false });
+    const users = JSON.parse(localStorage.getItem('osk_users') || '[]');
+    const found = users.find((u: any) => u.username === username && u.password === password);
+    if (!found) {
+      throw { response: { data: { error: 'اسم المستخدم أو كلمة المرور خاطئة' } } };
+    }
+    const user = { id: found.id, username: found.username };
+    localStorage.setItem('osk_user', JSON.stringify(user));
+    setState({ user, loading: false });
   }, []);
 
   const register = useCallback(async (username: string, password: string) => {
-    const { data } = await api.post('/api/auth/register', { username, password });
-    localStorage.setItem('osk_token', data.token);
-    localStorage.setItem('osk_user', JSON.stringify(data.user));
-    setState({ user: data.user, token: data.token, loading: false });
+    const users = JSON.parse(localStorage.getItem('osk_users') || '[]');
+    if (users.find((u: any) => u.username === username)) {
+      throw { response: { data: { error: 'اسم المستخدم محجوز' } } };
+    }
+    const newUser = { id: generateId(), username, password };
+    users.push(newUser);
+    localStorage.setItem('osk_users', JSON.stringify(users));
+    const user = { id: newUser.id, username: newUser.username };
+    localStorage.setItem('osk_user', JSON.stringify(user));
+    setState({ user, loading: false });
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('osk_token');
     localStorage.removeItem('osk_user');
-    setState({ user: null, token: null, loading: false });
+    setState({ user: null, loading: false });
   }, []);
 
   return { ...state, login, register, logout };

@@ -106,21 +106,6 @@ export default function SmartPlayer({
     setStatus('error');
   }, [cleanup]);
 
-  const startAt = useCallback((index: number) => {
-    cleanup();
-    setCurrentIndex(index);
-    setStatus('loading');
-    loadStartRef.current = Date.now();
-
-    timeoutRef.current = setTimeout(() => {
-      const nf = new Set(failedRef.current);
-      nf.add(index);
-      failedRef.current = nf;
-      setFailedIndices(new Set(nf));
-      tryNextFrom(index, nf);
-    }, LOAD_TIMEOUT);
-  }, [cleanup, tryNextFrom]);
-
   const handleLoad = useCallback(() => {
     const loadTime = Date.now() - loadStartRef.current;
     const idx = currentIndexRef.current;
@@ -207,7 +192,7 @@ export default function SmartPlayer({
     if (iframeProviders.length === 0) return;
     switchToAuto();
     return () => cleanup();
-  }, [tmdbId, animeId, mediaType]);
+  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, switchToAuto, cleanup]);
 
   const activeProvider = currentIndex >= 0 ? iframeProviders[currentIndex] : null;
   const activeUrl = activeProvider ? activeProvider.url : '';
@@ -248,8 +233,8 @@ export default function SmartPlayer({
           <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/90 z-10 pointer-events-none">
             <div className="text-center">
               <div className="relative w-10 h-10 mx-auto mb-3">
-                <div className="absolute inset-0 border-2 border-red-600/20 rounded-full" />
-                <div className="absolute inset-0 border-2 border-transparent border-t-red-600 rounded-full animate-spin" />
+                <div className="absolute inset-0 border-2 border-emerald-600/20 rounded-full" />
+                <div className="absolute inset-0 border-2 border-transparent border-t-emerald-600 rounded-full animate-spin" />
               </div>
               <p className="text-zinc-500 text-xs">
                 {mode === 'auto' ? 'جاري تجربة السيرفر...' : 'جاري التحميل...'}
@@ -322,7 +307,7 @@ export default function SmartPlayer({
                         onClick={() => handleSeasonChange(s)}
                         className={`min-h-[36px] min-w-[36px] rounded-lg text-xs font-semibold transition-all ${
                           s === currentSeason
-                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                            ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
                             : 'bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white'
                         }`}
                       >
@@ -347,7 +332,7 @@ export default function SmartPlayer({
                       onClick={() => handleEpisodeChange(e)}
                       className={`min-h-[36px] min-w-[36px] rounded-lg text-xs font-semibold transition-all ${
                         e === currentEpisode
-                          ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
                           : 'bg-zinc-800/80 text-zinc-400 hover:bg-zinc-700 hover:text-white'
                       }`}
                     >

@@ -7,10 +7,6 @@ from sites.base import save_link, save_all_qualities, log_result
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
 
-SITES = [
-    {'name': 'streamex.sh', 'category': 'foreign'},
-]
-
 CLASSIC_IDS = [278, 238, 680, 550, 155, 497, 424, 807, 27205, 157336,
                1892, 1359, 122, 11, 1891, 4977, 121, 429, 98]
 

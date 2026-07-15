@@ -26,7 +26,13 @@ export function useAuth(): AuthState & {
     const savedUser = localStorage.getItem('osk_user');
     if (token && savedUser) {
       try {
-        setState({ user: JSON.parse(savedUser), token, loading: false });
+        const parsed = JSON.parse(savedUser);
+        setState({ user: parsed, token, loading: false });
+        api.get('/api/auth/me').catch(() => {
+          localStorage.removeItem('osk_token');
+          localStorage.removeItem('osk_user');
+          setState({ user: null, token: null, loading: false });
+        });
       } catch {
         localStorage.removeItem('osk_token');
         localStorage.removeItem('osk_user');

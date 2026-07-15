@@ -3,7 +3,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { User, Lock, Loader2, AlertCircle, LogIn } from 'lucide-react';
 import Link from 'next/link';
 
@@ -44,8 +44,8 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden px-4">
       <div className="absolute inset-0">
-        <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-red-600/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[150px]" />
+        <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-emerald-600/10 rounded-full blur-[150px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-teal-600/10 rounded-full blur-[150px]" />
       </div>
 
       <motion.div
@@ -59,9 +59,9 @@ export default function SignInPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.4, delay: 0.2, type: 'spring' }}
-            className="text-5xl font-black text-white mb-2"
+            className="text-5xl font-black text-white mb-2 font-arabic-display"
           >
-            OSK<span className="text-red-500">+</span>
+            OSK<span className="text-emerald-500">+</span>
           </motion.h1>
           <p className="text-zinc-500 text-sm">سجّل دخولك للوصول إلى المنصة</p>
         </div>
@@ -69,8 +69,8 @@ export default function SignInPage() {
         <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/30 p-6 sm:p-8">
           <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-red-600/15 flex items-center justify-center">
-                <LogIn className="w-5 h-5 text-red-400" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-600/15 flex items-center justify-center">
+                <LogIn className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
                 <h2 className="text-white font-bold text-base">تسجيل الدخول</h2>
@@ -88,7 +88,7 @@ export default function SignInPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="اسم المستخدم"
-                    className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3 px-10 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/30 outline-none transition placeholder:text-zinc-600 text-base"
+                    className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3 px-10 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600 text-base"
                     autoFocus
                   />
                 </div>
@@ -103,7 +103,7 @@ export default function SignInPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3 px-10 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/30 outline-none transition placeholder:text-zinc-600 text-base"
+                    className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3 px-10 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600 text-base"
                   />
                 </div>
               </div>
@@ -123,7 +123,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-xl font-semibold shadow-lg shadow-red-600/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-xl font-semibold shadow-lg shadow-emerald-600/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -139,7 +139,7 @@ export default function SignInPage() {
 
         <p className="text-center text-zinc-500 text-sm mt-6">
           ليس لديك حساب؟{' '}
-          <Link href="/sign-up" className="text-red-400 hover:text-red-300 font-medium transition">
+          <Link href="/sign-up" className="text-emerald-400 hover:text-emerald-300 font-medium transition">
             أنشئ حساباً جديداً
           </Link>
         </p>

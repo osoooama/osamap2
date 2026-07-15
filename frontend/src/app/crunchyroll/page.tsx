@@ -3,7 +3,7 @@
 import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Info, Search, X, Loader2, Star, Volume2, VolumeX, Heart, Clock, MessageCircle } from 'lucide-react';
+import { Play, Info, Search, X, Loader2, Star, Volume2, VolumeX, Heart } from 'lucide-react';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchAniListTrending, searchAniList, type AnimeEntry } from '@/lib/contentSources';
@@ -212,7 +212,7 @@ function AnimeRow({ title, subtitle, animeList, loading, onPlay }: { title: stri
   };
 
   return (
-    <div className="relative">
+    <div className="relative" style={{ overflow: 'visible' }}>
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div>
           <h2 className="text-base sm:text-lg font-bold text-[#c2c1c3]">{title}</h2>
@@ -465,7 +465,7 @@ export default function CrunchyrollPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-[#000]">
+      <div className="min-h-screen bg-[#0a0a0a]">
         {/* Hero Carousel */}
         <Carousel animes={trending.slice(0, 5)} onPlay={handlePlay} />
 

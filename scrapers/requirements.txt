@@ -1,10 +1,5 @@
 requests
-cloudscraper
-beautifulsoup4
 playwright
 pymongo
 python-dotenv
-fake-useragent
-lxml
-openai
 

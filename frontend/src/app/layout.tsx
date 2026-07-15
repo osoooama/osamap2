@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
-import { Noto_Kufi_Arabic, Montserrat } from "next/font/google";
+import { Reem_Kufi, Alexandria, Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Navbar from "@/components/Navbar";
 import ToastContainer from "@/components/ToastContainer";
 
 
-const notoKufi = Noto_Kufi_Arabic({
-  variable: "--font-arabic",
-  subsets: ["arabic"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+const reemKufi = Reem_Kufi({
+  variable: "--font-arabic-display",
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const montserrat = Montserrat({
+const alexandria = Alexandria({
+  variable: "--font-arabic-body",
+  subsets: ["arabic", "latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+const inter = Inter({
   variable: "--font-english",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -37,7 +43,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" className={`${notoKufi.variable} ${montserrat.variable} dark h-full`}>
+    <html lang="ar" className={`${reemKufi.variable} ${alexandria.variable} ${inter.variable} dark h-full`}>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -46,9 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="application-name" content="OSK+" />
         <link rel="apple-touch-icon" href="/logo.webp" />
         <link rel="apple-touch-icon-precomposed" href="/logo.webp" />
-        <link rel="mask-icon" href="/icon.svg" color="#dc2626" />
+        <link rel="mask-icon" href="/icon.svg" color="#059669" />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground antialiased font-arabic">
+      <body className="min-h-full flex flex-col bg-background text-foreground antialiased font-arabic-body">
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -54,7 +54,7 @@ function SearchContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Search Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white mb-1">بحث</h1>
+          <h1 className="text-3xl font-black text-white mb-1 font-arabic-display">بحث</h1>
           <p className="text-zinc-500 text-sm">ابحث عن أفلام ومسلسلات في مكتبتنا</p>
         </div>
 
@@ -67,7 +67,7 @@ function SearchContent() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ابحث عن فيلم أو مسلسل..."
-              className="w-full pr-12 pl-12 py-4 rounded-2xl bg-zinc-900 border border-white/10 text-white text-lg focus:outline-none focus:border-red-500/50 transition placeholder:text-zinc-700"
+              className="w-full pr-12 pl-12 py-4 rounded-2xl bg-zinc-900 border border-white/10 text-white text-lg focus:outline-none focus:border-emerald-500/50 transition placeholder:text-zinc-700"
               autoFocus
               dir="auto"
             />
@@ -86,7 +86,7 @@ function SearchContent() {
         {/* Results */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
+            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
           </div>
         ) : searched ? (
           results.length === 0 ? (
@@ -120,7 +120,7 @@ function Section({ title, items }: { title: string; items: any[] }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-1 h-6 rounded-full bg-red-500" />
+        <div className="w-1 h-6 rounded-full bg-emerald-500" />
         <h2 className="text-lg font-bold text-white">{title}</h2>
         <span className="text-xs text-zinc-600">({items.length})</span>
       </div>

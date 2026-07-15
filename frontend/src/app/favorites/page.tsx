@@ -44,7 +44,7 @@ function FavoritesContent() {
             <Heart className="w-6 h-6 text-red-500" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-white">المفضلة</h1>
+            <h1 className="text-3xl font-black text-white font-arabic-display">المفضلة</h1>
             <p className="text-zinc-500 text-sm">العناوين التي حفظتها لمشاهدتها لاحقاً</p>
           </div>
         </div>

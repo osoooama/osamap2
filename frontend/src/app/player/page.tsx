@@ -65,7 +65,7 @@ function PlayerContent() {
           </div>
           <p className="text-zinc-500 text-lg mb-2 font-medium">لم يتم اختيار فيلم</p>
           <p className="text-zinc-700 text-sm mb-8">اختر فيلماً للبدء في المشاهدة</p>
-          <button onClick={() => router.push('/netflix')} className="px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg shadow-red-600/20 hover:shadow-red-600/40">
+          <button onClick={() => router.push('/netflix')} className="px-8 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-2xl transition-all duration-300 font-semibold shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40">
             تصفح الأفلام
           </button>
         </div>
@@ -97,8 +97,8 @@ function PlayerContent() {
               <div className="relative w-full aspect-[16/10] sm:aspect-video flex items-center justify-center bg-zinc-900 rounded-xl sm:rounded-2xl">
                 <div className="text-center">
                   <div className="relative w-12 h-12 mx-auto mb-4">
-                    <div className="absolute inset-0 border-3 border-red-600/20 rounded-full" />
-                    <div className="absolute inset-0 border-3 border-transparent border-t-red-600 rounded-full animate-spin" />
+                    <div className="absolute inset-0 border-3 border-emerald-600/20 rounded-full" />
+                    <div className="absolute inset-0 border-3 border-transparent border-t-emerald-600 rounded-full animate-spin" />
                   </div>
                   <p className="text-zinc-500 text-sm">جاري التحميل...</p>
                 </div>
@@ -297,8 +297,8 @@ export default function PlayerPage() {
         <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-6">
-              <div className="absolute inset-0 border-4 border-red-600/20 rounded-full" />
-              <div className="absolute inset-0 border-4 border-transparent border-t-red-600 rounded-full animate-spin" />
+              <div className="absolute inset-0 border-4 border-emerald-600/20 rounded-full" />
+              <div className="absolute inset-0 border-4 border-transparent border-t-emerald-600 rounded-full animate-spin" />
             </div>
             <p className="text-zinc-500 text-sm">جاري التجهيز...</p>
           </div>

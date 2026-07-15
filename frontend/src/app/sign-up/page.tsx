@@ -52,10 +52,10 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden px-4">
-      <div className="absolute inset-0">
-        <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-red-600/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[150px]" />
-      </div>
+        <div className="absolute inset-0">
+          <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-emerald-600/10 rounded-full blur-[150px]" />
+          <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-teal-600/10 rounded-full blur-[150px]" />
+        </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -68,9 +68,9 @@ export default function SignUpPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.4, delay: 0.2, type: 'spring' }}
-            className="text-5xl font-black text-white mb-2"
+            className="text-5xl font-black text-white mb-2 font-arabic-display"
           >
-            OSK<span className="text-red-500">+</span>
+            OSK<span className="text-emerald-500">+</span>
           </motion.h1>
           <p className="text-zinc-500 text-sm">أنشئ حسابك وابدأ المشاهدة</p>
         </div>
@@ -162,7 +162,7 @@ export default function SignUpPage() {
 
         <p className="text-center text-zinc-500 text-sm mt-6">
           لديك حساب بالفعل؟{' '}
-          <Link href="/sign-in" className="text-red-400 hover:text-red-300 font-medium transition">
+          <Link href="/sign-in" className="text-emerald-400 hover:text-emerald-300 font-medium transition">
             سجّل الدخول
           </Link>
         </p>

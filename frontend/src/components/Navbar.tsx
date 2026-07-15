@@ -50,12 +50,12 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href={isSignedIn ? '/netflix' : '/'} className="flex items-center gap-2.5 group shrink-0">
-              <div className="w-9 h-9 rounded-xl overflow-hidden ring-2 ring-white/10 group-hover:ring-red-500/50 transition-all duration-300 shadow-lg shadow-red-600/20">
+              <div className="w-9 h-9 rounded-xl overflow-hidden ring-2 ring-white/10 group-hover:ring-emerald-500/50 transition-all duration-300 shadow-lg shadow-emerald-600/20">
                 <Image src="/logo.webp" alt="OSK+" width={36} height={36} className="w-full h-full object-cover" />
               </div>
               <div className="hidden sm:block">
-                <span className="text-white font-bold text-lg leading-none">OSK</span>
-                <span className="text-red-500 font-bold text-lg leading-none">+</span>
+                <span className="text-white font-bold text-lg leading-none font-arabic-display">OSK</span>
+                <span className="text-emerald-500 font-bold text-lg leading-none font-arabic-display">+</span>
               </div>
             </Link>
 
@@ -116,7 +116,7 @@ export default function Navbar() {
                   </div>
                   <button
                     onClick={logout}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-600/10 border border-red-600/20 text-red-400 hover:bg-red-600/20 hover:text-red-300 transition-all text-xs font-medium"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600/10 border border-emerald-600/20 text-emerald-400 hover:bg-emerald-600/20 hover:text-emerald-300 transition-all text-xs font-medium"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">تسجيل الخروج</span>
@@ -125,7 +125,7 @@ export default function Navbar() {
               ) : !loading ? (
                 <Link
                   href="/sign-in"
-                  className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-red-600/25 hover:shadow-red-600/40"
+                  className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40"
                 >
                   تسجيل الدخول
                 </Link>

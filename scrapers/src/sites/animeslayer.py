@@ -1,4 +1,4 @@
-import time, json, base64
+import time, base64
 from playwright.sync_api import sync_playwright
 from sites.base import save_link, log_result
 

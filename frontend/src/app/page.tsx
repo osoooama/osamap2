@@ -68,7 +68,7 @@ function FloatingOrbs() {
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
         className="absolute top-[-15%] left-[-5%] w-[50%] h-[50%] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(229,9,20,0.12) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(5,150,105,0.12) 0%, transparent 70%)' }}
         animate={{ x: [0, 30, -20, 0], y: [0, -30, 20, 0] }}
         transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
       />
@@ -182,7 +182,7 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-zinc-300 text-sm mb-8 border border-white/10"
               >
-                <Sparkles className="w-4 h-4 text-yellow-400" />
+                <Sparkles className="w-4 h-4 text-emerald-400" />
                 <span>منصة البث المتكاملة - 4 منصات في مكان واحد</span>
               </motion.div>
 
@@ -193,14 +193,14 @@ export default function HomePage() {
                 className="flex items-center justify-center gap-6 mb-6"
               >
                 <motion.div
-                  className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-4 ring-white/10 shadow-2xl shadow-red-600/20"
+                  className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-4 ring-white/10 shadow-2xl shadow-emerald-600/20"
                   whileHover={{ scale: 1.05 }}
                 >
                   <Image src="/logo.webp" alt="OSK+" width={112} height={112} className="w-full h-full object-cover" />
                 </motion.div>
-                <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tight">
+                <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tight font-arabic-display">
                   OSK
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400">
                     +
                   </span>
                 </h1>
@@ -226,7 +226,7 @@ export default function HomePage() {
                 {isSignedIn ? (
                   <Link
                     href="/netflix"
-                    className="group relative px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-red-600/25 overflow-hidden"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-600/25 overflow-hidden"
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       <Play className="w-5 h-5 fill-white" />
@@ -234,7 +234,7 @@ export default function HomePage() {
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600"
+                      className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-600"
                       animate={{ opacity: [0, 0.5, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
@@ -242,7 +242,7 @@ export default function HomePage() {
                 ) : (
                   <Link
                     href="/sign-in"
-                    className="group relative px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-red-600/25"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-600/25"
                   >
                     <span className="flex items-center gap-2">
                       <LogIn className="w-5 h-5" />
@@ -253,7 +253,7 @@ export default function HomePage() {
 
                 {isSignedIn && (
                   <div className="flex items-center gap-3 px-6 py-3 rounded-2xl glass text-zinc-300">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
                       <span className="text-white text-xs font-bold">✓</span>
                     </div>
                     <span className="text-sm">مرحباً {user?.username}</span>

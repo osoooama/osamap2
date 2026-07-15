@@ -210,6 +210,20 @@ export default function SmartPlayer({
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-dropdown]')) {
+        setShowMenu(false);
+        setShowEpisodeSelector(false);
+      }
+    };
+    if (showMenu || showEpisodeSelector) {
+      document.addEventListener('click', handleClickOutside, true);
+      return () => document.removeEventListener('click', handleClickOutside, true);
+    }
+  }, [showMenu, showEpisodeSelector]);
+
   return (
     <div className="w-full">
       {/* VIDEO PLAYER CARD */}
@@ -273,7 +287,7 @@ export default function SmartPlayer({
       {/* CONTROL ROW — OUTSIDE THE PLAYER CARD */}
       <div className="mt-2.5 flex items-center justify-between gap-2 flex-wrap">
         {/* LEFT: Episode/Season selector */}
-        <div className="relative">
+        <div className="relative" data-dropdown>
           {showEpisodeUI && (
             <button
               onClick={() => { setShowEpisodeSelector(!showEpisodeSelector); setShowMenu(false); }}
@@ -292,7 +306,7 @@ export default function SmartPlayer({
           )}
 
           {showEpisodeSelector && (
-            <div className="absolute bottom-full mb-2 left-0 w-72 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
+            <div className="absolute top-full mt-2 left-0 w-72 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50">
               {isTV && totalSeasons > 1 && (
                 <>
                   <div className="px-3 py-2 border-b border-white/5">
@@ -324,7 +338,7 @@ export default function SmartPlayer({
                   <MonitorPlay className="w-3 h-3" /> الحلقات
                 </span>
               </div>
-              <div className="max-h-48 overflow-y-auto">
+              <div className="max-h-52 overflow-y-auto custom-scrollbar">
                 <div className="grid grid-cols-5 gap-1.5 p-3">
                   {Array.from({ length: totalEpisodes }, (_, i) => i + 1).map(e => (
                     <button
@@ -371,7 +385,7 @@ export default function SmartPlayer({
         {/* RIGHT: Server selector + Fullscreen */}
         <div className="flex items-center gap-2">
           {/* Server selector */}
-          <div className="relative">
+          <div className="relative" data-dropdown>
             <button
               onClick={() => { setShowMenu(!showMenu); setShowEpisodeSelector(false); }}
               className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all min-h-[44px] border ${
@@ -395,7 +409,7 @@ export default function SmartPlayer({
             </button>
 
             {showMenu && (
-              <div className="absolute bottom-full mb-2 right-0 w-56 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
+              <div className="absolute top-full mt-2 right-0 w-56 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50">
                 <button
                   onClick={() => { setShowMenu(false); switchToAuto(); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-xs transition-all hover:bg-white/5 ${mode === 'auto' ? 'text-yellow-400' : 'text-zinc-400'}`}
@@ -413,7 +427,7 @@ export default function SmartPlayer({
                   <span className="text-[10px] text-zinc-700">{iframeProviders.length} متاح</span>
                 </div>
 
-                <div className="max-h-64 overflow-y-auto">
+                <div className="max-h-72 overflow-y-auto custom-scrollbar">
                   {iframeProviders.map((p, i) => (
                     <button
                       key={p.name}

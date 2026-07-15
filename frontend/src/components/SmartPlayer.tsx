@@ -73,7 +73,42 @@ export default function SmartPlayer({
     return providers.filter((p: any) => p.category === 'foreign' || p.category === 'all');
   }, [providers, category]);
   
-  const iframeProviders = useMemo(() => filteredProviders.filter((p: any) => !p.needsResolution), [filteredProviders]);
+  const [scrapedProviders, setScrapedProviders] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const scraped = filteredProviders.filter((p: any) => p.needsResolution);
+    if (scraped.length === 0 || !tmdbId) return;
+    
+    const fetchScraped = async () => {
+      const results: any[] = [];
+      for (const p of scraped) {
+        try {
+          const apiUrl = String(p.url);
+          const fullUrl = apiUrl.startsWith('http') ? apiUrl : `${process.env.NEXT_PUBLIC_API_URL || 'https://osamap2.onrender.com'}${apiUrl}`;
+          const resp = await fetch(fullUrl, { signal: AbortSignal.timeout(5000) });
+          if (!resp.ok) continue;
+          const data = await resp.json();
+          if (data.streams && data.streams.length > 0) {
+            for (const stream of data.streams) {
+              results.push({
+                ...p,
+                name: `${p.name} (${stream.quality})`,
+                displayName: `${p.displayName} ${stream.quality}`,
+                url: stream.url,
+                needsResolution: false,
+              });
+            }
+          }
+        } catch {}
+      }
+      setScrapedProviders(results);
+    };
+    
+    fetchScraped();
+  }, [tmdbId, mediaType, currentSeason, currentEpisode, filteredProviders]);
+  
+  const baseIframeProviders = useMemo(() => filteredProviders.filter((p: any) => !p.needsResolution), [filteredProviders]);
+  const allIframeProviders = useMemo(() => [...scrapedProviders, ...baseIframeProviders], [scrapedProviders, baseIframeProviders]);
 
   const handleSeasonChange = useCallback((s: number) => {
     setCurrentSeason(s);
@@ -112,13 +147,13 @@ export default function SmartPlayer({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const loadStartRef = useRef<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const providerCountRef = useRef(iframeProviders.length);
+  const providerCountRef = useRef(allIframeProviders.length);
   const nextEpTimerRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { modeRef.current = mode; }, [mode]);
   useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
-  useEffect(() => { providerCountRef.current = iframeProviders.length; }, [iframeProviders.length]);
+  useEffect(() => { providerCountRef.current = allIframeProviders.length; }, [allIframeProviders.length]);
 
   useEffect(() => {
     try {
@@ -162,7 +197,7 @@ export default function SmartPlayer({
     const idx = currentIndexRef.current;
 
     if (loadTime < FAST_LOAD_THRESHOLD) {
-      const p = iframeProviders[idx];
+      const p = allIframeProviders[idx];
       if (p) trackProviderEvent(p.name, false, loadTime);
       const nf = new Set(failedRef.current);
       nf.add(idx);
@@ -174,7 +209,7 @@ export default function SmartPlayer({
 
     cleanup();
     setStatus('playing');
-    const p = iframeProviders[idx];
+    const p = allIframeProviders[idx];
     if (p) {
       trackProviderEvent(p.name, true, loadTime);
       try {
@@ -183,19 +218,19 @@ export default function SmartPlayer({
         setFavoriteServer(p.name);
       } catch {}
     }
-  }, [iframeProviders, tryNextFrom, cleanup]);
+  }, [allIframeProviders, tryNextFrom, cleanup]);
 
   const handleError = useCallback(() => {
     cleanup();
     const idx = currentIndexRef.current;
-    const p = iframeProviders[idx];
+    const p = allIframeProviders[idx];
     if (p) trackProviderEvent(p.name, false, Date.now() - loadStartRef.current);
     const nf = new Set(failedRef.current);
     nf.add(idx);
     failedRef.current = nf;
     setFailedIndices(new Set(nf));
     tryNextFrom(idx, nf);
-  }, [iframeProviders, tryNextFrom, cleanup]);
+  }, [allIframeProviders, tryNextFrom, cleanup]);
 
   const switchToAuto = useCallback(() => {
     cleanup();
@@ -208,7 +243,7 @@ export default function SmartPlayer({
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
         const { name } = JSON.parse(cached);
-        const idx = iframeProviders.findIndex(p => p.name === name);
+        const idx = allIframeProviders.findIndex(p => p.name === name);
         if (idx >= 0) startIdx = idx;
       }
     } catch {}
@@ -224,7 +259,7 @@ export default function SmartPlayer({
       setFailedIndices(new Set(nf));
       tryNextFrom(startIdx, nf);
     }, LOAD_TIMEOUT);
-  }, [cleanup, iframeProviders, tryNextFrom]);
+  }, [cleanup, allIframeProviders, tryNextFrom]);
 
   const selectManual = useCallback((index: number) => {
     cleanup();
@@ -248,12 +283,12 @@ export default function SmartPlayer({
   useEffect(() => { cleanupRef.current = cleanup; }, [cleanup]);
 
   useEffect(() => {
-    if (iframeProviders.length === 0) return;
+    if (allIframeProviders.length === 0) return;
     switchToAutoRef.current();
     return () => cleanupRef.current();
-  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, iframeProviders.length]);
+  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, allIframeProviders.length]);
 
-  const activeProvider = currentIndex >= 0 ? iframeProviders[currentIndex] : null;
+  const activeProvider = currentIndex >= 0 ? allIframeProviders[currentIndex] : null;
   const activeUrl = activeProvider ? activeProvider.url : '';
 
   const showEpisodeUI = isAnime || isTV;
@@ -385,7 +420,7 @@ export default function SmartPlayer({
                   {activeProvider.displayName || activeProvider.name}
                   {mode === 'auto' && (
                     <span className="text-zinc-800 ml-1">
-                      ({failedIndices.size + 1}/{iframeProviders.length})
+                      ({failedIndices.size + 1}/{allIframeProviders.length})
                     </span>
                   )}
                 </p>
@@ -402,7 +437,7 @@ export default function SmartPlayer({
                 <AlertCircle className="w-6 h-6 text-red-400" />
               </div>
               <p className="text-zinc-300 font-semibold text-sm mb-1">جميع السيرفرات غير متاحة</p>
-              <p className="text-zinc-600 text-xs mb-4">تم تجربة {iframeProviders.length} سيرفر — جرب مرة أخرى أو اختر يدوياً</p>
+              <p className="text-zinc-600 text-xs mb-4">تم تجربة {allIframeProviders.length} سيرفر — جرب مرة أخرى أو اختر يدوياً</p>
               <button onClick={switchToAuto} className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold transition-all">
                 إعادة المحاولة
               </button>
@@ -541,7 +576,7 @@ export default function SmartPlayer({
           <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
             <Loader2 className="w-3 h-3 text-yellow-400 animate-spin" />
             <span className="text-yellow-400 text-[10px] font-medium">
-              {failedIndices.size + 1} / {iframeProviders.length}
+              {failedIndices.size + 1} / {allIframeProviders.length}
             </span>
           </div>
         )}
@@ -599,11 +634,11 @@ export default function SmartPlayer({
 
                 <div className="border-t border-white/5 px-3 py-1.5 flex items-center justify-between">
                   <span className="text-[10px] text-zinc-600 font-medium">السيرفرات</span>
-                  <span className="text-[10px] text-zinc-700">{iframeProviders.length} متاح</span>
+                  <span className="text-[10px] text-zinc-700">{allIframeProviders.length} متاح</span>
                 </div>
 
                 <div className="max-h-72 overflow-y-auto custom-scrollbar">
-                  {iframeProviders.map((p, i) => {
+                  {allIframeProviders.map((p, i) => {
                     const health = getServerHealth(p.name);
                     const stats = getServerStats(p.name);
                     const isFav = favoriteServer === p.name;

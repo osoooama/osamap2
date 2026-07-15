@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import movieRoutes from './routes/movie.routes';
 import authRoutes from './routes/auth.routes';
 import scrapeRoutes from './routes/scrape.routes';
+import streamsRoutes from './routes/streams.routes';
 import Movie from './models/Movie.model';
 import { seedAllCategories } from './services/tmdb.service';
 import { errorHandler } from './middleware/errorHandler';
@@ -24,6 +25,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api', movieRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/scrape', scrapeRoutes);
+app.use('/api', streamsRoutes);
 
 app.use(errorHandler);
 

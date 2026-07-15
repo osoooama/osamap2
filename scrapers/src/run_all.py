@@ -9,11 +9,19 @@ from sources import get_all_sites
 from sites.cineby import crawl as crawl_cineby
 from sites.hd1brstej import crawl as crawl_hd1brstej
 from sites.animeslayer import crawl as crawl_animeslayer
+from sites.faselhd import crawl as crawl_faselhd
+from sites.qissat import crawl as crawl_qissat
+from sites.dizipal import crawl as crawl_dizipal
+from sites.turkish_sites import crawl as crawl_turkish_sites
 
 CRAWLER_MAP = {
     'streamex.sh': crawl_cineby,
     'hd1.brstej.com': crawl_hd1brstej,
     'animeslayer.to': crawl_animeslayer,
+    'faselhd.club': crawl_faselhd,
+    'ar.qissat.tv': crawl_qissat,
+    'dizipal104.vip': crawl_dizipal,
+    'hdfilmcehennemi.sh': crawl_turkish_sites,
 }
 
 

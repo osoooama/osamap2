@@ -44,6 +44,7 @@ export const BRANDED: Record<string, { displayName: string; color: string; glow:
   FajerShow: { displayName: 'OSK+ فاجر', color: '#ef4444', glow: '#ef4444' },
   Shahid4u: { displayName: 'OSK+ شاهد4و', color: '#14b8a6', glow: '#14b8a6' },
   Movizland: { displayName: 'OSK+ موفيز', color: '#f97316', glow: '#f97316' },
+  Qissat: { displayName: 'OSK+ قصة عشق', color: '#dc2626', glow: '#dc2626' },
   // ═══ تركية ═══
   Dizipal: { displayName: 'OSK+ ديزبالم', color: '#3b82f6', glow: '#3b82f6' },
   Dizilla: { displayName: 'OSK+ ديزلا', color: '#10b981', glow: '#10b981' },
@@ -103,13 +104,17 @@ const NETFLIX_PROVIDERS: Provider[] = [
 // ═══════════════════════════════════════════════════════════════
 const SHAHID_PROVIDERS: Provider[] = [
   // سيرفرات عربية (TMDB embeds اللي فيها محتوى عربي)
-  { name: 'VidSrcXyz', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.xyz/embed/tv?tmdb=${t}&season=${s}&episode=${e}` : `https://vidsrc.xyz/embed/movie?tmdb=${t}`, priority: 1, category: 'arabic' },
-  { name: 'VidSrcTo', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.to/embed/tv/${t}/${s}/${e}` : `https://vidsrc.to/embed/movie/${t}`, priority: 2, category: 'arabic' },
-  { name: 'VidSrcCC', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.cc/v2/embed/tv/${t}/${s}/${e}` : `https://vidsrc.cc/v2/embed/movie/${t}`, priority: 3, category: 'arabic' },
-  { name: 'VidSrcPM', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.pm/embed/tv/${t}/${s}/${e}` : `https://vidsrc.pm/embed/movie/${t}`, priority: 4, category: 'arabic' },
-  { name: 'VidSrcIcu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.icu/embed/tv/${t}/${s}/${e}` : `https://vidsrc.icu/embed/movie/${t}`, priority: 5, category: 'arabic' },
-  { name: 'VidSrcRip', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.rip/embed/tv/${t}/${s}/${e}` : `https://vidsrc.rip/embed/movie/${t}`, priority: 6, category: 'arabic' },
-  { name: 'VidSrcSu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.su/embed/tv/${t}/${s}/${e}` : `https://vidsrc.su/embed/movie/${t}`, priority: 7, category: 'arabic' },
+  { name: 'FaselHD', url: (t, tp, s, e) => `/api/streams/${t}?category=arabic`, priority: 1, category: 'arabic', needsResolution: true },
+  { name: 'Qissat', url: (t, tp, s, e) => `/api/streams/${t}?category=turkish`, priority: 2, category: 'arabic', needsResolution: true },
+  { name: 'Dizipal', url: (t, tp, s, e) => `/api/streams/${t}?category=turkish`, priority: 3, category: 'turkish', needsResolution: true },
+  { name: 'HDFilmCehennemi', url: (t, tp, s, e) => `/api/streams/${t}?category=turkish`, priority: 4, category: 'turkish', needsResolution: true },
+  { name: 'VidSrcXyz', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.xyz/embed/tv?tmdb=${t}&season=${s}&episode=${e}` : `https://vidsrc.xyz/embed/movie?tmdb=${t}`, priority: 5, category: 'arabic' },
+  { name: 'VidSrcTo', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.to/embed/tv/${t}/${s}/${e}` : `https://vidsrc.to/embed/movie/${t}`, priority: 6, category: 'arabic' },
+  { name: 'VidSrcCC', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.cc/v2/embed/tv/${t}/${s}/${e}` : `https://vidsrc.cc/v2/embed/movie/${t}`, priority: 7, category: 'arabic' },
+  { name: 'VidSrcPM', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.pm/embed/tv/${t}/${s}/${e}` : `https://vidsrc.pm/embed/movie/${t}`, priority: 8, category: 'arabic' },
+  { name: 'VidSrcIcu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.icu/embed/tv/${t}/${s}/${e}` : `https://vidsrc.icu/embed/movie/${t}`, priority: 9, category: 'arabic' },
+  { name: 'VidSrcRip', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.rip/embed/tv/${t}/${s}/${e}` : `https://vidsrc.rip/embed/movie/${t}`, priority: 10, category: 'arabic' },
+  { name: 'VidSrcSu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.su/embed/tv/${t}/${s}/${e}` : `https://vidsrc.su/embed/movie/${t}`, priority: 11, category: 'arabic' },
   // سيرفرات عامة (تعمل مع أي محتوى)
   { name: 'vidlink', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 8, category: 'arabic' },
   { name: 'VidFast', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 9, category: 'arabic' },

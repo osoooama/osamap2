@@ -51,19 +51,19 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden px-4">
-        <div className="absolute inset-0">
-          <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-emerald-600/10 rounded-full blur-[150px]" />
-          <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-teal-600/10 rounded-full blur-[150px]" />
-        </div>
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden px-4 py-8">
+      <div className="absolute inset-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] bg-emerald-600/10 rounded-full blur-[150px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[60%] h-[60%] bg-teal-600/10 rounded-full blur-[150px]" />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
+        className="relative z-10 w-full max-w-sm"
       >
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <motion.h1
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -75,9 +75,9 @@ export default function SignUpPage() {
           <p className="text-zinc-500 text-sm">أنشئ حسابك وابدأ المشاهدة</p>
         </div>
 
-        <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/30 p-6 sm:p-8">
-          <form onSubmit={handleSubmit}>
-            <div className="flex items-center gap-3 mb-6">
+        <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/30 p-6">
+          <form onSubmit={handleSubmit} autoComplete="on">
+            <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 rounded-xl bg-emerald-600/15 flex items-center justify-center">
                 <UserPlus className="w-5 h-5 text-emerald-400" />
               </div>
@@ -87,48 +87,53 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <div className="space-y-1.5">
-                <label className="text-zinc-400 text-sm font-medium">اسم المستخدم</label>
-                <div className="relative">
-                  <User className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="اسم المستخدم"
-                    className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3 px-10 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600 text-base"
-                    autoFocus
-                  />
-                </div>
+            <div className="space-y-3 mb-5">
+              <div className="relative">
+                <User className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="اسم المستخدم"
+                  className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3.5 px-10 text-base [font-size:16px] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600"
+                />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-zinc-400 text-sm font-medium">كلمة المرور</label>
-                <div className="relative">
-                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3 px-10 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600 text-base"
-                  />
-                </div>
+              <div className="relative">
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                <input
+                  type="password"
+                  inputMode="text"
+                  autoComplete="new-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3.5 px-10 text-base [font-size:16px] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600"
+                />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-zinc-400 text-sm font-medium">تأكيد كلمة المرور</label>
-                <div className="relative">
-                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3 px-10 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600 text-base"
-                  />
-                </div>
+              <div className="relative">
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                <input
+                  type="password"
+                  inputMode="text"
+                  autoComplete="new-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-zinc-950 border border-white/10 text-white rounded-xl py-3.5 px-10 text-base [font-size:16px] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 outline-none transition placeholder:text-zinc-600"
+                />
               </div>
             </div>
 
@@ -146,7 +151,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-xl font-semibold shadow-lg shadow-emerald-600/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-xl font-semibold shadow-lg shadow-emerald-600/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -160,7 +165,7 @@ export default function SignUpPage() {
           </form>
         </div>
 
-        <p className="text-center text-zinc-500 text-sm mt-6">
+        <p className="text-center text-zinc-500 text-sm mt-5">
           لديك حساب بالفعل؟{' '}
           <Link href="/sign-in" className="text-emerald-400 hover:text-emerald-300 font-medium transition">
             سجّل الدخول

@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getProviders, getAnimeProviders } from '@/lib/providers';
-import { trackProviderEvent } from '@/lib/providerPerf';
-import { ChevronDown, Zap, Check, AlertCircle, Loader2, Tv, MonitorPlay, Layers, Maximize2 } from 'lucide-react';
+import { trackProviderEvent, getProviderPerf, getProviderScore, type ProviderPerf } from '@/lib/providerPerf';
+import { ChevronDown, Zap, Check, AlertCircle, Loader2, Tv, MonitorPlay, Layers, Maximize2, Minimize2, Volume2, VolumeX, Keyboard, PictureInPicture2 } from 'lucide-react';
 
 const LOAD_TIMEOUT = 8000;
 const FAST_LOAD_THRESHOLD = 1500;
 const STORAGE_KEY = 'osk_smart_provider';
+const FAVORITE_KEY = 'osk_favorite_server';
+const NEXT_EP_DELAY = 10;
 
 interface SmartPlayerProps {
   tmdbId?: string;
@@ -19,6 +21,26 @@ interface SmartPlayerProps {
   totalEpisodes?: number;
   onSeasonChange?: (season: number) => void;
   onEpisodeChange?: (episode: number) => void;
+}
+
+function getServerHealth(name: string): 'good' | 'slow' | 'bad' | 'unknown' {
+  const perf = getProviderPerf();
+  const p = perf[name];
+  if (!p || p.events.length < 2) return 'unknown';
+  const recent = p.events.slice(-5);
+  const successRate = recent.filter(e => e.success).length / recent.length;
+  const avgMs = recent.filter(e => e.success).reduce((s, e) => s + e.loadMs, 0) / Math.max(1, recent.filter(e => e.success).length);
+  if (successRate < 0.3) return 'bad';
+  if (successRate < 0.7 || avgMs > 4000) return 'slow';
+  return 'good';
+}
+
+function getServerStats(name: string): { attempts: number; successRate: number } {
+  const perf = getProviderPerf();
+  const p = perf[name];
+  if (!p || p.events.length === 0) return { attempts: 0, successRate: 0 };
+  const successes = p.events.filter(e => e.success).length;
+  return { attempts: p.events.length, successRate: (successes / p.events.length) * 100 };
 }
 
 export default function SmartPlayer({
@@ -65,6 +87,10 @@ export default function SmartPlayer({
   const [status, setStatus] = useState<'idle' | 'loading' | 'playing' | 'error'>('idle');
   const [showMenu, setShowMenu] = useState(false);
   const [failedIndices, setFailedIndices] = useState<Set<number>>(new Set());
+  const [isMuted, setIsMuted] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [nextEpCountdown, setNextEpCountdown] = useState<number | null>(null);
+  const [favoriteServer, setFavoriteServer] = useState<string | null>(null);
 
   const modeRef = useRef(mode);
   const currentIndexRef = useRef(currentIndex);
@@ -73,13 +99,24 @@ export default function SmartPlayer({
   const loadStartRef = useRef<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const providerCountRef = useRef(iframeProviders.length);
+  const nextEpTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { modeRef.current = mode; }, [mode]);
   useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
   useEffect(() => { providerCountRef.current = iframeProviders.length; }, [iframeProviders.length]);
 
+  useEffect(() => {
+    try {
+      const fav = localStorage.getItem(FAVORITE_KEY);
+      if (fav) setFavoriteServer(fav);
+    } catch {}
+  }, []);
+
   const cleanup = useCallback(() => {
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+    if (nextEpTimerRef.current) { clearInterval(nextEpTimerRef.current); nextEpTimerRef.current = null; }
+    setNextEpCountdown(null);
   }, []);
 
   const tryNextFrom = useCallback((failedIndex: number, newFailed: Set<number>) => {
@@ -128,6 +165,8 @@ export default function SmartPlayer({
       trackProviderEvent(p.name, true, loadTime);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: p.name, index: idx, timestamp: Date.now() }));
+        localStorage.setItem(FAVORITE_KEY, p.name);
+        setFavoriteServer(p.name);
       } catch {}
     }
   }, [iframeProviders, tryNextFrom, cleanup]);
@@ -198,7 +237,6 @@ export default function SmartPlayer({
   const activeUrl = activeProvider ? activeProvider.url : '';
 
   const showEpisodeUI = isAnime || isTV;
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleFullscreen = useCallback(() => {
     const el = containerRef.current;
@@ -209,6 +247,75 @@ export default function SmartPlayer({
       el.requestFullscreen().catch(() => {});
     }
   }, []);
+
+  const handlePiP = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (document.pictureInPictureElement) {
+      document.exitPictureInPicture().catch(() => {});
+    } else {
+      const video = el.querySelector('video');
+      if (video) {
+        video.requestPictureInPicture().catch(() => {});
+      }
+    }
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => !prev);
+  }, []);
+
+  const startNextEpisodeCountdown = useCallback(() => {
+    if (!isTV && !isAnime) return;
+    if (currentEpisode >= totalEpisodes) return;
+    setNextEpCountdown(NEXT_EP_DELAY);
+    nextEpTimerRef.current = setInterval(() => {
+      setNextEpCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          if (nextEpTimerRef.current) clearInterval(nextEpTimerRef.current);
+          handleEpisodeChange(currentEpisode + 1);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [currentEpisode, totalEpisodes, isTV, isAnime, handleEpisodeChange]);
+
+  const cancelNextEpisode = useCallback(() => {
+    if (nextEpTimerRef.current) clearInterval(nextEpTimerRef.current);
+    setNextEpCountdown(null);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+      switch (e.key) {
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          handleFullscreen();
+          break;
+        case 'm':
+        case 'M':
+          e.preventDefault();
+          toggleMute();
+          break;
+        case 'Escape':
+          setShowMenu(false);
+          setShowEpisodeSelector(false);
+          setShowShortcuts(false);
+          break;
+        case '?':
+          e.preventDefault();
+          setShowShortcuts(prev => !prev);
+          break;
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleFullscreen, toggleMute]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -242,7 +349,7 @@ export default function SmartPlayer({
           />
         )}
 
-        {/* Loading overlay — stays inside player */}
+        {/* Loading overlay */}
         {(status === 'loading' || status === 'idle') && (
           <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/90 z-10 pointer-events-none">
             <div className="text-center">
@@ -267,7 +374,7 @@ export default function SmartPlayer({
           </div>
         )}
 
-        {/* Error overlay — stays inside player */}
+        {/* Error overlay */}
         {status === 'error' && (
           <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/95 backdrop-blur z-10">
             <div className="text-center px-4">
@@ -282,9 +389,46 @@ export default function SmartPlayer({
             </div>
           </div>
         )}
+
+        {/* Next episode countdown */}
+        {nextEpCountdown !== null && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-4 py-2.5 bg-black/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl">
+            <div className="text-white text-xs font-medium">
+              الحلقة التالية خلال <span className="text-emerald-400 font-bold tabular-nums">{nextEpCountdown}</span> ثانية
+            </div>
+            <button onClick={cancelNextEpisode} className="px-2.5 py-1 rounded-lg bg-white/10 text-zinc-400 text-[10px] hover:bg-white/20 hover:text-white transition">
+              إلغاء
+            </button>
+          </div>
+        )}
+
+        {/* Keyboard shortcuts help */}
+        {showShortcuts && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setShowShortcuts(false)}>
+            <div className="bg-zinc-900/95 rounded-2xl border border-white/10 p-5 max-w-xs w-full mx-4" onClick={e => e.stopPropagation()}>
+              <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                <Keyboard className="w-4 h-4 text-emerald-400" />
+                اختصارات لوحة المفاتيح
+              </h3>
+              <div className="space-y-2">
+                {[
+                  ['F', 'ملء الشاشة'],
+                  ['M', 'كتم الصوت'],
+                  ['?', 'إظهار/إخفاء الاختصارات'],
+                  ['Esc', 'إغلاق القوائم'],
+                ].map(([key, desc]) => (
+                  <div key={key} className="flex items-center justify-between text-xs">
+                    <span className="text-zinc-500">{desc}</span>
+                    <kbd className="px-2 py-0.5 rounded bg-zinc-800 border border-white/10 text-zinc-300 font-mono text-[10px]">{key}</kbd>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* CONTROL ROW — OUTSIDE THE PLAYER CARD */}
+      {/* CONTROL ROW */}
       <div className="mt-2.5 flex items-center justify-between gap-2 flex-wrap">
         {/* LEFT: Episode/Season selector */}
         <div className="relative" data-dropdown>
@@ -372,7 +516,7 @@ export default function SmartPlayer({
           )}
         </div>
 
-        {/* CENTER: Auto-progress indicator (loading only) */}
+        {/* CENTER: Auto-progress indicator */}
         {mode === 'auto' && status === 'loading' && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
             <Loader2 className="w-3 h-3 text-yellow-400 animate-spin" />
@@ -382,8 +526,19 @@ export default function SmartPlayer({
           </div>
         )}
 
-        {/* RIGHT: Server selector + Fullscreen */}
-        <div className="flex items-center gap-2">
+        {/* CENTER: Next episode button (when playing) */}
+        {status === 'playing' && (isTV || isAnime) && currentEpisode < totalEpisodes && nextEpCountdown === null && (
+          <button
+            onClick={startNextEpisodeCountdown}
+            className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-[10px] font-medium hover:bg-emerald-500/20 transition"
+          >
+            <MonitorPlay className="w-3 h-3" />
+            الحلقة التالية
+          </button>
+        )}
+
+        {/* RIGHT: Controls */}
+        <div className="flex items-center gap-1.5">
           {/* Server selector */}
           <div className="relative" data-dropdown>
             <button
@@ -409,7 +564,7 @@ export default function SmartPlayer({
             </button>
 
             {showMenu && (
-              <div className="absolute top-full mt-2 right-0 w-56 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50">
+              <div className="absolute top-full mt-2 right-0 w-64 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50">
                 <button
                   onClick={() => { setShowMenu(false); switchToAuto(); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-xs transition-all hover:bg-white/5 ${mode === 'auto' ? 'text-yellow-400' : 'text-zinc-400'}`}
@@ -428,43 +583,92 @@ export default function SmartPlayer({
                 </div>
 
                 <div className="max-h-72 overflow-y-auto custom-scrollbar">
-                  {iframeProviders.map((p, i) => (
-                    <button
-                      key={p.name}
-                      onClick={() => selectManual(i)}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs transition-all hover:bg-white/5 ${
-                        currentIndex === i && mode === 'manual' ? 'text-white bg-white/5' : 'text-zinc-500'
-                      }`}
-                    >
-                      <div className={`w-2 h-2 rounded-full ${
-                        currentIndex === i && status === 'playing' ? 'bg-green-400' :
-                        currentIndex === i && status === 'loading' ? 'bg-yellow-400 animate-pulse' :
-                        failedIndices.has(i) ? 'bg-red-400/50' : 'bg-zinc-700'
-                      }`} />
-                      <span className="font-medium">{p.name}</span>
-                      {currentIndex === i && mode === 'manual' && (
-                        <Check className="w-3 h-3 mr-auto text-green-400" />
-                      )}
-                      {p.brandColor && (
-                        <span className="w-1.5 h-1.5 rounded-full ml-auto" style={{ backgroundColor: p.brandColor }} />
-                      )}
-                    </button>
-                  ))}
+                  {iframeProviders.map((p, i) => {
+                    const health = getServerHealth(p.name);
+                    const stats = getServerStats(p.name);
+                    const isFav = favoriteServer === p.name;
+                    return (
+                      <button
+                        key={p.name}
+                        onClick={() => selectManual(i)}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs transition-all hover:bg-white/5 ${
+                          currentIndex === i && mode === 'manual' ? 'text-white bg-white/5' : 'text-zinc-500'
+                        }`}
+                      >
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${
+                          health === 'good' ? 'bg-green-400' :
+                          health === 'slow' ? 'bg-yellow-400' :
+                          health === 'bad' ? 'bg-red-400/50' :
+                          currentIndex === i && status === 'playing' ? 'bg-green-400' :
+                          currentIndex === i && status === 'loading' ? 'bg-yellow-400 animate-pulse' :
+                          failedIndices.has(i) ? 'bg-red-400/50' : 'bg-zinc-700'
+                        }`} />
+                        <div className="flex-1 min-w-0 text-right">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-medium truncate">{p.name}</span>
+                            {isFav && <span className="text-[8px] text-emerald-400">★</span>}
+                          </div>
+                          {stats.attempts > 0 && (
+                            <div className="text-[9px] text-zinc-700">
+                              {stats.attempts} محاولة — {stats.successRate.toFixed(0)}% نجاح
+                            </div>
+                          )}
+                        </div>
+                        {currentIndex === i && mode === 'manual' && (
+                          <Check className="w-3 h-3 text-green-400 shrink-0" />
+                        )}
+                        {p.brandColor && (
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: p.brandColor }} />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Fullscreen button */}
+          {/* Mute toggle */}
+          {status === 'playing' && (
+            <button
+              onClick={toggleMute}
+              className="flex items-center justify-center w-10 h-10 bg-white/5 border border-white/5 rounded-xl text-zinc-400 hover:bg-white/10 hover:border-white/10 hover:text-white transition-all active:scale-95"
+              title={isMuted ? 'تشغيل الصوت' : 'كتم الصوت'}
+            >
+              {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            </button>
+          )}
+
+          {/* PiP button */}
+          {status === 'playing' && (
+            <button
+              onClick={handlePiP}
+              className="hidden sm:flex items-center justify-center w-10 h-10 bg-white/5 border border-white/5 rounded-xl text-zinc-400 hover:bg-white/10 hover:border-white/10 hover:text-white transition-all active:scale-95"
+              title="صورة في صورة"
+            >
+              <PictureInPicture2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {/* Fullscreen */}
           {status === 'playing' && (
             <button
               onClick={handleFullscreen}
-              className="flex items-center gap-2 px-3.5 py-2.5 bg-white/5 border border-white/5 rounded-xl text-zinc-400 text-xs font-medium hover:bg-white/10 hover:border-white/10 hover:text-white transition-all active:scale-95 min-h-[44px]"
+              className="flex items-center justify-center w-10 h-10 sm:w-auto sm:px-3.5 sm:h-10 bg-white/5 border border-white/5 rounded-xl text-zinc-400 text-xs font-medium hover:bg-white/10 hover:border-white/10 hover:text-white transition-all active:scale-95"
             >
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">ملء الشاشة</span>
+              {document.fullscreenElement ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline ml-1.5">ملء الشاشة</span>
             </button>
           )}
+
+          {/* Shortcuts help */}
+          <button
+            onClick={() => setShowShortcuts(true)}
+            className="hidden sm:flex items-center justify-center w-10 h-10 bg-white/5 border border-white/5 rounded-xl text-zinc-600 hover:bg-white/10 hover:border-white/10 hover:text-zinc-400 transition-all"
+            title="اختصارات لوحة المفاتيح"
+          >
+            <Keyboard className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>

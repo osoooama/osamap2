@@ -28,15 +28,24 @@ interface MovieCardProps {
   onInfo?: (movie: any) => void;
 }
 
+function getWatchProgress(tmdbId: string): number {
+  try {
+    const progress = JSON.parse(localStorage.getItem('osk_watch_progress') || '{}');
+    return progress[tmdbId]?.progress || 0;
+  } catch { return 0; }
+}
+
 export default function MovieCard({ movie, accentColor = '#E50914', platformRef, onInfo }: MovieCardProps) {
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isFav, setIsFav] = useState(false);
   const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [trailerLoading, setTrailerLoading] = useState(false);
+  const [watchProgress, setWatchProgress] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const hoverTimer = useRef<NodeJS.Timeout | null>(null);
   const isMobile = useRef(false);
@@ -64,6 +73,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
       const favs = JSON.parse(localStorage.getItem('osk_favorites') || '[]');
       setIsFav(favs.some((f: any) => f.tmdb_id === tmdbId));
     } catch {}
+    setWatchProgress(getWatchProgress(tmdbId));
   }, [tmdbId]);
 
   const toggleFav = (e: React.MouseEvent) => {
@@ -150,7 +160,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
         setShowPopup(true);
         loadTrailer();
       }
-    }, 600);
+    }, 350);
   };
 
   const handleMouseLeave = () => {
@@ -171,17 +181,25 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleMobileTap}
-      className="relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] lg:w-[200px] cursor-pointer z-0 hover:z-50"
+      className="relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] lg:w-[200px] cursor-pointer z-0 hover:z-50 group"
     >
-      <div className="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/50">
+      <div className="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-[0_8px_40px_-8px_rgba(0,0,0,0.8)] group-hover:scale-[1.05] group-hover:-translate-y-1">
         {imgSrc && !imgError ? (
-          <img
-            src={backdropSrc || imgSrc}
-            alt={title}
-            loading="lazy"
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-50"
-            onError={() => setImgError(true)}
-          />
+          <>
+            {!imgLoaded && (
+              <div className="absolute inset-0 bg-zinc-800 animate-pulse">
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_1.5s_infinite]" />
+              </div>
+            )}
+            <img
+              src={backdropSrc || imgSrc}
+              alt={title}
+              loading="lazy"
+              className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-50 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setImgLoaded(true)}
+              onError={() => setImgError(true)}
+            />
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
             <span className="text-zinc-600 text-3xl sm:text-4xl font-black">{title[0]}</span>
@@ -189,6 +207,15 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {watchProgress > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-zinc-800/80">
+            <div
+              className="h-full bg-emerald-500 transition-all duration-300"
+              style={{ width: `${Math.min(watchProgress, 100)}%` }}
+            />
+          </div>
+        )}
 
         <motion.div
           initial={false}

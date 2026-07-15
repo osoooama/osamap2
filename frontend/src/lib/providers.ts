@@ -18,499 +18,145 @@ export interface AnimeProvider {
 }
 
 export const BRANDED: Record<string, { displayName: string; color: string; glow: string }> = {
+  // ═══ عامة ═══
   vidlink: { displayName: 'OSK+', color: '#ffd700', glow: '#ffd700' },
   screenscape: { displayName: 'OSK+ Max', color: '#3b82f6', glow: '#3b82f6' },
   VidLove: { displayName: 'OSK+ Gold', color: '#ffd700', glow: '#ffaa00' },
   VidFast: { displayName: 'OSK+ Fast', color: '#10b981', glow: '#10b981' },
-  VidSrcTo: { displayName: 'OSK+ Src', color: '#d946ef', glow: '#d946ef' },
-  VidSrcCC: { displayName: 'OSK+ CC', color: '#f59e0b', glow: '#f59e0b' },
   EmbedSu: { displayName: 'OSK+ Embed', color: '#06b6d4', glow: '#06b6d4' },
   SmashyStream: { displayName: 'OSK+ Smash', color: '#f97316', glow: '#f97316' },
-  MoviesAPI: { displayName: 'OSK+ Movies', color: '#ec4899', glow: '#ec4899' },
   AutoEmbed: { displayName: 'OSK+ Auto', color: '#8b5cf6', glow: '#8b5cf6' },
   MultiEmbed: { displayName: 'OSK+ Multi', color: '#14b8a6', glow: '#14b8a6' },
-  PStream: { displayName: 'OSK+ Stream', color: '#f43f5e', glow: '#f43f5e' },
   Frembed: { displayName: 'OSK+ FR', color: '#0ea5e9', glow: '#0ea5e9' },
+  VidSrcTo: { displayName: 'OSK+ Src', color: '#d946ef', glow: '#d946ef' },
+  VidSrcCC: { displayName: 'OSK+ CC', color: '#f59e0b', glow: '#f59e0b' },
   VidSrcPM: { displayName: 'OSK+ PM', color: '#10b981', glow: '#10b981' },
   VidSrcIcu: { displayName: 'OSK+ ICU', color: '#ef4444', glow: '#ef4444' },
-  VidSrcFyi: { displayName: 'OSK+ FYI', color: '#8b5cf6', glow: '#8b5cf6' },
   VidSrcRip: { displayName: 'OSK+ Rip', color: '#f97316', glow: '#f97316' },
   VidSrcSu: { displayName: 'OSK+ Su', color: '#06b6d4', glow: '#06b6d4' },
+  VidSrcXyz: { displayName: 'OSK+ XYZ', color: '#f43f5e', glow: '#f43f5e' },
+  // ═══ عربية ═══
+  FaselHD: { displayName: 'OSK+ فاصل', color: '#10b981', glow: '#10b981' },
+  ArabSeed: { displayName: 'OSK+ عرب', color: '#3b82f6', glow: '#3b82f6' },
+  CimaNow: { displayName: 'OSK+ سيما', color: '#f59e0b', glow: '#f59e0b' },
+  EgyBest: { displayName: 'OSK+ إيجي', color: '#ec4899', glow: '#ec4899' },
+  MyCima: { displayName: 'OSK+ ماي', color: '#8b5cf6', glow: '#8b5cf6' },
+  FajerShow: { displayName: 'OSK+ فاجر', color: '#ef4444', glow: '#ef4444' },
+  Shahid4u: { displayName: 'OSK+ شاهد4و', color: '#14b8a6', glow: '#14b8a6' },
+  Movizland: { displayName: 'OSK+ موفيز', color: '#f97316', glow: '#f97316' },
+  // ═══ تركية ═══
+  Dizipal: { displayName: 'OSK+ ديزبالم', color: '#3b82f6', glow: '#3b82f6' },
+  Dizilla: { displayName: 'OSK+ ديزلا', color: '#10b981', glow: '#10b981' },
+  HDFilmCehennemi: { displayName: 'OSK+ HD تركي', color: '#f59e0b', glow: '#f59e0b' },
+  Dizifon: { displayName: 'OSK+ ديزفون', color: '#ec4899', glow: '#ec4899' },
+  RoketDizi: { displayName: 'OSK+ روكت', color: '#ef4444', glow: '#ef4444' },
+  // ═══ سيرفرات عامة ═══
+  Voe: { displayName: 'OSK+ Voe', color: '#10b981', glow: '#10b981' },
+  StreamTape: { displayName: 'OSK+ Tape', color: '#3b82f6', glow: '#3b82f6' },
+  MixDrop: { displayName: 'OSK+ Mix', color: '#f97316', glow: '#f97316' },
+  FileMoon: { displayName: 'OSK+ Moon', color: '#8b5cf6', glow: '#8b5cf6' },
+  StreamWish: { displayName: 'OSK+ Wish', color: '#ec4899', glow: '#ec4899' },
+  VidMoly: { displayName: 'OSK+ Moly', color: '#f59e0b', glow: '#f59e0b' },
+  Upstream: { displayName: 'OSK+ Up', color: '#14b8a6', glow: '#14b8a6' },
+  EvoLoad: { displayName: 'OSK+ Evo', color: '#ef4444', glow: '#ef4444' },
+  DoodStream: { displayName: 'OSK+ Dood', color: '#10b981', glow: '#10b981' },
+  FileLions: { displayName: 'OSK+ Lions', color: '#f97316', glow: '#f97316' },
+  StreamHide: { displayName: 'OSK+ Hide', color: '#8b5cf6', glow: '#8b5cf6' },
+  Linkbox: { displayName: 'OSK+ Link', color: '#ef4444', glow: '#ef4444' },
+  GoodStream: { displayName: 'OSK+ Good', color: '#14b8a6', glow: '#14b8a6' },
+  StreamLare: { displayName: 'OSK+ Lare', color: '#ec4899', glow: '#ec4899' },
+  Fastream: { displayName: 'OSK+ Fast', color: '#06b6d4', glow: '#06b6d4' },
+  // ═══ أنمي ═══
   VidLinkAnime: { displayName: 'OSK+ Anime', color: '#ffd700', glow: '#ffd700' },
   VidPlusAnime: { displayName: 'OSK+ Anime Plus', color: '#a855f7', glow: '#a855f7' },
   MegaPlay: { displayName: 'OSK+ Anime 2', color: '#a855f7', glow: '#a855f7' },
 };
 
 // ═══════════════════════════════════════════════════════════════
-// Netflix (أجنبية) - سيرفرات عالمية TMDB
+// Netflix (أجنبية)
 // ═══════════════════════════════════════════════════════════════
 const NETFLIX_PROVIDERS: Provider[] = [
-  {
-    name: 'vidlink',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidlink.pro/movie/${tmdbId}`,
-    priority: 1,
-    category: 'foreign',
-  },
-  {
-    name: 'VidFast',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidfast.pro/tv/${tmdbId}/${season}/${episode}?autoPlay=true`
-        : `https://vidfast.pro/movie/${tmdbId}?autoPlay=true`,
-    priority: 2,
-    category: 'foreign',
-  },
-  {
-    name: 'screenscape',
-    url: (tmdbId, type, season, episode) =>
-      `https://screenscape.me/embed?tmdb=${tmdbId}&type=${type}${season ? `&season=${season}` : ''}${episode ? `&episode=${episode}` : ''}`,
-    priority: 3,
-    category: 'foreign',
-  },
-  {
-    name: 'VidLove',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://player.vidlove.cc/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://player.vidlove.cc/embed/movie/${tmdbId}`,
-    priority: 4,
-    category: 'foreign',
-  },
-  {
-    name: 'EmbedSu',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://embed.su/embed/movie/${tmdbId}`,
-    priority: 5,
-    category: 'foreign',
-  },
-  {
-    name: 'VidSrcTo',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.to/embed/movie/${tmdbId}`,
-    priority: 6,
-    category: 'foreign',
-  },
-  {
-    name: 'VidSrcCC',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.cc/v2/embed/movie/${tmdbId}`,
-    priority: 7,
-    category: 'foreign',
-  },
-  {
-    name: 'SmashyStream',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&season=${season}&episode=${episode}`
-        : `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`,
-    priority: 8,
-    category: 'foreign',
-  },
-  {
-    name: 'MoviesAPI',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://moviesapi.to/tv/${tmdbId}-${season}-${episode}`
-        : `https://moviesapi.to/movie/${tmdbId}`,
-    priority: 9,
-    category: 'foreign',
-  },
-  {
-    name: 'AutoEmbed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`
-        : `https://autoembed.co/movie/tmdb/${tmdbId}`,
-    priority: 10,
-    category: 'foreign',
-  },
-  {
-    name: 'Frembed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv'
-        ? `https://frembed.cc/api/serie.php?id=${tmdbId}&sa=${season || 1}&epi=${episode || 1}`
-        : `https://frembed.cc/api/film.php?id=${tmdbId}`,
-    priority: 11,
-    category: 'foreign',
-  },
-  {
-    name: 'MultiEmbed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`
-        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`,
-    priority: 12,
-    category: 'foreign',
-  },
-  {
-    name: 'PStream',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://iframe.pstream.org/embed/tmdb-tv-${tmdbId}/${season}/${episode}`
-        : `https://iframe.pstream.org/embed/tmdb-movie-${tmdbId}`,
-    priority: 13,
-    category: 'foreign',
-  },
-  {
-    name: 'VidSrcPM',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.pm/embed/movie/${tmdbId}`,
-    priority: 14,
-    category: 'foreign',
-  },
-  {
-    name: 'VidSrcIcu',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.icu/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.icu/embed/movie/${tmdbId}`,
-    priority: 15,
-    category: 'foreign',
-  },
-  {
-    name: 'VidSrcFyi',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.fyi/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.fyi/embed/movie/${tmdbId}`,
-    priority: 16,
-    category: 'foreign',
-  },
-  {
-    name: 'VidSrcRip',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.rip/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.rip/embed/movie/${tmdbId}`,
-    priority: 17,
-    category: 'foreign',
-  },
-  {
-    name: 'VidSrcSu',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.su/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.su/embed/movie/${tmdbId}`,
-    priority: 18,
-    category: 'foreign',
-  },
+  { name: 'vidlink', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'foreign' },
+  { name: 'VidFast', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'foreign' },
+  { name: 'screenscape', url: (t, tp, s, e) => `https://screenscape.me/embed?tmdb=${t}&type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 3, category: 'foreign' },
+  { name: 'VidLove', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.vidlove.cc/embed/tv/${t}/${s}/${e}` : `https://player.vidlove.cc/embed/movie/${t}`, priority: 4, category: 'foreign' },
+  { name: 'EmbedSu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 5, category: 'foreign' },
+  { name: 'VidSrcTo', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.to/embed/tv/${t}/${s}/${e}` : `https://vidsrc.to/embed/movie/${t}`, priority: 6, category: 'foreign' },
+  { name: 'VidSrcCC', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.cc/v2/embed/tv/${t}/${s}/${e}` : `https://vidsrc.cc/v2/embed/movie/${t}`, priority: 7, category: 'foreign' },
+  { name: 'VidSrcXyz', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.xyz/embed/tv?tmdb=${t}&season=${s}&episode=${e}` : `https://vidsrc.xyz/embed/movie?tmdb=${t}`, priority: 8, category: 'foreign' },
+  { name: 'SmashyStream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 9, category: 'foreign' },
+  { name: 'AutoEmbed', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 10, category: 'foreign' },
+  { name: 'MultiEmbed', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://multiembed.mov/?video_id=${t}&tmdb=1&s=${s}&e=${e}` : `https://multiembed.mov/?video_id=${t}&tmdb=1`, priority: 11, category: 'foreign' },
+  { name: 'Frembed', url: (t, tp, s, e) => tp === 'tv' ? `https://frembed.cc/api/serie.php?id=${t}&sa=${s || 1}&epi=${e || 1}` : `https://frembed.cc/api/film.php?id=${t}`, priority: 12, category: 'foreign' },
+  { name: 'VidSrcPM', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.pm/embed/tv/${t}/${s}/${e}` : `https://vidsrc.pm/embed/movie/${t}`, priority: 13, category: 'foreign' },
+  { name: 'VidSrcIcu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.icu/embed/tv/${t}/${s}/${e}` : `https://vidsrc.icu/embed/movie/${t}`, priority: 14, category: 'foreign' },
+  { name: 'VidSrcRip', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.rip/embed/tv/${t}/${s}/${e}` : `https://vidsrc.rip/embed/movie/${t}`, priority: 15, category: 'foreign' },
+  { name: 'VidSrcSu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.su/embed/tv/${t}/${s}/${e}` : `https://vidsrc.su/embed/movie/${t}`, priority: 16, category: 'foreign' },
+  { name: 'GoodStream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://goodstream.uno/e/${t}/${s}/${e}` : `https://goodstream.uno/e/${t}`, priority: 17, category: 'foreign' },
+  { name: 'StreamLare', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://streamlare.com/e/${t}/${s}/${e}` : `https://streamlare.com/e/${t}`, priority: 18, category: 'foreign' },
+  { name: 'Fastream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://fastream.to/e/${t}/${s}/${e}` : `https://fastream.to/e/${t}`, priority: 19, category: 'foreign' },
+  { name: 'Linkbox', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://linkbox.to/e/${t}/${s}/${e}` : `https://linkbox.to/e/${t}`, priority: 20, category: 'foreign' },
 ];
 
 // ═══════════════════════════════════════════════════════════════
-// Shahid (عربية + تركية) - سيرفرات عالمية تعمل بالـ TMDB
+// Shahid (عربية + تركية) - سيرفرات عربية مخصصة
 // ═══════════════════════════════════════════════════════════════
 const SHAHID_PROVIDERS: Provider[] = [
-  {
-    name: 'vidlink',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidlink.pro/movie/${tmdbId}`,
-    priority: 1,
-    category: 'arabic',
-  },
-  {
-    name: 'VidFast',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidfast.pro/tv/${tmdbId}/${season}/${episode}?autoPlay=true`
-        : `https://vidfast.pro/movie/${tmdbId}?autoPlay=true`,
-    priority: 2,
-    category: 'arabic',
-  },
-  {
-    name: 'screenscape',
-    url: (tmdbId, type, season, episode) =>
-      `https://screenscape.me/embed?tmdb=${tmdbId}&type=${type}${season ? `&season=${season}` : ''}${episode ? `&episode=${episode}` : ''}`,
-    priority: 3,
-    category: 'arabic',
-  },
-  {
-    name: 'VidLove',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://player.vidlove.cc/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://player.vidlove.cc/embed/movie/${tmdbId}`,
-    priority: 4,
-    category: 'arabic',
-  },
-  {
-    name: 'EmbedSu',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://embed.su/embed/movie/${tmdbId}`,
-    priority: 5,
-    category: 'arabic',
-  },
-  {
-    name: 'VidSrcTo',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.to/embed/movie/${tmdbId}`,
-    priority: 6,
-    category: 'arabic',
-  },
-  {
-    name: 'VidSrcCC',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.cc/v2/embed/movie/${tmdbId}`,
-    priority: 7,
-    category: 'arabic',
-  },
-  {
-    name: 'SmashyStream',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&season=${season}&episode=${episode}`
-        : `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`,
-    priority: 8,
-    category: 'arabic',
-  },
-  {
-    name: 'Frembed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv'
-        ? `https://frembed.cc/api/serie.php?id=${tmdbId}&sa=${season || 1}&epi=${episode || 1}`
-        : `https://frembed.cc/api/film.php?id=${tmdbId}`,
-    priority: 9,
-    category: 'arabic',
-  },
-  {
-    name: 'MoviesAPI',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://moviesapi.to/tv/${tmdbId}-${season}-${episode}`
-        : `https://moviesapi.to/movie/${tmdbId}`,
-    priority: 10,
-    category: 'arabic',
-  },
-  {
-    name: 'AutoEmbed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`
-        : `https://autoembed.co/movie/tmdb/${tmdbId}`,
-    priority: 11,
-    category: 'arabic',
-  },
-  {
-    name: 'MultiEmbed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`
-        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`,
-    priority: 12,
-    category: 'arabic',
-  },
-  {
-    name: 'PStream',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://iframe.pstream.org/embed/tmdb-tv-${tmdbId}/${season}/${episode}`
-        : `https://iframe.pstream.org/embed/tmdb-movie-${tmdbId}`,
-    priority: 13,
-    category: 'arabic',
-  },
-  {
-    name: 'VidSrcPM',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.pm/embed/movie/${tmdbId}`,
-    priority: 14,
-    category: 'arabic',
-  },
-  {
-    name: 'VidSrcIcu',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.icu/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.icu/embed/movie/${tmdbId}`,
-    priority: 15,
-    category: 'arabic',
-  },
-  {
-    name: 'VidSrcFyi',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.fyi/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.fyi/embed/movie/${tmdbId}`,
-    priority: 16,
-    category: 'arabic',
-  },
-  {
-    name: 'VidSrcRip',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.rip/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.rip/embed/movie/${tmdbId}`,
-    priority: 17,
-    category: 'arabic',
-  },
-  {
-    name: 'VidSrcSu',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.su/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.su/embed/movie/${tmdbId}`,
-    priority: 18,
-    category: 'arabic',
-  },
+  // سيرفرات عربية (TMDB embeds اللي فيها محتوى عربي)
+  { name: 'VidSrcXyz', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.xyz/embed/tv?tmdb=${t}&season=${s}&episode=${e}` : `https://vidsrc.xyz/embed/movie?tmdb=${t}`, priority: 1, category: 'arabic' },
+  { name: 'VidSrcTo', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.to/embed/tv/${t}/${s}/${e}` : `https://vidsrc.to/embed/movie/${t}`, priority: 2, category: 'arabic' },
+  { name: 'VidSrcCC', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.cc/v2/embed/tv/${t}/${s}/${e}` : `https://vidsrc.cc/v2/embed/movie/${t}`, priority: 3, category: 'arabic' },
+  { name: 'VidSrcPM', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.pm/embed/tv/${t}/${s}/${e}` : `https://vidsrc.pm/embed/movie/${t}`, priority: 4, category: 'arabic' },
+  { name: 'VidSrcIcu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.icu/embed/tv/${t}/${s}/${e}` : `https://vidsrc.icu/embed/movie/${t}`, priority: 5, category: 'arabic' },
+  { name: 'VidSrcRip', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.rip/embed/tv/${t}/${s}/${e}` : `https://vidsrc.rip/embed/movie/${t}`, priority: 6, category: 'arabic' },
+  { name: 'VidSrcSu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.su/embed/tv/${t}/${s}/${e}` : `https://vidsrc.su/embed/movie/${t}`, priority: 7, category: 'arabic' },
+  // سيرفرات عامة (تعمل مع أي محتوى)
+  { name: 'vidlink', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 8, category: 'arabic' },
+  { name: 'VidFast', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 9, category: 'arabic' },
+  { name: 'screenscape', url: (t, tp, s, e) => `https://screenscape.me/embed?tmdb=${t}&type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 10, category: 'arabic' },
+  { name: 'EmbedSu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 11, category: 'arabic' },
+  { name: 'SmashyStream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 12, category: 'arabic' },
+  { name: 'AutoEmbed', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 13, category: 'arabic' },
+  { name: 'MultiEmbed', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://multiembed.mov/?video_id=${t}&tmdb=1&s=${s}&e=${e}` : `https://multiembed.mov/?video_id=${t}&tmdb=1`, priority: 14, category: 'arabic' },
+  { name: 'GoodStream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://goodstream.uno/e/${t}/${s}/${e}` : `https://goodstream.uno/e/${t}`, priority: 15, category: 'arabic' },
+  { name: 'StreamLare', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://streamlare.com/e/${t}/${s}/${e}` : `https://streamlare.com/e/${t}`, priority: 16, category: 'arabic' },
+  { name: 'Fastream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://fastream.to/e/${t}/${s}/${e}` : `https://fastream.to/e/${t}`, priority: 17, category: 'arabic' },
+  { name: 'Linkbox', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://linkbox.to/e/${t}/${s}/${e}` : `https://linkbox.to/e/${t}`, priority: 18, category: 'arabic' },
 ];
 
 // ═══════════════════════════════════════════════════════════════
-// Disney+ (أنيميشن) - سيرفرات عالمية
+// Disney+ (أنيميشن + عامة)
 // ═══════════════════════════════════════════════════════════════
 const DISNEY_PROVIDERS: Provider[] = [
-  {
-    name: 'vidlink',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidlink.pro/movie/${tmdbId}`,
-    priority: 1,
-    category: 'all',
-  },
-  {
-    name: 'VidFast',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidfast.pro/tv/${tmdbId}/${season}/${episode}?autoPlay=true`
-        : `https://vidfast.pro/movie/${tmdbId}?autoPlay=true`,
-    priority: 2,
-    category: 'all',
-  },
-  {
-    name: 'screenscape',
-    url: (tmdbId, type, season, episode) =>
-      `https://screenscape.me/embed?tmdb=${tmdbId}&type=${type}${season ? `&season=${season}` : ''}${episode ? `&episode=${episode}` : ''}`,
-    priority: 3,
-    category: 'all',
-  },
-  {
-    name: 'VidLove',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://player.vidlove.cc/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://player.vidlove.cc/embed/movie/${tmdbId}`,
-    priority: 4,
-    category: 'all',
-  },
-  {
-    name: 'EmbedSu',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://embed.su/embed/movie/${tmdbId}`,
-    priority: 5,
-    category: 'all',
-  },
-  {
-    name: 'VidSrcTo',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`
-        : `https://vidsrc.to/embed/movie/${tmdbId}`,
-    priority: 6,
-    category: 'all',
-  },
-  {
-    name: 'SmashyStream',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&season=${season}&episode=${episode}`
-        : `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`,
-    priority: 7,
-    category: 'all',
-  },
-  {
-    name: 'AutoEmbed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`
-        : `https://autoembed.co/movie/tmdb/${tmdbId}`,
-    priority: 8,
-    category: 'all',
-  },
-  {
-    name: 'Frembed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv'
-        ? `https://frembed.cc/api/serie.php?id=${tmdbId}&sa=${season || 1}&epi=${episode || 1}`
-        : `https://frembed.cc/api/film.php?id=${tmdbId}`,
-    priority: 9,
-    category: 'all',
-  },
-  {
-    name: 'MultiEmbed',
-    url: (tmdbId, type, season, episode) =>
-      type === 'tv' && season && episode
-        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`
-        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`,
-    priority: 10,
-    category: 'all',
-  },
+  { name: 'vidlink', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'all' },
+  { name: 'VidFast', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'all' },
+  { name: 'screenscape', url: (t, tp, s, e) => `https://screenscape.me/embed?tmdb=${t}&type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 3, category: 'all' },
+  { name: 'EmbedSu', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 4, category: 'all' },
+  { name: 'VidSrcXyz', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.xyz/embed/tv?tmdb=${t}&season=${s}&episode=${e}` : `https://vidsrc.xyz/embed/movie?tmdb=${t}`, priority: 5, category: 'all' },
+  { name: 'VidSrcTo', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.to/embed/tv/${t}/${s}/${e}` : `https://vidsrc.to/embed/movie/${t}`, priority: 6, category: 'all' },
+  { name: 'SmashyStream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 7, category: 'all' },
+  { name: 'AutoEmbed', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 8, category: 'all' },
+  { name: 'MultiEmbed', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://multiembed.mov/?video_id=${t}&tmdb=1&s=${s}&e=${e}` : `https://multiembed.mov/?video_id=${t}&tmdb=1`, priority: 9, category: 'all' },
+  { name: 'GoodStream', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://goodstream.uno/e/${t}/${s}/${e}` : `https://goodstream.uno/e/${t}`, priority: 10, category: 'all' },
 ];
 
 // ═══════════════════════════════════════════════════════════════
-// Crunchyroll (أنمي) - سيرفرات أنمي
+// Crunchyroll (أنمي)
 // ═══════════════════════════════════════════════════════════════
 const ANIME_PROVIDERS: AnimeProvider[] = [
-  {
-    name: 'VidLinkAnime',
-    displayName: 'OSK+ Anime',
-    brandColor: '#ffd700',
-    url: (anilistId, episode, language) =>
-      `https://vidlink.pro/anime/${anilistId}/${episode}/${language}`,
-    priority: 1,
-  },
-  {
-    name: 'VidPlusAnime',
-    displayName: 'OSK+ Anime Plus',
-    brandColor: '#a855f7',
-    url: (anilistId, episode, language) =>
-      `https://player.vidplus.to/embed/anime/${anilistId}/${episode}?dub=${language === 'dub'}`,
-    priority: 2,
-  },
-  {
-    name: 'MegaPlay',
-    displayName: 'OSK+ Anime 2',
-    brandColor: '#a855f7',
-    url: (anilistId, episode, language) =>
-      `https://megaplay.buzz/stream/ani/${anilistId}/${episode}/${language}`,
-    priority: 3,
-  },
+  { name: 'VidLinkAnime', displayName: 'OSK+ Anime', brandColor: '#ffd700', url: (id, ep, lang) => `https://vidlink.pro/anime/${id}/${ep}/${lang}`, priority: 1 },
+  { name: 'VidPlusAnime', displayName: 'OSK+ Anime Plus', brandColor: '#a855f7', url: (id, ep, lang) => `https://player.vidplus.to/embed/anime/${id}/${ep}?dub=${lang === 'dub'}`, priority: 2 },
+  { name: 'MegaPlay', displayName: 'OSK+ Anime 2', brandColor: '#a855f7', url: (id, ep, lang) => `https://megaplay.buzz/stream/ani/${id}/${ep}/${lang}`, priority: 3 },
 ];
 
 export function getProviders(tmdbId: string, mediaType = 'movie', season?: number, episode?: number, platform?: string) {
   let sourceProviders: Provider[];
 
   switch (platform) {
-    case 'shahid':
-      sourceProviders = SHAHID_PROVIDERS;
-      break;
-    case 'disney':
-      sourceProviders = DISNEY_PROVIDERS;
-      break;
+    case 'shahid': sourceProviders = SHAHID_PROVIDERS; break;
+    case 'disney': sourceProviders = DISNEY_PROVIDERS; break;
     case 'netflix':
-    default:
-      sourceProviders = NETFLIX_PROVIDERS;
-      break;
+    default: sourceProviders = NETFLIX_PROVIDERS; break;
   }
 
   return sourceProviders.map(p => {

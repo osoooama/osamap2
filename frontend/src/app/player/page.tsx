@@ -53,6 +53,11 @@ function PlayerContent() {
   const isAnime = !!animeId;
   const isTV = mediaType === 'tv';
 
+  const category = isAnime ? 'anime' : 
+    ref === 'shahid' ? (movie?.original_language === 'tr' ? 'turkish' : 'arabic') :
+    ref === 'disney' ? 'animation' :
+    ref === 'crunchyroll' ? 'anime' : 'foreign';
+
   const totalSeasons = movie?.seasons?.length || 1;
   const currentSeasonEpisodes = movie?.seasons?.find((s: any) => s.season_number === currentSeason)?.episode_count || 24;
 
@@ -107,6 +112,8 @@ function PlayerContent() {
               <SmartPlayer
                 animeId={animeId!}
                 mediaType="anime"
+                category="anime"
+                platform="crunchyroll"
                 episode={currentEpisode}
                 totalEpisodes={anime?.episodes || 24}
                 onEpisodeChange={setCurrentEpisode}
@@ -115,6 +122,8 @@ function PlayerContent() {
               <SmartPlayer
                 tmdbId={tmdbId!}
                 mediaType={mediaType}
+                category={category}
+                platform={ref as 'netflix' | 'shahid' | 'disney' | 'crunchyroll'}
                 season={currentSeason}
                 episode={currentEpisode}
                 totalSeasons={totalSeasons}

@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 const CINEMANA_BASE = 'https://cinemana.cc';
 const HD1_BASE = 'https://hd1.brstej.com';
 const ANIME3RB_BASE = 'https://anime3rb.com';
+const FASELHD_BASE = 'https://fasselhd.com';
+const MYCIMA_BASE = 'https://mycima.video';
+const ARABSEED_BASE = 'https://arabseed.cam';
 
 const TMDB_KEY = process.env.TMDB_API_KEY || '';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
@@ -137,6 +140,78 @@ export async function resolveAnime3rb(tmdbId: string): Promise<string | null> {
   return null;
 }
 
+export async function resolveFaselHD(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /fasselhd/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${FASELHD_BASE}/?s=${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': FASELHD_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${FASELHD_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `fasselhd.com/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveMyCima(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /mycima/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${MYCIMA_BASE}/search/${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': MYCIMA_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${MYCIMA_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `mycima.video/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveArabSeed(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /arabseed/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${ARABSEED_BASE}/?s=${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': ARABSEED_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${ARABSEED_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `arabseed.cam/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
 export async function resolveProvider(tmdbId: string, provider: string): Promise<string | null> {
   const LinkModel = await getLinkModel();
   const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true }).sort({ last_checked: -1 });
@@ -146,6 +221,9 @@ export async function resolveProvider(tmdbId: string, provider: string): Promise
     case 'cinemana': return resolveCinemana(tmdbId);
     case 'hd1': return resolveHd1(tmdbId);
     case 'anime3rb': return resolveAnime3rb(tmdbId);
+    case 'faselhd': return resolveFaselHD(tmdbId);
+    case 'mycima': return resolveMyCima(tmdbId);
+    case 'arabseed': return resolveArabSeed(tmdbId);
     default: return null;
   }
 }

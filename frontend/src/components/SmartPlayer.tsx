@@ -19,6 +19,8 @@ interface SmartPlayerProps {
   episode?: number;
   totalSeasons?: number;
   totalEpisodes?: number;
+  category?: 'foreign' | 'arabic' | 'turkish' | 'anime' | 'animation';
+  platform?: 'netflix' | 'shahid' | 'disney' | 'crunchyroll';
   onSeasonChange?: (season: number) => void;
   onEpisodeChange?: (episode: number) => void;
 }
@@ -47,6 +49,8 @@ export default function SmartPlayer({
   tmdbId, animeId, mediaType,
   season = 1, episode = 1,
   totalSeasons = 1, totalEpisodes = 24,
+  category = 'foreign',
+  platform = 'netflix',
   onSeasonChange, onEpisodeChange
 }: SmartPlayerProps) {
   const isAnime = mediaType === 'anime' || !!animeId;
@@ -59,9 +63,17 @@ export default function SmartPlayer({
   const providers = useMemo(() => {
     return isAnime && animeId
       ? getAnimeProviders(Number(animeId), currentEpisode, 'sub')
-      : tmdbId ? getProviders(tmdbId, mediaType, currentSeason, currentEpisode) : [];
-  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, isAnime]);
-  const iframeProviders = useMemo(() => providers.filter((p: any) => !p.needsResolution), [providers]);
+      : tmdbId ? getProviders(tmdbId, mediaType, currentSeason, currentEpisode, platform) : [];
+  }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, isAnime, platform]);
+  
+  const filteredProviders = useMemo(() => {
+    if (category === 'anime') return providers.filter((p: any) => p.category === 'anime' || p.category === 'all');
+    if (category === 'arabic') return providers.filter((p: any) => p.category === 'arabic' || p.category === 'all');
+    if (category === 'turkish') return providers.filter((p: any) => p.category === 'turkish' || p.category === 'all');
+    return providers.filter((p: any) => p.category === 'foreign' || p.category === 'all');
+  }, [providers, category]);
+  
+  const iframeProviders = useMemo(() => filteredProviders.filter((p: any) => !p.needsResolution), [filteredProviders]);
 
   const handleSeasonChange = useCallback((s: number) => {
     setCurrentSeason(s);
@@ -668,15 +680,6 @@ export default function SmartPlayer({
               <span className="hidden sm:inline ml-1.5">ملء الشاشة</span>
             </button>
           )}
-
-          {/* Shortcuts help */}
-          <button
-            onClick={() => setShowShortcuts(true)}
-            className="hidden sm:flex items-center justify-center w-10 h-10 bg-white/5 border border-white/5 rounded-xl text-zinc-600 hover:bg-white/10 hover:border-white/10 hover:text-zinc-400 transition-all"
-            title="اختصارات لوحة المفاتيح"
-          >
-            <Keyboard className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
     </div>

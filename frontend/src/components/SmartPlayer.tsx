@@ -68,6 +68,7 @@ export default function SmartPlayer({
   
   const filteredProviders = useMemo(() => {
     if (category === 'anime') return providers.filter((p: any) => p.category === 'anime' || p.category === 'all');
+    if (category === 'animation') return providers.filter((p: any) => p.category === 'animation' || p.category === 'all');
     if (category === 'arabic') return providers.filter((p: any) => p.category === 'arabic' || p.category === 'all');
     if (category === 'turkish') return providers.filter((p: any) => p.category === 'turkish' || p.category === 'all');
     return providers.filter((p: any) => p.category === 'foreign' || p.category === 'all');
@@ -612,7 +613,7 @@ export default function SmartPlayer({
               ) : (
                 <>
                   <Check className="w-3.5 h-3.5 text-green-400" />
-                  <span>{activeProvider?.name || 'المصدر'}</span>
+                  <span>{activeProvider?.displayName || activeProvider?.name || 'المصدر'}</span>
                 </>
               )}
               <ChevronDown className={`w-3 h-3 transition-transform ${showMenu ? 'rotate-180' : ''}`} />
@@ -660,9 +661,12 @@ export default function SmartPlayer({
                         }`} />
                         <div className="flex-1 min-w-0 text-right">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-medium truncate">{p.name}</span>
+                            <span className="font-medium truncate">{p.displayName || p.name}</span>
                             {isFav && <span className="text-[8px] text-emerald-400">★</span>}
                           </div>
+                          {p.description && (
+                            <div className="text-[9px] text-zinc-600 truncate">{p.description}</div>
+                          )}
                           {stats.attempts > 0 && (
                             <div className="text-[9px] text-zinc-700">
                               {stats.attempts} محاولة — {stats.successRate.toFixed(0)}% نجاح

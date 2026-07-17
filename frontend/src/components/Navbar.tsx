@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Search, Heart, GitBranch, Mail } from 'lucide-react';
+import { Menu, X, Search, Heart, GitBranch, Mail, Trophy, Tv } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,8 @@ const platforms = [
   { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid.webp' },
   { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disney.webp' },
   { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.webp' },
+  { name: 'المباريات', href: '/sports', color: '#22c55e', icon: Trophy },
+  { name: 'بث مباشر', href: '/live', color: '#3b82f6', icon: Tv },
 ];
 
 function DeveloperModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -137,9 +139,13 @@ export default function Navbar() {
                     )}
                     style={active ? { boxShadow: `0 0 20px ${p.color}15` } : undefined}
                   >
-                    <div className="w-5 h-5 rounded overflow-hidden shrink-0">
-                      <Image src={p.logo} alt={p.name} width={20} height={20} className="w-full h-full object-cover" />
-                    </div>
+                    {'logo' in p && p.logo ? (
+                      <div className="w-5 h-5 rounded overflow-hidden shrink-0">
+                        <Image src={p.logo} alt={p.name} width={20} height={20} className="w-full h-full object-cover" />
+                      </div>
+                    ) : 'icon' in p && p.icon ? (
+                      <p.icon className="w-4 h-4 shrink-0" style={{ color: active ? p.color : undefined }} />
+                    ) : null}
                     <span style={active ? { color: p.color } : undefined}>{p.name}</span>
                   </Link>
                 );
@@ -201,9 +207,13 @@ export default function Navbar() {
                     )}
                     style={active ? { borderRight: `3px solid ${p.color}` } : undefined}
                   >
-                    <div className="w-6 h-6 rounded overflow-hidden shrink-0">
-                      <Image src={p.logo} alt={p.name} width={24} height={24} className="w-full h-full object-cover" />
-                    </div>
+                    {'logo' in p && p.logo ? (
+                      <div className="w-6 h-6 rounded overflow-hidden shrink-0">
+                        <Image src={p.logo} alt={p.name} width={24} height={24} className="w-full h-full object-cover" />
+                      </div>
+                    ) : 'icon' in p && p.icon ? (
+                      <p.icon className="w-5 h-5 shrink-0" style={{ color: active ? p.color : undefined }} />
+                    ) : null}
                     <span style={active ? { color: p.color } : undefined}>{p.name}</span>
                   </Link>
                 );

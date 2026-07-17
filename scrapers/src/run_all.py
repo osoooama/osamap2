@@ -13,6 +13,8 @@ from sites.faselhd import crawl as crawl_faselhd
 from sites.qissat import crawl as crawl_qissat
 from sites.dizipal import crawl as crawl_dizipal
 from sites.turkish_sites import crawl as crawl_turkish_sites
+from sites.filgoal import crawl_filgoal
+from sites.iptv import crawl_iptv
 
 CRAWLER_MAP = {
     'streamex.sh': crawl_cineby,
@@ -24,10 +26,12 @@ CRAWLER_MAP = {
     'hdfilmcehennemi.sh': crawl_turkish_sites,
 }
 
+EXTRA_SCRAPERS = [crawl_filgoal, crawl_iptv]
+
 
 def run():
     sites = get_all_sites()
-    print(f'Running {len(sites)} site crawlers...')
+    print(f'Running {len(sites)} site crawlers + {len(EXTRA_SCRAPERS)} extra scrapers...')
 
     total = 0
     for site in sites:
@@ -41,6 +45,14 @@ def run():
             total += count
         except Exception as e:
             print(f'[ERROR] {name}: {e}')
+            import traceback
+            traceback.print_exc()
+
+    for extra_fn in EXTRA_SCRAPERS:
+        try:
+            extra_fn()
+        except Exception as e:
+            print(f'[ERROR] {extra_fn.__name__}: {e}')
             import traceback
             traceback.print_exc()
 

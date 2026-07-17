@@ -3,7 +3,7 @@ import Link from '../models/Link.model';
 
 export async function getStreamsByTmdb(req: Request, res: Response) {
   try {
-    const { tmdb_id } = req.params;
+    const tmdb_id = String(req.params.tmdb_id);
     const category = req.query.category as string;
 
     if (!tmdb_id || !/^\d+$/.test(tmdb_id)) {
@@ -64,8 +64,8 @@ export async function getAllStreams(req: Request, res: Response) {
 
 export async function checkStreamHealth(req: Request, res: Response) {
   try {
-    const { tmdb_id } = req.params;
-    const links = await Link.find({ tmdb_id: String(tmdb_id), is_active: true });
+    const tmdb_id = String(req.params.tmdb_id);
+    const links = await Link.find({ tmdb_id, is_active: true });
 
     const health = links.map((link) => ({
       url: link.stream_url || link.embed_url,

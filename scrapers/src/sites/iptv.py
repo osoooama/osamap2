@@ -1,10 +1,11 @@
 """
-IPTV Channel Scraper — Xtream Codes API
-Fetches live TV channels from Xtream-compatible IPTV servers
+IPTV Channel Scraper — Free channels from Novatv (url.json)
+No Xtream credentials needed — fetches free Arabic IPTV streams
 """
 import os
 import sys
 import requests
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -25,93 +26,137 @@ if DB_URI:
     except Exception as e:
         print(f'[DB INIT WARN] {e}')
 
-# Xtream Codes server credentials from env
-XTREAM_URL = os.getenv('XTREAM_URL', '')
-XTREAM_USER = os.getenv('XTREAM_USER', '')
-XTREAM_PASS = os.getenv('XTREAM_PASS', '')
+# Free IPTV source from Novatv
+FREE_IPTV_URL = "https://abdotv.online/abdotvapp/url.json"
+
+# Channel ID to name mapping (from Novatv smali)
+CHANNEL_NAMES = {
+    0: "beIN Sports 1",
+    1: "beIN Sports 2",
+    2: "beIN Sports 3",
+    3: "beIN Sports 4",
+    4: "beIN Sports 5",
+    5: "beIN Sports 6",
+    10: "beIN Sports News",
+    17: "beIN Sports Max 1",
+    18: "beIN Sports Max 2",
+    19: "beIN Sports Max 3",
+    20: "Alkass One HD",
+    21: "Al Jazeera Sports",
+    22: "Abu Dhabi Sports 1",
+    23: "Shahid Sports 1",
+    24: "Shahid Sports 2",
+    25: "Shahid Sports 4",
+    26: "Shahid Sports 5",
+    27: "Shahid Sports 6",
+    28: "Alkass 1",
+    29: "Alkass 2",
+    30: "Alkass 3",
+    31: "Alkass 4",
+    32: "Alkass 5",
+    33: "Kuwait TV Sports",
+    34: "Kuwait TV Sports 2",
+    35: "Kuwait TV Sports 3",
+    36: "Kuwait TV Sports 4",
+    37: "Kuwait TV Sports 5",
+    38: "Dubai Sports 1",
+    39: "Dubai Sports 2",
+    41: "Dubai Racing",
+    42: "Arryadia (Morocco)",
+    43: "Oman Sport",
+    44: "MBC Action",
+    45: "MBC Drama",
+    46: "SSC 1",
+    47: "SSC 2",
+    48: "SSC 3",
+    116: "Rotana Cinema",
+    117: "Rotana Cinema Egypt",
+    118: "Rotana Classic",
+    119: "Rotana Aflam Plus",
+    120: "Rotana Comedy",
+    121: "Rotana Drama",
+    122: "Rotana Kids",
+}
+
+# Category mapping
+CATEGORY_MAP = {
+    0: "Sports", 1: "Sports", 2: "Sports", 3: "Sports", 4: "Sports", 5: "Sports",
+    10: "Sports", 17: "Sports", 18: "Sports", 19: "Sports",
+    20: "Sports", 21: "Sports", 22: "Sports",
+    23: "Sports", 24: "Sports", 25: "Sports", 26: "Sports", 27: "Sports",
+    28: "Sports", 29: "Sports", 30: "Sports", 31: "Sports", 32: "Sports",
+    33: "Sports", 34: "Sports", 35: "Sports", 36: "Sports", 37: "Sports",
+    38: "Sports", 39: "Sports", 41: "Sports",
+    42: "Sports", 43: "Sports",
+    44: "Entertainment", 45: "Entertainment",
+    46: "Sports", 47: "Sports", 48: "Sports",
+    116: "Movies", 117: "Movies", 118: "Movies", 119: "Movies",
+    120: "Entertainment", 121: "Entertainment", 122: "Kids",
+}
 
 
-def build_api_url(action: str) -> str:
-    if not XTREAM_URL or not XTREAM_USER or not XTREAM_PASS:
-        return ''
-    base = XTREAM_URL.rstrip('/')
-    if '/player_api.php' not in base:
-        base = f"{base}/player_api.php"
-    return f"{base}?username={XTREAM_USER}&password={XTREAM_PASS}&action={action}"
-
-
-def build_stream_url(stream_id: str, stream_type: str = 'live') -> str:
-    if not XTREAM_URL or not XTREAM_USER or not XTREAM_PASS:
-        return ''
-    base = XTREAM_URL.rstrip('/')
-    if '/player_api.php' in base:
-        base = base.split('/player_api.php')[0]
-    if stream_type == 'live':
-        return f"{base}/live/{XTREAM_USER}/{XTREAM_PASS}/{stream_id}.m3u8"
-    elif stream_type == 'movie':
-        return f"{base}/movie/{XTREAM_USER}/{XTREAM_PASS}/{stream_id}"
-    elif stream_type == 'series':
-        return f"{base}/series/{XTREAM_USER}/{XTREAM_PASS}/{stream_id}"
-    return ''
-
-
-def fetch_json(url: str) -> any:
-    if not url:
-        return None
+def fetch_free_channels() -> list:
+    """Fetch free IPTV channels from Novatv url.json."""
     try:
-        resp = requests.get(url, timeout=15, headers={
-            "User-Agent": "OSK+ IPTV/1.0"
+        resp = requests.get(FREE_IPTV_URL, timeout=15, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         })
         resp.raise_for_status()
-        return resp.json()
+        data = resp.json()
+        return data if isinstance(data, list) else []
     except Exception as e:
-        print(f"[IPTV] Error fetching {url}: {e}")
-        return None
+        print(f"[IPTV] Error fetching free channels: {e}")
+        return []
 
 
-def fetch_live_categories() -> list:
-    url = build_api_url('get_live_categories')
-    data = fetch_json(url)
-    return data if isinstance(data, list) else []
+def parse_channels(raw_data: list) -> list:
+    """Parse raw channel data into structured objects."""
+    channels = []
+    for item in raw_data:
+        try:
+            channel_id = item.get("channel_id")
+            if channel_id is None:
+                continue
+            channel_id = int(channel_id)
+            servers = item.get("servers", [])
+            if not servers:
+                continue
 
+            # Use first non-hidden server
+            server = None
+            for s in servers:
+                if not s.get("hidden", False):
+                    server = s
+                    break
+            if not server:
+                server = servers[0]
 
-def fetch_live_streams(category_id: str = None) -> list:
-    url = build_api_url('get_live_streams')
-    if category_id:
-        url += f"&category_id={category_id}"
-    data = fetch_json(url)
-    return data if isinstance(data, list) else []
+            stream_url = server.get("url", "")
+            if not stream_url:
+                continue
 
+            name = CHANNEL_NAMES.get(channel_id, f"Channel {channel_id}")
+            category = CATEGORY_MAP.get(channel_id, "General")
 
-def fetch_vod_categories() -> list:
-    url = build_api_url('get_vod_categories')
-    data = fetch_json(url)
-    return data if isinstance(data, list) else []
+            channels.append({
+                "channel_id": f"novatv_{channel_id}",
+                "name": name,
+                "stream_url": stream_url,
+                "category": category,
+                "logo_url": "",
+                "stream_type": "live",
+                "is_active": True,
+                "last_updated": datetime.now(timezone.utc).isoformat(),
+            })
+        except Exception as e:
+            print(f"[IPTV] Error parsing channel: {e}")
+            continue
 
-
-def fetch_vod_streams(category_id: str = None) -> list:
-    url = build_api_url('get_vod_streams')
-    if category_id:
-        url += f"&category_id={category_id}"
-    data = fetch_json(url)
-    return data if isinstance(data, list) else []
-
-
-def fetch_series_categories() -> list:
-    url = build_api_url('get_series_categories')
-    data = fetch_json(url)
-    return data if isinstance(data, list) else []
-
-
-def fetch_series(category_id: str = None) -> list:
-    url = build_api_url('get_series')
-    if category_id:
-        url += f"&category_id={category_id}"
-    data = fetch_json(url)
-    return data if isinstance(data, list) else []
+    return channels
 
 
 def save_channels(channels: list):
+    """Save channels to MongoDB."""
     if not channels_col:
         print("[IPTV] No DB connection, skipping save")
         return 0
@@ -130,66 +175,15 @@ def save_channels(channels: list):
 
 
 def crawl_iptv():
-    print("\n📺 [IPTV] Starting IPTV channel scraper...")
+    """Main entry point — no credentials needed."""
+    print("\n📺 [IPTV] Starting free IPTV channel scraper...")
 
-    if not XTREAM_URL or not XTREAM_USER or not XTREAM_PASS:
-        print("[IPTV] No Xtream credentials in .env — skipping")
-        print("[IPTV] Set XTREAM_URL, XTREAM_USER, XTREAM_PASS in scrapers/.env")
-        return
+    raw = fetch_free_channels()
+    channels = parse_channels(raw)
+    saved = save_channels(channels)
 
-    all_channels = []
-
-    # Live channels
-    print("[IPTV] Fetching live categories...")
-    live_cats = fetch_live_categories()
-    print(f"[IPTV] Found {len(live_cats)} live categories")
-
-    for cat in live_cats[:20]:
-        cat_id = str(cat.get("category_id", ""))
-        cat_name = cat.get("category_name", "General")
-        streams = fetch_live_streams(cat_id)
-        for s in streams:
-            sid = str(s.get("stream_id", ""))
-            if not sid:
-                continue
-            all_channels.append({
-                "channel_id": f"live_{sid}",
-                "name": s.get("name", s.get("num", "")),
-                "stream_url": build_stream_url(sid, 'live'),
-                "category": cat_name,
-                "logo_url": s.get("stream_icon", ""),
-                "stream_type": "live",
-                "is_active": True,
-                "last_updated": datetime.now(timezone.utc).isoformat(),
-            })
-
-    # VOD channels
-    print("[IPTV] Fetching VOD categories...")
-    vod_cats = fetch_vod_categories()
-    print(f"[IPTV] Found {len(vod_cats)} VOD categories")
-
-    for cat in vod_cats[:20]:
-        cat_id = str(cat.get("category_id", ""))
-        cat_name = cat.get("category_name", "Movies")
-        streams = fetch_vod_streams(cat_id)
-        for s in streams:
-            sid = str(s.get("stream_id", ""))
-            if not sid:
-                continue
-            ext = s.get("container_extension", "mp4")
-            all_channels.append({
-                "channel_id": f"vod_{sid}",
-                "name": s.get("name", ""),
-                "stream_url": build_stream_url(sid, 'movie'),
-                "category": cat_name,
-                "logo_url": s.get("stream_icon", ""),
-                "stream_type": "movie",
-                "is_active": True,
-                "last_updated": datetime.now(timezone.utc).isoformat(),
-            })
-
-    saved = save_channels(all_channels)
-    print(f"[IPTV] Total channels: {len(all_channels)}, saved: {saved}")
+    print(f"[IPTV] Found {len(channels)} channels, saved {saved}")
+    print(f"[IPTV] Categories: Sports, Movies, Entertainment, Kids")
 
 
 if __name__ == "__main__":

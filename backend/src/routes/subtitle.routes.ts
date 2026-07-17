@@ -92,8 +92,11 @@ router.get('/subtitles/:tmdbId', limiter, async (req: Request, res: Response) =>
     const episode = req.query.episode ? Number(req.query.episode) : undefined;
 
     const movie = await Movie.findOne({ tmdb_id: tmdbId });
-    if (movie && (movie as any).subtitles && (movie as any).subtitles.length > 0) {
-      return res.json({ subtitles: (movie as any).subtitles, source: 'cache' });
+    if (movie && (movie as any).subtitles) {
+      const cached = (movie as any).subtitles;
+      if (Array.isArray(cached) && cached.length > 0) {
+        return res.json({ subtitles: cached, source: 'cache' });
+      }
     }
 
     const subs = await fetchSubtitles(tmdbId, mediaType, season, episode);

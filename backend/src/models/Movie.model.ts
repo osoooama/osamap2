@@ -34,7 +34,7 @@ const MovieSchema = new mongoose.Schema<IMovie>({
     disney: { type: String, default: '' },
   },
   embed_urls: [String],
-  subtitles: [String],
+  subtitles: { type: mongoose.Schema.Types.Mixed, default: [] },
   vote_average: { type: Number, default: 0 },
   release_date: { type: String, default: '' },
   genre_ids: { type: [Number], default: [] },

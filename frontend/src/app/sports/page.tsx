@@ -47,6 +47,16 @@ export default function SportsPage() {
   const liveCount = matches.filter(m => m.match_status === 'live').length;
   const upcomingCount = matches.filter(m => m.match_status === 'upcoming').length;
 
+  const formatMatchTime = (timeStr: string) => {
+    if (!timeStr) return '';
+    const dateMatch = timeStr.match(/\/Date\((\d+)\)\//);
+    if (dateMatch) {
+      const d = new Date(parseInt(dateMatch[1]));
+      return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+    return timeStr;
+  };
+
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -166,7 +176,7 @@ export default function SportsPage() {
                       ) : (
                         <div className="flex items-center gap-1 px-3 py-1 bg-zinc-800/80 rounded-lg">
                           <Clock className="w-3 h-3 text-zinc-500" />
-                          <span className="text-zinc-400 text-xs">{match.match_time}</span>
+                          <span className="text-zinc-400 text-xs">{formatMatchTime(match.match_time)}</span>
                         </div>
                       )}
                       <span className="text-white font-semibold text-sm flex-1 text-left">{match.away_team}</span>

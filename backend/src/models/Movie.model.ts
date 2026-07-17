@@ -10,7 +10,7 @@ interface IMovie extends Document {
   category: 'foreign' | 'arabic' | 'turkish' | 'anime' | 'animation';
   images: { tmdb: string; shahid: string; disney: string };
   embed_urls: string[];
-  subtitles: string[];
+  subtitles: mongoose.Schema.Types.Mixed;
   vote_average: number;
   release_date: string;
   genre_ids: number[];

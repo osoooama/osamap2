@@ -15,6 +15,8 @@ from sites.dizipal import crawl as crawl_dizipal
 from sites.turkish_sites import crawl as crawl_turkish_sites
 from sites.filgoal import crawl_filgoal
 from sites.iptv import crawl_iptv
+from sites.subtitles import crawl_subtitles
+from sites.movies123 import crawl as crawl_movies123
 
 CRAWLER_MAP = {
     'streamex.sh': crawl_cineby,
@@ -24,9 +26,10 @@ CRAWLER_MAP = {
     'ar.qissat.tv': crawl_qissat,
     'dizipal104.vip': crawl_dizipal,
     'hdfilmcehennemi.sh': crawl_turkish_sites,
+    '123moviesfree.net': crawl_movies123,
 }
 
-EXTRA_SCRAPERS = [crawl_filgoal, crawl_iptv]
+EXTRA_SCRAPERS = [crawl_filgoal, crawl_iptv, crawl_subtitles]
 
 
 def run():

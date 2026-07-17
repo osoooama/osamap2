@@ -6,6 +6,7 @@ SITES = [
     {'name': 'ar.qissat.tv', 'url': 'https://ar.qissat.tv', 'category': 'turkish'},
     {'name': 'hdfilmcehennemi.sh', 'url': 'https://hdfilmcehennemi.sh', 'category': 'turkish'},
     {'name': 'dizipal104.vip', 'url': 'https://dizipal104.vip', 'category': 'turkish'},
+    {'name': '123moviesfree.net', 'url': 'https://ww8.123moviesfree.net', 'category': 'foreign'},
 ]
 
 

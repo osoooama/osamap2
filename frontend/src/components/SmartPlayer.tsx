@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { getProviders, getAnimeProviders } from '@/lib/providers';
 import { trackProviderEvent, getProviderPerf, getProviderScore, type ProviderPerf } from '@/lib/providerPerf';
-import { ChevronDown, Zap, Check, AlertCircle, Loader2, Tv, MonitorPlay, Layers, Maximize2, Minimize2, Volume2, VolumeX, Keyboard, PictureInPicture2 } from 'lucide-react';
+import { getSubtitles, type Subtitle } from '@/lib/api';
+import { ChevronDown, Zap, Check, AlertCircle, Loader2, Tv, MonitorPlay, Layers, Maximize2, Minimize2, Volume2, VolumeX, Keyboard, PictureInPicture2, Subtitles } from 'lucide-react';
 
 const LOAD_TIMEOUT = 8000;
 const FAST_LOAD_THRESHOLD = 1500;
@@ -141,6 +142,9 @@ export default function SmartPlayer({
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [nextEpCountdown, setNextEpCountdown] = useState<number | null>(null);
   const [favoriteServer, setFavoriteServer] = useState<string | null>(null);
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
+  const [selectedSub, setSelectedSub] = useState<Subtitle | null>(null);
+  const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
 
   const modeRef = useRef(mode);
   const currentIndexRef = useRef(currentIndex);
@@ -289,6 +293,14 @@ export default function SmartPlayer({
     return () => cleanupRef.current();
   }, [tmdbId, animeId, mediaType, currentSeason, currentEpisode, allIframeProviders.length]);
 
+  useEffect(() => {
+    if (tmdbId) {
+      getSubtitles(tmdbId, mediaType, currentSeason, currentEpisode)
+        .then(setSubtitles)
+        .catch(() => setSubtitles([]));
+    }
+  }, [tmdbId, mediaType, currentSeason, currentEpisode]);
+
   const activeProvider = currentIndex >= 0 ? allIframeProviders[currentIndex] : null;
   const activeUrl = activeProvider ? activeProvider.url : '';
 
@@ -362,6 +374,7 @@ export default function SmartPlayer({
           setShowMenu(false);
           setShowEpisodeSelector(false);
           setShowShortcuts(false);
+          setShowSubtitleMenu(false);
           break;
         case '?':
           e.preventDefault();
@@ -379,13 +392,14 @@ export default function SmartPlayer({
       if (!target.closest('[data-dropdown]')) {
         setShowMenu(false);
         setShowEpisodeSelector(false);
+        setShowSubtitleMenu(false);
       }
     };
-    if (showMenu || showEpisodeSelector) {
+    if (showMenu || showEpisodeSelector || showSubtitleMenu) {
       document.addEventListener('click', handleClickOutside, true);
       return () => document.removeEventListener('click', handleClickOutside, true);
     }
-  }, [showMenu, showEpisodeSelector]);
+  }, [showMenu, showEpisodeSelector, showSubtitleMenu]);
 
   return (
     <div className="w-full">
@@ -595,6 +609,59 @@ export default function SmartPlayer({
 
         {/* RIGHT: Controls */}
         <div className="flex items-center gap-1.5">
+          {/* Subtitle selector */}
+          {subtitles.length > 0 && (
+            <div className="relative" data-dropdown>
+              <button
+                onClick={() => { setShowSubtitleMenu(!showSubtitleMenu); setShowMenu(false); setShowEpisodeSelector(false); }}
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all min-h-[44px] border ${
+                  showSubtitleMenu
+                    ? 'bg-white/10 backdrop-blur-md border-white/20 text-white shadow-lg shadow-black/20'
+                    : 'bg-white/5 border-white/5 text-zinc-400 hover:bg-white/10 hover:border-white/10 hover:text-white'
+                }`}
+              >
+                <Subtitles className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{selectedSub ? selectedSub.lang_name : 'ترجمة'}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${showSubtitleMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showSubtitleMenu && (
+                <div className="absolute top-full mt-2 right-0 w-56 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden z-50">
+                  <div className="px-3 py-2 border-b border-white/5">
+                    <span className="text-[10px] text-zinc-600 font-medium">الترجمات المتاحة ({subtitles.length})</span>
+                  </div>
+                  <button
+                    onClick={() => { setSelectedSub(null); setShowSubtitleMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs transition-all hover:bg-white/5 ${
+                      !selectedSub ? 'text-cyan-400' : 'text-zinc-500'
+                    }`}
+                  >
+                    <span>إيقاف الترجمة</span>
+                    {!selectedSub && <Check className="w-3 h-3 mr-auto text-cyan-400" />}
+                  </button>
+                  <div className="max-h-52 overflow-y-auto custom-scrollbar">
+                    {subtitles.map((sub, i) => (
+                      <button
+                        key={`${sub.lang}-${i}`}
+                        onClick={() => { setSelectedSub(sub); setShowSubtitleMenu(false); }}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs transition-all hover:bg-white/5 ${
+                          selectedSub?.lang === sub.lang && selectedSub?.url === sub.url ? 'text-cyan-400 bg-white/5' : 'text-zinc-500'
+                        }`}
+                      >
+                        {sub.flag_url && <img src={sub.flag_url} alt="" className="w-4 h-3 rounded-sm" />}
+                        <span>{sub.lang_name}</span>
+                        <span className="text-[9px] text-zinc-600 ml-auto">{sub.format}</span>
+                        {selectedSub?.lang === sub.lang && selectedSub?.url === sub.url && (
+                          <Check className="w-3 h-3 text-cyan-400 shrink-0" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Server selector */}
           <div className="relative" data-dropdown>
             <button

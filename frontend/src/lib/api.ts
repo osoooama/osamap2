@@ -39,3 +39,25 @@ export async function getTMDBTrailer(tmdbId: string, mediaType: 'movie' | 'tv' =
     return null;
   }
 }
+
+export interface Subtitle {
+  lang: string;
+  lang_name: string;
+  url: string;
+  format: string;
+  encoding: string;
+  source: string;
+  flag_url: string;
+}
+
+export async function getSubtitles(tmdbId: string, mediaType = 'movie', season?: number, episode?: number): Promise<Subtitle[]> {
+  try {
+    const params: any = { type: mediaType };
+    if (season) params.season = season;
+    if (episode) params.episode = episode;
+    const { data } = await api.get(`/api/subtitles/${tmdbId}`, { params });
+    return data.subtitles || [];
+  } catch {
+    return [];
+  }
+}

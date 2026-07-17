@@ -75,7 +75,7 @@ export default function LivePage() {
             </div>
             <div>
               <h1 className="text-white font-bold text-lg">بث مباشر</h1>
-              <p className="text-zinc-500 text-[10px]">قنوات IPTV — Xtream Codes</p>
+              <p className="text-zinc-500 text-[10px]">قنوات IPTV — بث مباشر</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

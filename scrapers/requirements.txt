@@ -1,7 +1,9 @@
 requests
 playwright
 playwright-stealth
+curl_cffi
 pymongo
 python-dotenv
 beautifulsoup4
 lxml
+jsbeautifier

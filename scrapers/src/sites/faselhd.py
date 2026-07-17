@@ -1,16 +1,15 @@
-import time, re, os, sys, json
+import re, os, sys, time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from playwright.sync_api import sync_playwright
-from playwright_stealth import Stealth
+from curl_cffi import requests as cffi
+import jsbeautifier
+from bs4 import BeautifulSoup
 from sites.base import save_link, save_all_qualities, log_result
-import requests
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
-EMBED_BASE = 'https://faselhd-embed.scdns.io'
 
 FASEL_DOMAINS = ['faselhd.club', 'faselhd.ac', 'faselhd.pro', 'faselhd.cam']
 
@@ -26,7 +25,7 @@ def get_tmdb_popular(media_type='movie', count=10):
     for page_num in range(1, 4):
         url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=ar&page={page_num}'
         try:
-            resp = requests.get(url, timeout=10)
+            resp = cffi.get(url, impersonate='chrome', timeout=10)
             if resp.ok:
                 for item in resp.json().get('results', []):
                     ids.append({
@@ -42,88 +41,65 @@ def get_tmdb_popular(media_type='movie', count=10):
     return ids[:count]
 
 
-def resolve_fasel_domain():
-    for domain in FASEL_DOMAINS:
-        try:
-            resp = requests.head(f'https://{domain}', timeout=8, allow_redirects=True, headers=HEADERS)
-            if resp.status_code in (200, 301, 302):
-                return domain
-        except Exception:
-            pass
-    return FASEL_DOMAINS[0]
-
-
-def search_fasel(page, base_url, query):
+def search_fasel(base_url, query):
     search_url = f'{base_url}/?s={query.replace(" ", "+")}'
     try:
-        page.goto(search_url, wait_until='domcontentloaded', timeout=30000)
-        time.sleep(3)
+        resp = cffi.get(search_url, impersonate='chrome', timeout=15, headers=HEADERS)
+        if not resp.ok:
+            return []
 
-        page.wait_for_load_state('networkidle', timeout=10000)
-    except Exception:
-        pass
-
-    try:
+        soup = BeautifulSoup(resp.text, 'lxml')
         results = []
-        items = page.query_selector_all('div.postDiv a, div.moviePost a, a[href*="/?p="], .movie-item a, article a')
         seen = set()
-        for item in items[:10]:
-            href = item.get_attribute('href')
-            if href and href not in seen:
+
+        for a in soup.select('a[href]'):
+            href = a.get('href', '')
+            if '/?p=' in href and href not in seen:
                 seen.add(href)
-                title_el = item.query_selector('img')
-                title = title_el.get_attribute('alt') if title_el else ''
+                img = a.select_one('img')
+                title = img.get('alt', '') if img else a.get_text(strip=True)[:50]
                 results.append({'url': href, 'title': title})
-        return results
-    except Exception as e:
-        print(f'      Search error: {e}')
+        return results[:10]
+    except Exception:
         return []
 
 
-def extract_stream_from_embed(page, embed_url, retries=2):
-    for attempt in range(retries):
+def extract_stream_from_embed(embed_url):
+    for attempt in range(2):
         try:
-            page.goto(embed_url, wait_until='domcontentloaded', timeout=20000)
-            time.sleep(3)
+            resp = cffi.get(embed_url, impersonate='chrome', timeout=15,
+                           headers={**HEADERS, 'Referer': 'https://faselhd.club/'})
+            if not resp.ok:
+                continue
 
-            content = page.content()
+            stream = None
+            beautified = jsbeautifier.beautify(resp.text)
+            m3u8 = re.search(r'(https?://[^\s"\'<>]+\.m3u8[^\s"\'<>]*)', beautified)
+            if m3u8:
+                stream = m3u8.group(1)
+            if not stream:
+                mp4 = re.search(r'(https?://[^\s"\'<>]+\.mp4[^\s"\'<>]*)', beautified)
+                if mp4:
+                    stream = mp4.group(1)
+            if not stream:
+                m3u8_raw = re.search(r'(https?://[^\s"\'<>]+\.m3u8[^\s"\'<>]*)', resp.text)
+                if m3u8_raw:
+                    stream = m3u8_raw.group(1)
+            if stream:
+                return stream
 
-            for pattern in [
-                r'file\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)',
-                r'source\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)',
-                r'"(https?://[^"]+\.m3u8[^"]*)"',
-                r"'(https?://[^']+\\.m3u8[^']*)'",
-            ]:
-                m = re.search(pattern, content)
-                if m:
-                    return m.group(1)
+            soup = BeautifulSoup(resp.text, 'lxml')
+            for ifr in soup.select('iframe'):
+                src = ifr.get('src', '')
+                if src.startswith('http'):
+                    inner = extract_stream_from_embed(src)
+                    if inner:
+                        return inner
 
-            m3u8_match = re.search(r'(https?://[^"\'<>\s]+\.m3u8(?:[^"\'<>\s]*)?)', content)
-            if m3u8_match:
-                return m3u8_match.group(1)
-
-            try:
-                m3u8s = page.evaluate(
-                    "() => performance.getEntriesByType('resource').map(e => e.name).filter(n => n.includes('.m3u8'))"
-                )
-                for url in m3u8s:
-                    if url.startswith('http'):
-                        return url
-            except Exception:
-                pass
-
-            mp4_match = re.search(r'(https?://[^"\'<>\s]+\.mp4(?:[^"\'<>\s]*)?)', content)
-            if mp4_match:
-                return mp4_match.group(1)
-
-            if attempt < retries - 1:
-                time.sleep(2)
-
-        except Exception as e:
-            print(f'      Embed extract error (attempt {attempt+1}): {e}')
-            if attempt < retries - 1:
-                time.sleep(2)
-
+        except Exception:
+            pass
+        if attempt < 1:
+            time.sleep(1)
     return None
 
 
@@ -132,7 +108,22 @@ def crawl(site_info):
     category = site_info.get('category', 'arabic')
     print(f'[FASELHD] Starting crawl for {name}...')
 
-    base_url = f'https://{resolve_fasel_domain()}'
+    base_url = None
+    for domain in FASEL_DOMAINS:
+        try:
+            resp = cffi.get(f'https://{domain}', impersonate='chrome', timeout=10,
+                           headers=HEADERS, allow_redirects=True)
+            if resp.status_code == 200 and 'fasel' in resp.text[:2000].lower():
+                base_url = f'https://{domain}'
+                break
+        except Exception:
+            pass
+
+    if not base_url:
+        print(f'[FASELHD] No accessible domain found')
+        log_result('faselhd', category, 0, error='No accessible domain')
+        return 0
+
     print(f'[FASELHD] Using domain: {base_url}')
 
     popular = get_tmdb_popular('movie', 10)
@@ -140,73 +131,61 @@ def crawl(site_info):
     print(f'[FASELHD] {len(popular)} TMDB titles to search')
 
     total = 0
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
-            context = browser.new_context(
-                user_agent=HEADERS['User-Agent'],
-                locale='ar',
-                timezone_id='Asia/Aden',
-            )
-            page = context.new_page()
-            Stealth().apply_stealth_sync(page)
+    for item in popular:
+        tid = item['id']
+        title = item['title']
+        print(f'  [{tid}] Searching "{title}"...')
 
-            for item in popular:
-                tid = item['id']
-                title = item['title']
-                print(f'  [{tid}] Searching "{title}"...')
+        results = search_fasel(base_url, title)
+        if not results:
+            time.sleep(0.5)
+            continue
 
-                results = search_fasel(page, base_url, title)
-                if not results:
-                    print(f'    No results')
-                    time.sleep(1)
+        for result in results[:3]:
+            page_url = result['url']
+            if not page_url.startswith('http'):
+                page_url = f'{base_url}{page_url}'
+
+            try:
+                page_resp = cffi.get(page_url, impersonate='chrome', timeout=15, headers=HEADERS)
+                if not page_resp.ok:
                     continue
 
-                for result in results[:3]:
-                    page_url = result['url']
-                    if not page_url.startswith('http'):
-                        page_url = f'{base_url}{page_url}'
+                soup = BeautifulSoup(page_resp.text, 'lxml')
+                title_el = soup.select_one('h1, h2, .entry-title, .title')
+                found_title = title_el.get_text(strip=True) if title_el else result['title'] or title
 
-                    try:
-                        page.goto(page_url, wait_until='domcontentloaded', timeout=20000)
-                        time.sleep(2)
+                embed_src = None
+                for ifr in soup.select('iframe'):
+                    src = ifr.get('src', '')
+                    if 'scdns' in src or 'embed' in src or 'player' in src:
+                        embed_src = src
+                        break
+                if not embed_src:
+                    for ifr in soup.select('iframe'):
+                        src = ifr.get('src', '')
+                        if src.startswith('http'):
+                            embed_src = src
+                            break
 
-                        title_el = page.query_selector('h1, h2, .entry-title, .title')
-                        found_title = title_el.inner_text().strip() if title_el else result['title'] or title
+                if not embed_src:
+                    continue
 
-                        iframes = page.query_selector_all('iframe')
-                        embed_src = None
-                        for ifr in iframes:
-                            src = ifr.get_attribute('src') or ''
-                            if 'scdns' in src or 'embed' in src or 'player' in src:
-                                embed_src = src
-                                break
-                        if not embed_src and iframes:
-                            embed_src = iframes[0].get_attribute('src') or ''
+                if not embed_src.startswith('http'):
+                    embed_src = f'https:{embed_src}' if embed_src.startswith('//') else f'https://faselhd-embed.scdns.io{embed_src}'
 
-                        if not embed_src:
-                            continue
-
-                        if not embed_src.startswith('http'):
-                            embed_src = f'https:{embed_src}' if embed_src.startswith('//') else f'https://faselhd-embed.scdns.io{embed_src}'
-
-                        stream_url = extract_stream_from_embed(page, embed_src)
-                        if stream_url:
-                            print(f'    [STREAM] {found_title}: {stream_url[:80]}...')
-                            if '.m3u8' in stream_url:
-                                saved = save_all_qualities(tid, page_url, stream_url, category, found_title)
-                                total += saved
-                            else:
-                                save_link(tid, page_url, stream_url, category, found_title)
-                                total += 1
-                    except Exception as e:
-                        print(f'    Error: {e}')
-
-                    time.sleep(1)
-
-            browser.close()
-    except Exception as e:
-        print(f'[FASELHD] Fatal: {e}')
+                stream_url = extract_stream_from_embed(embed_src)
+                if stream_url:
+                    print(f'    [STREAM] {found_title}: {stream_url[:80]}...')
+                    if '.m3u8' in stream_url:
+                        saved = save_all_qualities(tid, page_url, stream_url, category, found_title)
+                        total += saved
+                    else:
+                        save_link(tid, page_url, stream_url, category, found_title)
+                        total += 1
+            except Exception as e:
+                print(f'    Error: {e}')
+            time.sleep(0.5)
 
     log_result(base_url, category, total)
     print(f'[FASELHD] {name}: {total} streams')

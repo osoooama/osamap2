@@ -1,16 +1,15 @@
-import time, re, os, sys
+import re, os, sys, time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from playwright.sync_api import sync_playwright
-from playwright_stealth import Stealth
+from curl_cffi import requests as cffi
+import jsbeautifier
+from bs4 import BeautifulSoup
 from sites.base import save_link, save_all_qualities, log_result
-import requests
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
-
 BASE = 'https://ar.qissat.tv'
 
 HEADERS = {
@@ -25,7 +24,7 @@ def get_tmdb_popular(media_type='movie', count=10):
     for page_num in range(1, 4):
         url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=ar&page={page_num}'
         try:
-            resp = requests.get(url, timeout=10)
+            resp = cffi.get(url, impersonate='chrome', timeout=10)
             if resp.ok:
                 for item in resp.json().get('results', []):
                     ids.append({
@@ -41,128 +40,108 @@ def get_tmdb_popular(media_type='movie', count=10):
     return ids[:count]
 
 
-def search_qissat_playwright(page, query):
-    search_url = f'{BASE}/search.php?keywords={requests.utils.quote(query)}'
+def search_qissat(query):
+    from urllib.parse import quote
+    search_url = f'{BASE}/search.php?keywords={quote(query)}'
     try:
-        page.goto(search_url, wait_until='domcontentloaded', timeout=25000)
-        time.sleep(3)
-        page.wait_for_load_state('networkidle', timeout=10000)
-    except Exception:
-        pass
+        resp = cffi.get(search_url, impersonate='chrome', timeout=15, headers=HEADERS)
+        if not resp.ok:
+            return []
 
-    try:
+        soup = BeautifulSoup(resp.text, 'lxml')
         results = []
-        items = page.query_selector_all('.video-item, .entry, .shortstory, .short-item, .item')
-        for item in items[:10]:
-            link = item.query_selector('a[href*="watch.php"], a[href*="/video/"], a[href*="/watch/"]')
-            if not link:
-                link = item.query_selector('a')
-            if not link:
-                continue
-            href = link.get_attribute('href', '')
-            if not href:
-                continue
-            if not href.startswith('http'):
-                href = f'{BASE}{href}'
-            title_el = item.query_selector('img[alt], h3, .title, .video-title')
-            title = ''
-            if title_el:
-                title = title_el.get_attribute('alt', '') or title_el.get_text(strip=True)
-            results.append({'url': href, 'title': title})
+
+        for a in soup.select('a[href*="watch.php"], a[href*="/video/"]'):
+            href = a.get('href', '')
+            if href and 'watch' in href or 'video' in href:
+                if not href.startswith('http'):
+                    href = f'{BASE}{href}'
+                text = a.get_text(strip=True)[:50]
+                if text:
+                    results.append({'url': href, 'title': text})
 
         if not results:
-            all_links = page.query_selector_all('a[href*="watch"]')
-            seen = set()
-            for a in all_links:
-                href = a.get_attribute('href')
-                if href and href not in seen:
-                    seen.add(href)
+            for a in soup.select('a[href]'):
+                href = a.get('href', '')
+                text = a.get_text(strip=True)
+                if text and len(text) > 3 and ('watch' in href or 'video' in href):
                     if not href.startswith('http'):
                         href = f'{BASE}{href}'
-                    results.append({'url': href, 'title': a.inner_text().strip()})
+                    results.append({'url': href, 'title': text[:50]})
 
-        return results
-    except Exception as e:
-        print(f'      Qissat search error: {e}')
+        return results[:10]
+    except Exception:
         return []
 
 
-def extract_streams_from_page(page, watch_url):
+def extract_stream_from_page(watch_url):
     try:
-        page.goto(watch_url, wait_until='domcontentloaded', timeout=25000)
-        time.sleep(3)
+        resp = cffi.get(watch_url, impersonate='chrome', timeout=15, headers=HEADERS)
+        if not resp.ok:
+            return '', []
 
-        title_el = page.query_selector('h1, h2, .title, .video-title, .entry-title')
+        soup = BeautifulSoup(resp.text, 'lxml')
+        title_el = soup.select_one('h1, h2, .title, .video-title, .entry-title')
         title = title_el.get_text(strip=True) if title_el else ''
 
         embed_urls = []
-
-        for iframe in page.query_selector_all('iframe[src]'):
-            src = iframe.get_attribute('src', '')
+        for ifr in soup.select('iframe[src]'):
+            src = ifr.get('src', '')
             if src:
                 if not src.startswith('http'):
                     src = f'https:{src}' if src.startswith('//') else f'{BASE}{src}'
                 embed_urls.append(src)
 
-        content = page.content()
-        hash_matches = re.findall(r'hash=([^&"\'<>]+)', content)
-        for hash_val in hash_matches:
-            try:
-                import base64
-                decoded = base64.b64decode(hash_val).decode('utf-8', errors='ignore')
-                urls = re.findall(r'https?://[^\s"\'<>]+', decoded)
-                embed_urls.extend(urls)
-            except Exception:
-                pass
+        for script in soup.select('script'):
+            text = script.get_text()
+            hash_matches = re.findall(r'hash=([^&"\'<>]+)', text)
+            for hash_val in hash_matches:
+                try:
+                    import base64
+                    decoded = base64.b64decode(hash_val).decode('utf-8', errors='ignore')
+                    urls = re.findall(r'https?://[^\s"\'<>]+', decoded)
+                    embed_urls.extend(urls)
+                except Exception:
+                    pass
 
-        m3u8_in_page = re.findall(r'(https?://[^"\'<>\s]+\.m3u8(?:[^"\'<>\s]*)?)', content)
+        m3u8_in_page = re.findall(r'(https?://[^"\'<>\s]+\.m3u8(?:[^"\'<>\s]*)?)', resp.text)
         if m3u8_in_page:
             return title, m3u8_in_page
 
-        mp4_in_page = re.findall(r'(https?://[^"\'<>\s]+\.mp4(?:[^"\'<>\s]*)?)', content)
+        mp4_in_page = re.findall(r'(https?://[^"\'<>\s]+\.mp4(?:[^"\'<>\s]*)?)', resp.text)
         if mp4_in_page:
             return title, mp4_in_page
 
         return title, embed_urls
-    except Exception as e:
-        print(f'      Watch extract error: {e}')
+    except Exception:
         return '', []
 
 
-def extract_stream_from_embed(page, embed_url):
-    for attempt in range(2):
-        try:
-            page.goto(embed_url, wait_until='domcontentloaded', timeout=20000)
-            time.sleep(3)
+def extract_stream_from_embed(embed_url):
+    try:
+        resp = cffi.get(embed_url, impersonate='chrome', timeout=15, headers=HEADERS)
+        if not resp.ok:
+            return None
 
-            content = page.content()
+        beautified = jsbeautifier.beautify(resp.text)
+        for pattern in [
+            r'(?:file|src|source)\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)',
+            r'(https?://[^\s"\'<>]+\.m3u8[^\s"\'<>]*)',
+        ]:
+            m = re.search(pattern, beautified)
+            if m:
+                return m.group(1)
 
-            for pattern in [
-                r'(?:file|src|source)\s*[:=]\s*["\']([^"\']+\.(?:m3u8|mp4)[^"\']*)',
-                r'"(https?://[^"]+\.(?:m3u8|mp4)(?:[^"]*)?)"',
-                r"'(https?://[^']+\\.(?:m3u8|mp4)(?:[^']*)?)'",
-            ]:
-                m = re.search(pattern, content, re.IGNORECASE)
-                if m:
-                    return m.group(1)
+        m3u8_raw = re.search(r'(https?://[^\s"\'<>]+\.m3u8[^\s"\'<>]*)', resp.text)
+        if m3u8_raw:
+            return m3u8_raw.group(1)
 
-            url_match = re.search(r'(https?://[^"\'\s]+\.(?:m3u8|mp4)(?:[^"\'\s]*)?)', content)
-            if url_match:
-                return url_match.group(1)
+        mp4 = re.search(r'(https?://[^\s"\'<>]+\.mp4[^\s"\'<>]*)', resp.text)
+        if mp4:
+            return mp4.group(1)
 
-            try:
-                m3u8s = page.evaluate(
-                    "() => performance.getEntriesByType('resource').map(e => e.name).filter(n => n.includes('.m3u8') || n.includes('.mp4'))"
-                )
-                for url in m3u8s:
-                    if url.startswith('http'):
-                        return url
-            except Exception:
-                pass
-
-        except Exception as e:
-            print(f'      Embed extract error: {e}')
-
+    except Exception:
+        pass
     return None
 
 
@@ -176,57 +155,41 @@ def crawl(site_info):
     print(f'[QISSAT] {len(popular)} TMDB titles to search')
 
     total = 0
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
-            context = browser.new_context(
-                user_agent=HEADERS['User-Agent'],
-                locale='ar',
-                timezone_id='Asia/Aden',
-            )
-            page = context.new_page()
-            Stealth().apply_stealth_sync(page)
+    for item in popular:
+        tid = item['id']
+        title = item['title']
+        print(f'  [{tid}] Searching "{title}"...')
 
-            for item in popular:
-                tid = item['id']
-                title = item['title']
-                print(f'  [{tid}] Searching "{title}"...')
+        results = search_qissat(title)
+        if not results:
+            time.sleep(0.5)
+            continue
 
-                results = search_qissat_playwright(page, title)
-                if not results:
-                    print(f'    No results')
-                    time.sleep(1)
-                    continue
+        for result in results[:3]:
+            watch_url = result['url']
+            found_title, streams_or_embeds = extract_stream_from_page(watch_url)
+            final_title = found_title or result['title'] or title
 
-                for result in results[:3]:
-                    watch_url = result['url']
-                    found_title, streams_or_embeds = extract_streams_from_page(page, watch_url)
-                    final_title = found_title or result['title'] or title
-
-                    for url in streams_or_embeds:
-                        if '.m3u8' in url or '.mp4' in url:
-                            print(f'    [STREAM] {final_title}: {url[:80]}...')
-                            if '.m3u8' in url:
-                                saved = save_all_qualities(tid, watch_url, url, category, final_title)
-                                total += saved
-                            else:
-                                save_link(tid, watch_url, url, category, final_title)
-                                total += 1
-                        elif url.startswith('http'):
-                            stream_url = extract_stream_from_embed(page, url)
-                            if stream_url:
-                                print(f'    [STREAM] {final_title}: {stream_url[:80]}...')
-                                if '.m3u8' in stream_url:
-                                    saved = save_all_qualities(tid, watch_url, stream_url, category, final_title)
-                                    total += saved
-                                else:
-                                    save_link(tid, watch_url, stream_url, category, final_title)
-                                    total += 1
-                    time.sleep(1)
-
-            browser.close()
-    except Exception as e:
-        print(f'[QISSAT] Fatal: {e}')
+            for url in streams_or_embeds:
+                if '.m3u8' in url or '.mp4' in url:
+                    print(f'    [STREAM] {final_title}: {url[:80]}...')
+                    if '.m3u8' in url:
+                        saved = save_all_qualities(tid, watch_url, url, category, final_title)
+                        total += saved
+                    else:
+                        save_link(tid, watch_url, url, category, final_title)
+                        total += 1
+                elif url.startswith('http'):
+                    stream_url = extract_stream_from_embed(url)
+                    if stream_url:
+                        print(f'    [STREAM] {final_title}: {stream_url[:80]}...')
+                        if '.m3u8' in stream_url:
+                            saved = save_all_qualities(tid, watch_url, stream_url, category, final_title)
+                            total += saved
+                        else:
+                            save_link(tid, watch_url, stream_url, category, final_title)
+                            total += 1
+            time.sleep(0.5)
 
     log_result(BASE, category, total)
     print(f'[QISSAT] {name}: {total} streams')

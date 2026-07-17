@@ -1,12 +1,12 @@
-import time, re, os, sys, json
+import re, os, sys, time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from playwright.sync_api import sync_playwright
-from playwright_stealth import Stealth
+from curl_cffi import requests as cffi
+import jsbeautifier
+from bs4 import BeautifulSoup
 from sites.base import save_link, save_all_qualities, log_result
-import requests
 
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
 TMDB_BASE = 'https://api.themoviedb.org/3'
@@ -34,7 +34,7 @@ def get_tmdb_popular(media_type='movie', count=10):
     for page_num in range(1, 4):
         url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=tr&page={page_num}'
         try:
-            resp = requests.get(url, timeout=10)
+            resp = cffi.get(url, impersonate='chrome', timeout=10)
             if resp.ok:
                 for item in resp.json().get('results', []):
                     ids.append({
@@ -54,93 +54,91 @@ def get_tmdb_popular(media_type='movie', count=10):
 def find_active_domain():
     for domain in DIZIPAL_DOMAINS:
         try:
-            resp = requests.head(f'https://{domain}', timeout=8, allow_redirects=True, headers=HEADERS)
-            if resp.status_code in (200, 301, 302):
-                return domain
+            resp = cffi.get(f'https://{domain}', impersonate='chrome', timeout=10,
+                           headers=HEADERS, allow_redirects=True)
+            if resp.status_code == 200 and len(resp.text) > 10000:
+                final_domain = resp.url.split('/')[2] if '://' in resp.url else domain
+                body_text = BeautifulSoup(resp.text, 'lxml').get_text(strip=True)[:200]
+                if 'bilgilendirme' not in body_text.lower():
+                    print(f'[DIZIPAL] Domain {domain} -> {final_domain}')
+                    return f'https://{final_domain}'
         except Exception:
             pass
-    return DIZIPAL_DOMAINS[0]
+    return None
 
 
-def search_dizipal(page, base_url, query):
+def search_dizipal(base_url, query):
     search_url = f'{base_url}/search/{query.replace(" ", "-")}'
     try:
-        page.goto(search_url, wait_until='domcontentloaded', timeout=25000)
-        time.sleep(3)
-        page.wait_for_load_state('networkidle', timeout=10000)
-    except Exception:
-        pass
+        resp = cffi.get(search_url, impersonate='chrome', timeout=15, headers=HEADERS)
+        if not resp.ok:
+            return []
 
-    try:
+        soup = BeautifulSoup(resp.text, 'lxml')
         results = []
-        items = page.query_selector_all('a[href*="/dizi/"], a[href*="/film/"], a[href*="/series/"]')
         seen = set()
-        for item in items[:10]:
-            href = item.get_attribute('href')
+
+        for a in soup.select('a[href*="/dizi/"], a[href*="/film/"], a[href*="/series/"]'):
+            href = a.get('href', '')
             if href and href not in seen:
                 seen.add(href)
-                title_el = item.query_selector('img, h3, span')
+                title_el = a.select_one('img, h3, span')
                 title = ''
                 if title_el:
-                    title = title_el.get_attribute('alt') or title_el.inner_text() or ''
+                    title = title_el.get('alt') or title_el.get_text(strip=True) or ''
                 results.append({'url': href, 'title': title.strip()})
-        return results
-    except Exception as e:
-        print(f'      Search error: {e}')
+        return results[:10]
+    except Exception:
         return []
 
 
-def extract_stream_from_episode(page, episode_url):
+def extract_stream_from_episode(episode_url):
     try:
-        page.goto(episode_url, wait_until='domcontentloaded', timeout=25000)
-        time.sleep(3)
+        resp = cffi.get(episode_url, impersonate='chrome', timeout=15, headers=HEADERS)
+        if not resp.ok:
+            return '', []
 
-        title_el = page.query_selector('h1, h2, .title, .entry-title')
-        title = title_el.inner_text().strip() if title_el else ''
+        soup = BeautifulSoup(resp.text, 'lxml')
+        title_el = soup.select_one('h1, h2, .title, .entry-title')
+        title = title_el.get_text(strip=True) if title_el else ''
 
-        embed_iframe = page.query_selector('#vast_new iframe, .player iframe, iframe[src*="embed"]')
+        embed_iframe = soup.select_one('#vast_new iframe, .player iframe, iframe[src*="embed"]')
         if not embed_iframe:
-            iframes = page.query_selector_all('iframe')
-            for ifr in iframes:
-                src = ifr.get_attribute('src') or ''
+            for ifr in soup.select('iframe'):
+                src = ifr.get('src', '')
                 if 'embed' in src or 'player' in src:
                     embed_iframe = ifr
                     break
 
         if not embed_iframe:
-            content = page.content()
-            url_match = re.search(r'(https?://[^"\'<>\s]+\.(?:m3u8|mp4)(?:[^"\'<>\s]*)?)', content)
+            url_match = re.search(r'(https?://[^"\'<>\s]+\.(?:m3u8|mp4)(?:[^"\'<>\s]*)?)', resp.text)
             if url_match:
                 return title, [url_match.group(1)]
             return title, []
 
-        embed_src = embed_iframe.get_attribute('src')
+        embed_src = embed_iframe.get('src', '')
         if not embed_src:
             return title, []
-
         if not embed_src.startswith('http'):
             embed_src = f'https:{embed_src}' if embed_src.startswith('//') else f'{episode_url}{embed_src}'
 
-        page.goto(embed_src, wait_until='domcontentloaded', timeout=20000)
-        time.sleep(3)
+        embed_resp = cffi.get(embed_src, impersonate='chrome', timeout=15,
+                             headers={**HEADERS, 'Referer': episode_url})
+        if not embed_resp.ok:
+            return title, []
 
-        content = page.content()
-        for pattern in [
-            r'file\s*[:=]\s*["\']([^"\']+)',
-            r'source\s*[:=]\s*["\']([^"\']+)',
-        ]:
-            m = re.search(pattern, content)
+        beautified = jsbeautifier.beautify(embed_resp.text)
+        for pattern in [r'file\s*[:=]\s*["\']([^"\']+)', r'source\s*[:=]\s*["\']([^"\']+)']:
+            m = re.search(pattern, beautified)
             if m:
-                stream_url = m.group(1)
-                return title, [stream_url]
+                return title, [m.group(1)]
 
-        url_match = re.search(r'(https?://[^"\'\s]+\.(?:m3u8|mp4)(?:[^"\'\s]*)?)', content)
+        url_match = re.search(r'(https?://[^"\'\s]+\.(?:m3u8|mp4)(?:[^"\'\s]*)?)', beautified)
         if url_match:
             return title, [url_match.group(1)]
 
         return title, []
-    except Exception as e:
-        print(f'      Episode extract error: {e}')
+    except Exception:
         return '', []
 
 
@@ -149,82 +147,71 @@ def crawl(site_info):
     category = site_info.get('category', 'turkish')
     print(f'[DIZIPAL] Starting crawl for {name}...')
 
-    base_url = f'https://{find_active_domain()}'
+    base_url = find_active_domain()
+    if not base_url:
+        print(f'[DIZIPAL] No accessible domain found')
+        log_result('dizipal', category, 0, error='No accessible domain')
+        return 0
+
     print(f'[DIZIPAL] Using domain: {base_url}')
 
     popular = get_tmdb_popular('tv', 15)
     print(f'[DIZIPAL] {len(popular)} TMDB TV titles to search')
 
     total = 0
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
-            context = browser.new_context(
-                user_agent=HEADERS['User-Agent'],
-                locale='tr',
-                timezone_id='Europe/Istanbul',
-            )
-            page = context.new_page()
-            Stealth().apply_stealth_sync(page)
+    for item in popular:
+        tid = item['id']
+        title = item['title'] or item['name']
+        print(f'  [{tid}] Searching "{title}"...')
 
-            for item in popular:
-                tid = item['id']
-                title = item['title'] or item['name']
-                print(f'  [{tid}] Searching "{title}"...')
+        results = search_dizipal(base_url, title)
+        if not results:
+            time.sleep(0.5)
+            continue
 
-                results = search_dizipal(page, base_url, title)
-                if not results:
-                    print(f'    No results')
-                    time.sleep(1)
+        for result in results[:2]:
+            page_url = result['url']
+            if not page_url.startswith('http'):
+                page_url = f'{base_url}{page_url}'
+
+            try:
+                page_resp = cffi.get(page_url, impersonate='chrome', timeout=15, headers=HEADERS)
+                if not page_resp.ok:
                     continue
 
-                for result in results[:2]:
-                    page_url = result['url']
-                    if not page_url.startswith('http'):
-                        page_url = f'{base_url}{page_url}'
+                soup = BeautifulSoup(page_resp.text, 'lxml')
+                ep_links = [a.get('href') for a in soup.select('a[href*="/bolum/"], a[href*="/episode/"]')]
+                ep_links = [l for l in ep_links if l]
 
-                    try:
-                        page.goto(page_url, wait_until='domcontentloaded', timeout=20000)
-                        time.sleep(2)
-
-                        ep_links = [a.get_attribute('href') for a in page.query_selector_all('a[href*="/bolum/"], a[href*="/episode/"]')]
-                        ep_links = [l for l in ep_links if l]
-
-                        if not ep_links:
-                            ep_url = page_url
-                            ep_title, stream_urls = extract_stream_from_episode(page, ep_url)
-                            for stream_url in stream_urls:
-                                if stream_url:
-                                    print(f'    [STREAM] {title}: {stream_url[:80]}...')
-                                    if '.m3u8' in stream_url:
-                                        saved = save_all_qualities(tid, ep_url, stream_url, category, title)
-                                        total += saved
-                                    else:
-                                        save_link(tid, ep_url, stream_url, category, title)
-                                        total += 1
-                        else:
-                            for ep_link in ep_links[:5]:
-                                if not ep_link.startswith('http'):
-                                    ep_link = f'{base_url}{ep_link}'
-                                ep_title, stream_urls = extract_stream_from_episode(page, ep_link)
-                                for stream_url in stream_urls:
-                                    if stream_url:
-                                        print(f'    [STREAM] {title}: {stream_url[:80]}...')
-                                        if '.m3u8' in stream_url:
-                                            saved = save_all_qualities(tid, ep_link, stream_url, category, title)
-                                            total += saved
-                                        else:
-                                            save_link(tid, ep_link, stream_url, category, title)
-                                            total += 1
-                                time.sleep(1)
-                    except Exception as e:
-                        print(f'    Error: {e}')
-
-                time.sleep(1)
-
-            browser.close()
-    except Exception as e:
-        print(f'[DIZIPAL] Fatal: {e}')
+                if not ep_links:
+                    ep_title, stream_urls = extract_stream_from_episode(page_url)
+                    for stream_url in stream_urls:
+                        if stream_url:
+                            print(f'    [STREAM] {title}: {stream_url[:80]}...')
+                            if '.m3u8' in stream_url:
+                                saved = save_all_qualities(tid, page_url, stream_url, category, title)
+                                total += saved
+                            else:
+                                save_link(tid, page_url, stream_url, category, title)
+                                total += 1
+                else:
+                    for ep_link in ep_links[:5]:
+                        if not ep_link.startswith('http'):
+                            ep_link = f'{base_url}{ep_link}'
+                        ep_title, stream_urls = extract_stream_from_episode(ep_link)
+                        for stream_url in stream_urls:
+                            if stream_url:
+                                print(f'    [STREAM] {title}: {stream_url[:80]}...')
+                                if '.m3u8' in stream_url:
+                                    saved = save_all_qualities(tid, ep_link, stream_url, category, title)
+                                    total += saved
+                                else:
+                                    save_link(tid, ep_link, stream_url, category, title)
+                                    total += 1
+                        time.sleep(0.5)
+            except Exception as e:
+                print(f'    Error: {e}')
+            time.sleep(0.5)
 
     log_result(base_url, category, total)
     print(f'[DIZIPAL] {name}: {total} streams')

@@ -405,19 +405,35 @@ export default function SmartPlayer({
     <div className="w-full">
       {/* VIDEO PLAYER CARD */}
       <div ref={containerRef} className="relative w-full aspect-[16/10] sm:aspect-video bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/[0.03]">
-        {activeUrl && (
-          <iframe
-            ref={iframeRef}
-            key={`${currentIndex}-${tmdbId}-${animeId}-${currentSeason}-${currentEpisode}`}
-            src={activeUrl}
-            className="w-full h-full border-0"
-            style={{ opacity: status === 'playing' ? 1 : 0, transition: 'opacity 0.3s' }}
-            allowFullScreen
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-            onLoad={handleLoad}
-            onError={handleError}
-          />
-        )}
+        {activeUrl && (() => {
+          const isDirectStream = /\.(m3u8|mp4|mkv|webm)(\?|$)/i.test(activeUrl);
+          if (isDirectStream) {
+            return (
+              <video
+                key={`${currentIndex}-${tmdbId}-${animeId}-${currentSeason}-${currentEpisode}`}
+                src={activeUrl}
+                className="w-full h-full object-contain"
+                style={{ opacity: status === 'playing' ? 1 : 0, transition: 'opacity 0.3s' }}
+                controls
+                autoPlay
+                onError={handleError}
+              />
+            );
+          }
+          return (
+            <iframe
+              ref={iframeRef}
+              key={`${currentIndex}-${tmdbId}-${animeId}-${currentSeason}-${currentEpisode}`}
+              src={activeUrl}
+              className="w-full h-full border-0"
+              style={{ opacity: status === 'playing' ? 1 : 0, transition: 'opacity 0.3s' }}
+              allowFullScreen
+              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+              onLoad={handleLoad}
+              onError={handleError}
+            />
+          );
+        })()}
 
         {/* Loading overlay */}
         {(status === 'loading' || status === 'idle') && (

@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from playwright.sync_api import sync_playwright
+from playwright_stealth import Stealth
 from sites.base import save_link, save_all_qualities, log_result
 import requests
 
@@ -18,6 +19,7 @@ HEADERS = {
 HDFILM_DOMAINS = [
     'hdfilmcehennemi.sh', 'hdfilmcehennemi.tech',
     'hdfilmcehennemi.nl', 'hdfilmcehennemi.ws', 'hdfilmcehennemi.mobi',
+    'hdfilmcehennemi.com', 'hdfilmcehennemi.org', 'hdfilmcehennemi.me',
 ]
 
 DIZILLA_DOMAINS = ['dizilla.club', 'dizilla.to', 'dizilla.com']
@@ -73,6 +75,34 @@ def search_tmdb(title):
     return None
 
 
+def extract_stream_from_page(page, url):
+    try:
+        page.goto(url, wait_until='domcontentloaded', timeout=20000)
+        time.sleep(2)
+
+        content = page.content()
+
+        for pattern in [
+            r'(?:file|src|source)\s*[:=]\s*["\']([^"\']+\.(?:m3u8|mp4)[^"\']*)',
+            r'"(https?://[^"]+\.(?:m3u8|mp4)(?:[^"]*)?)"',
+        ]:
+            m = re.search(pattern, content, re.IGNORECASE)
+            if m:
+                return m.group(1)
+
+        url_match = re.search(r'(https?://[^"\'\s]+\.(?:m3u8|mp4)(?:[^"\'\s]*)?)', content)
+        if url_match:
+            return url_match.group(1)
+
+        embed_iframe = page.query_selector('iframe[src*="embed"], iframe[src*="player"], iframe')
+        if embed_iframe:
+            return embed_iframe.get_attribute('src')
+
+        return None
+    except Exception:
+        return None
+
+
 def crawl_hdfilmcehennemi(browser, limit=15):
     domain = find_active_domain(HDFILM_DOMAINS)
     base_url = f'https://{domain}'
@@ -82,15 +112,24 @@ def crawl_hdfilmcehennemi(browser, limit=15):
     total = 0
 
     page = browser.new_page()
+    Stealth().apply_stealth_sync(page)
     try:
-        page.goto(base_url, wait_until='domcontentloaded', timeout=20000)
-        time.sleep(3)
+        page.goto(base_url, wait_until='domcontentloaded', timeout=25000)
+        time.sleep(4)
 
         movie_links = list(set(
             a.get_attribute('href')
-            for a in page.query_selector_all('a[href*="/film/"], a[href*="/movie/"]')
+            for a in page.query_selector_all('a[href*="/film/"], a[href*="/movie/"], a[href*="/izle/"]')
             if a.get_attribute('href')
         ))
+
+        if not movie_links:
+            movie_links = list(set(
+                a.get_attribute('href')
+                for a in page.query_selector_all('a[href]')
+                if a.get_attribute('href') and any(x in (a.get_attribute('href') or '') for x in ['/film/', '/movie/', '/izle/'])
+            ))
+
         print(f'[HDFILM] Found {len(movie_links)} movie links on homepage')
 
         for link in movie_links[:limit]:
@@ -101,19 +140,19 @@ def crawl_hdfilmcehennemi(browser, limit=15):
                 page.goto(link, wait_until='domcontentloaded', timeout=20000)
                 time.sleep(2)
 
-                title_el = page.query_selector('h1, h2, .title, .film-title')
+                title_el = page.query_selector('h1, h2, .title, .film-title, .entry-title')
                 title = title_el.inner_text().strip() if title_el else ''
 
-                embed_iframe = page.query_selector('iframe[src*="embed"], iframe[src*="player"], iframe')
-                if embed_iframe:
-                    embed_src = embed_iframe.get_attribute('src')
-                    if embed_src:
-                        if not embed_src.startswith('http'):
-                            embed_src = f'https:{embed_src}' if embed_src.startswith('//') else f'{base_url}{embed_src}'
-
-                        tmdb_id = search_tmdb(title)
-                        print(f'    [{title}] Embed: {embed_src[:80]}...')
-                        save_link(tmdb_id or link, link, embed_src, 'turkish', title)
+                stream_url = extract_stream_from_page(page, link)
+                if stream_url:
+                    tmdb_id = search_tmdb(title)
+                    if '.m3u8' in stream_url:
+                        print(f'    [{title}] M3U8: {stream_url[:80]}...')
+                        save_all_qualities(tmdb_id or link, link, stream_url, 'turkish', title)
+                        total += 1
+                    else:
+                        print(f'    [{title}] Stream: {stream_url[:80]}...')
+                        save_link(tmdb_id or link, link, stream_url, 'turkish', title)
                         total += 1
 
                 scripts = page.query_selector_all('script')
@@ -148,8 +187,9 @@ def crawl_dizilla(browser, limit=15):
     total = 0
 
     page = browser.new_page()
+    Stealth().apply_stealth_sync(page)
     try:
-        page.goto(base_url, wait_until='domcontentloaded', timeout=20000)
+        page.goto(base_url, wait_until='domcontentloaded', timeout=25000)
         time.sleep(3)
 
         series_links = list(set(
@@ -178,24 +218,28 @@ def crawl_dizilla(browser, limit=15):
                         if not ep_link.startswith('http'):
                             ep_link = f'{base_url}{ep_link}'
 
-                        try:
-                            page.goto(ep_link, wait_until='domcontentloaded', timeout=20000)
-                            time.sleep(2)
-
-                            embed_iframe = page.query_selector('iframe[src*="embed"], iframe[src*="player"], iframe')
-                            if embed_iframe:
-                                embed_src = embed_iframe.get_attribute('src')
-                                if embed_src:
-                                    if not embed_src.startswith('http'):
-                                        embed_src = f'https:{embed_src}' if embed_src.startswith('//') else f'{base_url}{embed_src}'
-
-                                    tmdb_id = search_tmdb(title)
-                                    print(f'    [{title}] Embed: {embed_src[:80]}...')
-                                    save_link(tmdb_id or ep_link, ep_link, embed_src, 'turkish', title)
-                                    total += 1
-                        except Exception as e:
-                            print(f'      Episode error: {e}')
+                        stream_url = extract_stream_from_page(page, ep_link)
+                        if stream_url:
+                            tmdb_id = search_tmdb(title)
+                            if '.m3u8' in stream_url:
+                                print(f'    [{title}] M3U8: {stream_url[:80]}...')
+                                save_all_qualities(tmdb_id or ep_link, ep_link, stream_url, 'turkish', title)
+                                total += 1
+                            else:
+                                print(f'    [{title}] Stream: {stream_url[:80]}...')
+                                save_link(tmdb_id or ep_link, ep_link, stream_url, 'turkish', title)
+                                total += 1
                         time.sleep(1)
+                else:
+                    stream_url = extract_stream_from_page(page, link)
+                    if stream_url:
+                        tmdb_id = search_tmdb(title)
+                        if '.m3u8' in stream_url:
+                            save_all_qualities(tmdb_id or link, link, stream_url, 'turkish', title)
+                            total += 1
+                        else:
+                            save_link(tmdb_id or link, link, stream_url, 'turkish', title)
+                            total += 1
 
             except Exception as e:
                 print(f'    Error: {e}')

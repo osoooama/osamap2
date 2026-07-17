@@ -4,7 +4,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from playwright.sync_api import sync_playwright
-from sites.base import save_link, log_result
+from playwright_stealth import Stealth
+from sites.base import save_link, save_all_qualities, log_result
 import requests
 
 BASE = 'https://hd1.brstej.com'
@@ -32,6 +33,52 @@ def search_tmdb(title):
     return None
 
 
+def extract_stream_from_embed(page, embed_url):
+    for attempt in range(2):
+        try:
+            page.goto(embed_url, wait_until='domcontentloaded', timeout=20000)
+            time.sleep(3)
+
+            content = page.content()
+
+            for pattern in [
+                r'(?:file|src|source)\s*[:=]\s*["\']([^"\']+\.(?:m3u8|mp4)[^"\']*)',
+                r'"(https?://[^"]+\.(?:m3u8|mp4)(?:[^"]*)?)"',
+            ]:
+                m = re.search(pattern, content, re.IGNORECASE)
+                if m:
+                    return m.group(1)
+
+            url_match = re.search(r'(https?://[^"\'\s]+\.(?:m3u8|mp4)(?:[^"\'\s]*)?)', content)
+            if url_match:
+                return url_match.group(1)
+
+            try:
+                m3u8s = page.evaluate(
+                    "() => performance.getEntriesByType('resource').map(e => e.name).filter(n => n.includes('.m3u8') || n.includes('.mp4'))"
+                )
+                for url in m3u8s:
+                    if url.startswith('http'):
+                        return url
+            except Exception:
+                pass
+
+            iframes = page.query_selector_all('iframe')
+            for ifr in iframes:
+                src = ifr.get_attribute('src') or ''
+                if src.startswith('http') and 'brstej' not in src:
+                    inner_stream = extract_stream_from_embed(page, src)
+                    if inner_stream:
+                        return inner_stream
+
+        except Exception as e:
+            print(f'      Embed extract error: {e}')
+            if attempt < 1:
+                time.sleep(2)
+
+    return None
+
+
 def crawl(site_info):
     name = site_info['name']
     category = site_info.get('category', 'arabic')
@@ -40,8 +87,13 @@ def crawl(site_info):
     total = 0
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
-            page = browser.new_page()
+            browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
+            context = browser.new_context(
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+                locale='ar',
+            )
+            page = context.new_page()
+            Stealth().apply_stealth_sync(page)
 
             page.goto(f'{BASE}/main430', wait_until='domcontentloaded', timeout=30000)
             time.sleep(3)
@@ -102,14 +154,22 @@ def crawl(site_info):
                     tmdb_id = search_tmdb(title)
 
                     for embed_url in embed_urls:
-                        q = '720p'
-                        for srv in SERVERS:
-                            if srv['pattern'] in embed_url:
-                                q = srv['name']
-                                break
-                        print(f'    [{q}] {embed_url[:80]}...')
-                        save_link(tmdb_id or vid, play_url, embed_url, category, title)
-                        total += 1
+                        stream_url = extract_stream_from_embed(page, embed_url)
+                        if stream_url:
+                            q = '720p'
+                            for srv in SERVERS:
+                                if srv['pattern'] in embed_url:
+                                    q = srv['name']
+                                    break
+                            print(f'    [{q}] {title}: {stream_url[:80]}...')
+                            if '.m3u8' in stream_url:
+                                saved = save_all_qualities(tmdb_id or vid, play_url, stream_url, category, title)
+                                total += saved
+                            else:
+                                save_link(tmdb_id or vid, play_url, stream_url, category, title)
+                                total += 1
+                        else:
+                            print(f'    [NO STREAM] {embed_url[:80]}...')
 
                 except Exception as e:
                     print(f'    Error: {e}')

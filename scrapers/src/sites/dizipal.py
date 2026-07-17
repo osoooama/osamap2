@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from playwright.sync_api import sync_playwright
+from playwright_stealth import Stealth
 from sites.base import save_link, save_all_qualities, log_result
 import requests
 
@@ -16,7 +17,10 @@ DIZIPAL_DOMAINS = [
     'dizipal110.com', 'dizipal111.com', 'dizipal112.com',
     'dizipal113.com', 'dizipal114.com', 'dizipal115.com',
     'dizipal116.com', 'dizipal117.com', 'dizipal118.com',
-    'dizipal119.com', 'dizipal120.com',
+    'dizipal119.com', 'dizipal120.com', 'dizipal121.com',
+    'dizipal122.com', 'dizipal123.com', 'dizipal124.com',
+    'dizipal125.com', 'dizipal126.com', 'dizipal127.com',
+    'dizipal128.com', 'dizipal129.com', 'dizipal130.com',
 ]
 
 HEADERS = {
@@ -61,9 +65,13 @@ def find_active_domain():
 def search_dizipal(page, base_url, query):
     search_url = f'{base_url}/search/{query.replace(" ", "-")}'
     try:
-        page.goto(search_url, wait_until='domcontentloaded', timeout=20000)
+        page.goto(search_url, wait_until='domcontentloaded', timeout=25000)
         time.sleep(3)
+        page.wait_for_load_state('networkidle', timeout=10000)
+    except Exception:
+        pass
 
+    try:
         results = []
         items = page.query_selector_all('a[href*="/dizi/"], a[href*="/film/"], a[href*="/series/"]')
         seen = set()
@@ -84,7 +92,7 @@ def search_dizipal(page, base_url, query):
 
 def extract_stream_from_episode(page, episode_url):
     try:
-        page.goto(episode_url, wait_until='domcontentloaded', timeout=20000)
+        page.goto(episode_url, wait_until='domcontentloaded', timeout=25000)
         time.sleep(3)
 
         title_el = page.query_selector('h1, h2, .title, .entry-title')
@@ -100,6 +108,10 @@ def extract_stream_from_episode(page, episode_url):
                     break
 
         if not embed_iframe:
+            content = page.content()
+            url_match = re.search(r'(https?://[^"\'<>\s]+\.(?:m3u8|mp4)(?:[^"\'<>\s]*)?)', content)
+            if url_match:
+                return title, [url_match.group(1)]
             return title, []
 
         embed_src = embed_iframe.get_attribute('src')
@@ -107,21 +119,22 @@ def extract_stream_from_episode(page, episode_url):
             return title, []
 
         if not embed_src.startswith('http'):
-            embed_src = f'https:{embed_src}' if embed_src.startswith('//') else f'{base_url}{embed_src}'
+            embed_src = f'https:{embed_src}' if embed_src.startswith('//') else f'{episode_url}{embed_src}'
 
-        page.goto(embed_src, wait_until='domcontentloaded', timeout=15000)
+        page.goto(embed_src, wait_until='domcontentloaded', timeout=20000)
         time.sleep(3)
 
         content = page.content()
-        scripts = page.query_selector_all('script')
-        for script in scripts:
-            inner = script.inner_text()
-            file_match = re.search(r'file\s*[:=]\s*["\']([^"\']+)', inner)
-            if file_match:
-                stream_url = file_match.group(1)
+        for pattern in [
+            r'file\s*[:=]\s*["\']([^"\']+)',
+            r'source\s*[:=]\s*["\']([^"\']+)',
+        ]:
+            m = re.search(pattern, content)
+            if m:
+                stream_url = m.group(1)
                 return title, [stream_url]
 
-        url_match = re.search(r'(https?://[^"\']+\.(?:m3u8|mp4)[^"\']*)', content)
+        url_match = re.search(r'(https?://[^"\'\s]+\.(?:m3u8|mp4)(?:[^"\'\s]*)?)', content)
         if url_match:
             return title, [url_match.group(1)]
 
@@ -146,8 +159,13 @@ def crawl(site_info):
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
-            context = browser.new_context(user_agent=HEADERS['User-Agent'])
+            context = browser.new_context(
+                user_agent=HEADERS['User-Agent'],
+                locale='tr',
+                timezone_id='Europe/Istanbul',
+            )
             page = context.new_page()
+            Stealth().apply_stealth_sync(page)
 
             for item in popular:
                 tid = item['id']

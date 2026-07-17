@@ -1,5 +1,6 @@
 requests
 playwright
+playwright-stealth
 pymongo
 python-dotenv
 beautifulsoup4

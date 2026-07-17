@@ -1,6 +1,5 @@
 'use client';
 
-import AuthGuard from '@/components/AuthGuard';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Heart, Trash2, Film, ArrowLeft } from 'lucide-react';
@@ -106,8 +105,6 @@ function FavoritesContent() {
 
 export default function FavoritesPage() {
   return (
-    <AuthGuard>
       <FavoritesContent />
-    </AuthGuard>
   );
 }

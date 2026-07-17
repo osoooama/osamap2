@@ -1,6 +1,5 @@
 'use client';
 
-import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Info, Search, X, Loader2, Star, Volume2, VolumeX, Heart } from 'lucide-react';
@@ -464,7 +463,6 @@ export default function CrunchyrollPage() {
   }, [router]);
 
   return (
-    <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0a]">
         {/* Hero Carousel */}
         <Carousel animes={trending.slice(0, 5)} onPlay={handlePlay} />
@@ -531,6 +529,5 @@ export default function CrunchyrollPage() {
           </div>
         </div>
       </div>
-    </AuthGuard>
   );
 }

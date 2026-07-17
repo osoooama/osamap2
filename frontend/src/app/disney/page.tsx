@@ -3,7 +3,6 @@
 import { useMovies } from '@/hooks/useMovies';
 import MovieRow from '@/components/MovieRow';
 import InfoModal from '@/components/InfoModal';
-import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Info, Volume2, VolumeX } from 'lucide-react';
@@ -162,7 +161,6 @@ export default function DisneyPage() {
   }, []);
 
   return (
-    <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0a]">
         <Banner movies={animation || []} isLoading={isLoading} onInfo={handleOpenInfo} />
 
@@ -180,6 +178,5 @@ export default function DisneyPage() {
 
         <InfoModal visible={modalVisible} onClose={handleCloseInfo} movie={selectedMovie} accentColor={theme.primary} platformRef="disney" />
       </div>
-    </AuthGuard>
   );
 }

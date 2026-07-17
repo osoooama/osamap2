@@ -1,6 +1,5 @@
 'use client';
 
-import AuthGuard from '@/components/AuthGuard';
 import SmartPlayer from '@/components/SmartPlayer';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
@@ -301,7 +300,6 @@ function ContentInfo({ movie, anime, error, isAnime, trailerKey }: { movie: any;
 
 export default function PlayerPage() {
   return (
-    <AuthGuard>
       <Suspense fallback={
         <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
           <div className="text-center">
@@ -315,6 +313,5 @@ export default function PlayerPage() {
       }>
         <PlayerContent />
       </Suspense>
-    </AuthGuard>
   );
 }

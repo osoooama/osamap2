@@ -1,6 +1,5 @@
 'use client';
 
-import AuthGuard from '@/components/AuthGuard';
 import { useState, useEffect } from 'react';
 import { Search, X, Loader2, Film } from 'lucide-react';
 import api from '@/lib/api';
@@ -175,8 +174,6 @@ function Section({ title, items }: { title: string; items: any[] }) {
 
 export default function SearchPage() {
   return (
-    <AuthGuard>
       <SearchContent />
-    </AuthGuard>
   );
 }

@@ -3,7 +3,6 @@
 import { useMovies } from '@/hooks/useMovies';
 import MovieRow from '@/components/MovieRow';
 import InfoModal from '@/components/InfoModal';
-import AuthGuard from '@/components/AuthGuard';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Play, Info, Volume2, VolumeX, ChevronDown } from 'lucide-react';
@@ -213,7 +212,6 @@ export default function NetflixPage() {
   }, []);
 
   return (
-    <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0a]">
         <Billboard movies={movies || []} isLoading={isLoading} onInfo={handleOpenInfo} />
 
@@ -268,6 +266,5 @@ export default function NetflixPage() {
           platformRef="netflix"
         />
       </div>
-    </AuthGuard>
   );
 }

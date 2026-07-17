@@ -1,6 +1,5 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GitBranch, Mail, Globe, Code, ChevronLeft, Award, Sparkles, X } from 'lucide-react';
@@ -8,8 +7,6 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 export default function DeveloperPage() {
-  const { user } = useAuth();
-  const isSignedIn = !!user;
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -20,7 +17,7 @@ export default function DeveloperPage() {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Link href={isSignedIn ? '/netflix' : '/'} className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition mb-10 group">
+        <Link href='/' className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition mb-10 group">
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition" />
           <span className="text-sm">العودة للرئيسية</span>
         </Link>

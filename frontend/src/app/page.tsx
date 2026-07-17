@@ -1,10 +1,9 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ChevronDown, LogIn, Play, Lock, ArrowRight, Globe, Languages, Palette, Atom } from 'lucide-react';
+import { Sparkles, ChevronDown, Play, ArrowRight, Globe, Languages, Palette, Atom } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const platforms = [
@@ -95,10 +94,10 @@ function FloatingOrbs() {
   );
 }
 
-function PlatformCard({ p, index, isSignedIn }: { p: typeof platforms[0]; index: number; isSignedIn: boolean }) {
+function PlatformCard({ p, index }: { p: typeof platforms[0]; index: number }) {
   return (
     <motion.div variants={itemVariants} custom={index}>
-      <Link href={isSignedIn ? p.href : '/sign-in'} className="group block">
+      <Link href={p.href} className="group block">
         <div
           className={`relative h-[320px] sm:h-[380px] rounded-2xl overflow-hidden transition-all duration-500 ${p.bgGradient} border border-white/5 hover:border-white/20`}
         >
@@ -114,27 +113,11 @@ function PlatformCard({ p, index, isSignedIn }: { p: typeof platforms[0]; index:
               transition={{ duration: 0.3 }}
             >
               <Image src={p.logo} alt={p.name} width={96} height={96} className="w-full h-full object-cover" />
-              {!isSignedIn && (
-                <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-zinc-800 border border-zinc-600 flex items-center justify-center">
-                  <Lock className="w-3 h-3 text-zinc-400" />
-                </div>
-              )}
             </motion.div>
 
             <h3 className="text-2xl font-bold text-white mb-1">{p.name}</h3>
             <p className="text-sm font-medium mb-3" style={{ color: p.color }}>{p.tagline}</p>
             <p className="text-zinc-500 text-sm leading-relaxed max-w-[200px]">{p.desc}</p>
-
-            {!isSignedIn && (
-              <motion.div
-                className="mt-5 flex items-center gap-2 px-4 py-2 rounded-full glass text-zinc-400 text-xs"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-              >
-                <Lock className="w-3 h-3" />
-                <span>سجل الدخول للوصول</span>
-              </motion.div>
-            )}
           </div>
 
           <div
@@ -148,16 +131,11 @@ function PlatformCard({ p, index, isSignedIn }: { p: typeof platforms[0]; index:
 }
 
 export default function HomePage() {
-  const { user, loading } = useAuth();
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      setTimeout(() => setShowContent(true), 100);
-    }
-  }, [loading]);
-
-  const isSignedIn = !!user;
+    setTimeout(() => setShowContent(true), 100);
+  }, []);
 
   return (
     <AnimatePresence>
@@ -223,7 +201,6 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.5 }}
               >
-                {isSignedIn ? (
                   <Link
                     href="/netflix"
                     className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-600/25 overflow-hidden"
@@ -239,26 +216,6 @@ export default function HomePage() {
                       transition={{ duration: 2, repeat: Infinity }}
                     />
                   </Link>
-                ) : (
-                  <Link
-                    href="/sign-in"
-                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-600/25"
-                  >
-                    <span className="flex items-center gap-2">
-                      <LogIn className="w-5 h-5" />
-                      سجل الدخول الآن
-                    </span>
-                  </Link>
-                )}
-
-                {isSignedIn && (
-                  <div className="flex items-center gap-3 px-6 py-3 rounded-2xl glass text-zinc-300">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">✓</span>
-                    </div>
-                    <span className="text-sm">مرحباً {user?.username}</span>
-                  </div>
-                )}
               </motion.div>
             </motion.div>
 
@@ -281,25 +238,22 @@ export default function HomePage() {
             >
               <motion.div variants={itemVariants} className="text-center mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                  {isSignedIn ? 'اختر منصتك المفضلة' : 'اكتشف منصاتنا'}
+                  اختر منصتك المفضلة
                 </h2>
                 <p className="text-zinc-500 text-lg max-w-2xl mx-auto">
-                  {isSignedIn
-                    ? 'كل منصة لها هويتها ومحتواها الخاص، اختر ما يناسبك'
-                    : 'سجّل دخولك واستمتع بأربع منصات بث حصرية'}
+                  كل منصة لها هويتها ومحتواها الخاص، اختر ما يناسبك
                 </p>
               </motion.div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {platforms.map((p, i) => (
-                  <PlatformCard key={p.name} p={p} index={i} isSignedIn={isSignedIn} />
+                  <PlatformCard key={p.name} p={p} index={i} />
                 ))}
               </div>
             </motion.div>
           </section>
 
-          {!isSignedIn && (
-            <section className="relative px-4 sm:px-6 lg:px-8 pb-32">
+          <section className="relative px-4 sm:px-6 lg:px-8 pb-32">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -329,8 +283,7 @@ export default function HomePage() {
                   ))}
                 </div>
               </motion.div>
-            </section>
-          )}
+          </section>
         </motion.div>
       )}
     </AnimatePresence>

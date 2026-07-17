@@ -1,11 +1,10 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Search, Heart, LogOut, User, GitBranch, Mail, Globe, Code } from 'lucide-react';
+import { Menu, X, Search, Heart, GitBranch, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -47,21 +46,21 @@ function DeveloperModal({ open, onClose }: { open: boolean; onClose: () => void 
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent" />
               <div className="absolute -bottom-16 left-1/2 -translate-x-1/2">
                 <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-zinc-900 shadow-2xl">
-                  <Image src="/developer.webp" alt="أسامة كريشان" width={128} height={128} className="w-full h-full object-cover" />
+                  <Image src="/developer.webp" alt="Osama Kreishan" width={128} height={128} className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
 
             <div className="pt-20 pb-6 px-6 text-center">
-              <h2 className="text-2xl font-black text-white mb-1 font-arabic-display">أسامة كريشان</h2>
+              <h2 className="text-2xl font-black text-white mb-1 font-arabic-display">Osama Kreishan</h2>
               <p className="text-zinc-500 text-sm mb-4">Osama Kreishan</p>
 
               <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-                مطور Full-Stack متخصص في بناء منصات البث المباشر وأنظمة الزحف المؤتمتة. مؤسس منصة OSK+.
+                Full-Stack developer specialized in building streaming platforms and automated scraping systems. Founder of OSK+.
               </p>
 
               <div className="flex flex-wrap justify-center gap-2 mb-6">
-                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs border border-emerald-500/20">مطور Full-Stack</span>
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs border border-emerald-500/20">Full-Stack Developer</span>
                 <span className="px-3 py-1.5 rounded-xl bg-teal-500/10 text-teal-400 text-xs border border-teal-500/20">Python</span>
                 <span className="px-3 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs border border-cyan-500/20">Next.js</span>
                 <span className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-400 text-xs border border-purple-500/20">Playwright</span>
@@ -85,13 +84,11 @@ function DeveloperModal({ open, onClose }: { open: boolean; onClose: () => void 
 }
 
 export default function Navbar() {
-  const { user, loading, logout } = useAuth();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showDevModal, setShowDevModal] = useState(false);
   const isLanding = pathname === '/';
-  const hideNav = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -102,10 +99,6 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
-
-  if (hideNav) return null;
-
-  const isSignedIn = !!user;
 
   return (
     <>
@@ -119,7 +112,7 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <Link href={isSignedIn ? '/netflix' : '/'} className="flex items-center gap-2.5 group shrink-0">
+            <Link href='/' className="flex items-center gap-2.5 group shrink-0">
               <div className="w-9 h-9 rounded-xl overflow-hidden ring-2 ring-white/10 group-hover:ring-emerald-500/50 transition-all duration-300 shadow-lg shadow-emerald-600/20">
                 <Image src="/logo.webp" alt="OSK+" width={36} height={36} className="w-full h-full object-cover" />
               </div>
@@ -129,92 +122,65 @@ export default function Navbar() {
               </div>
             </Link>
 
-            {isSignedIn && (
-              <div className="hidden md:flex items-center gap-1">
-                {platforms.map((p) => {
-                  const active = pathname.startsWith(p.href);
-                  return (
-                    <Link
-                      key={p.name}
-                      href={p.href}
-                      className={cn(
-                        'flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-300',
-                        active
-                          ? 'text-white shadow-sm bg-white/5'
-                          : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                      )}
-                      style={active ? { boxShadow: `0 0 20px ${p.color}15` } : undefined}
-                    >
-                      <div className="w-5 h-5 rounded overflow-hidden shrink-0">
-                        <Image src={p.logo} alt={p.name} width={20} height={20} className="w-full h-full object-cover" />
-                      </div>
-                      <span style={active ? { color: p.color } : undefined}>{p.name}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+            <div className="hidden md:flex items-center gap-1">
+              {platforms.map((p) => {
+                const active = pathname.startsWith(p.href);
+                return (
+                  <Link
+                    key={p.name}
+                    href={p.href}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-300',
+                      active
+                        ? 'text-white shadow-sm bg-white/5'
+                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    )}
+                    style={active ? { boxShadow: `0 0 20px ${p.color}15` } : undefined}
+                  >
+                    <div className="w-5 h-5 rounded overflow-hidden shrink-0">
+                      <Image src={p.logo} alt={p.name} width={20} height={20} className="w-full h-full object-cover" />
+                    </div>
+                    <span style={active ? { color: p.color } : undefined}>{p.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
-              {!loading && isSignedIn ? (
-                <>
-                  <Link
-                    href="/search"
-                    className="flex w-11 h-11 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-                    title="بحث"
-                  >
-                    <Search className="w-5 h-5" />
-                  </Link>
-                  <Link
-                    href="/favorites"
-                    className="flex w-11 h-11 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-                    title="المفضلة"
-                  >
-                    <Heart className="w-5 h-5" />
-                  </Link>
-                  <button
-                    onClick={() => setShowDevModal(true)}
-                    className="hidden sm:flex w-11 h-11 items-center justify-center rounded-xl hover:bg-white/5 transition-all overflow-hidden ring-1 ring-white/10 hover:ring-emerald-500/30"
-                    title="المطور"
-                  >
-                    <Image src="/developer.webp" alt="المطور" width={28} height={28} className="w-7 h-7 rounded-lg object-cover" />
-                  </button>
+              <Link
+                href="/search"
+                className="flex w-11 h-11 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                title="بحث"
+              >
+                <Search className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/favorites"
+                className="flex w-11 h-11 items-center justify-center rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                title="المفضلة"
+              >
+                <Heart className="w-5 h-5" />
+              </Link>
+              <button
+                onClick={() => setShowDevModal(true)}
+                className="hidden sm:flex w-11 h-11 items-center justify-center rounded-xl hover:bg-white/5 transition-all overflow-hidden ring-1 ring-white/10 hover:ring-emerald-500/30"
+                title="المطور"
+              >
+                <Image src="/developer.webp" alt="Developer" width={28} height={28} className="w-7 h-7 rounded-lg object-cover" />
+              </button>
 
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
-                    <User className="w-3.5 h-3.5 text-zinc-400" />
-                    <span className="text-xs text-zinc-400 truncate max-w-20">{user?.username}</span>
-                  </div>
-                  <button
-                    onClick={logout}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600/10 border border-emerald-600/20 text-emerald-400 hover:bg-emerald-600/20 hover:text-emerald-300 transition-all text-xs font-medium"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">تسجيل الخروج</span>
-                  </button>
-                </>
-              ) : !loading ? (
-                <Link
-                  href="/sign-in"
-                  className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40"
-                >
-                  تسجيل الدخول
-                </Link>
-              ) : null}
-
-              {isSignedIn && (
-                <button
-                  onClick={() => setMobileOpen(!mobileOpen)}
-                  className="md:hidden p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
-                >
-                  {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </button>
-              )}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="md:hidden p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+              >
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {mobileOpen && isSignedIn && (
+      {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
@@ -264,7 +230,7 @@ export default function Navbar() {
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
               >
                 <div className="w-5 h-5 rounded overflow-hidden shrink-0">
-                  <Image src="/developer.webp" alt="المطور" width={20} height={20} className="w-full h-full object-cover" />
+                  <Image src="/developer.webp" alt="Developer" width={20} height={20} className="w-full h-full object-cover" />
                 </div>
                 المطور
               </button>

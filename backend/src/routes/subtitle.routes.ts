@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import axios from 'axios';
 import Movie from '../models/Movie.model';
 
 const router = Router();
@@ -40,12 +41,12 @@ async function fetchSubtitles(tmdbId: string, mediaType: string, season?: number
   if (language) params.set('language', language);
 
   try {
-    const resp = await fetch(`${WYZIE_BASE}?${params}`, {
-      headers: { 'User-Agent': 'OSK-Plus/1.0' },
-      signal: AbortSignal.timeout(10000),
+    const resp = await axios.get(WYZIE_BASE, {
+      params: Object.fromEntries(params),
+      timeout: 10000,
     });
-    if (!resp.ok) return [];
-    const data = await resp.json();
+    if (resp.status !== 200) return [];
+    const data = resp.data;
     return Array.isArray(data) ? data : [];
   } catch {
     return [];

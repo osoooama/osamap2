@@ -19,11 +19,14 @@ DB_URI = os.getenv('MONGODB_URI')
 matches_col = None
 if DB_URI:
     try:
-        client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000)
+        client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000, connectTimeoutMS=5000, socketTimeoutMS=5000)
         db = client['OSAMAP2_DB']
         matches_col = db['matches']
+        # Test connection
+        client.admin.command('ping')
     except Exception as e:
-        print(f'[DB INIT WARN] {e}')
+        print(f'[FilGoal] DB not available: {e}')
+        matches_col = None
 
 FILGOAL_MATCHES_URL = "https://www.filgoal.com/matches/ajaxlist"
 FILGOAL_BASE = "https://www.filgoal.com"
@@ -59,23 +62,34 @@ def parse_matches(raw_data, date_str: str) -> list:
 
     for item in raw_data:
         try:
-            match_id = str(item.get("id", item.get("match_id", "")))
+            match_id = str(item.get("Id", item.get("id", item.get("match_id", ""))))
             if not match_id:
                 continue
 
-            home = item.get("home_team", item.get("homeTeam", item.get("home", "")))
-            away = item.get("away_team", item.get("awayTeam", item.get("away", "")))
-            league = item.get("league", item.get("competition", item.get("championship", "")))
-            time_str = item.get("time", item.get("match_time", item.get("startTime", "")))
-            status = item.get("status", item.get("match_status", "upcoming"))
-            home_score = item.get("home_score", item.get("homeScore"))
-            away_score = item.get("away_score", item.get("awayScore"))
+            home = item.get("HomeTeamName", item.get("home_team", item.get("homeTeam", "")))
+            away = item.get("AwayTeamName", item.get("away_team", item.get("awayTeam", "")))
+            league = item.get("ChampionshipName", item.get("league", item.get("competition", "")))
+            time_str = item.get("Date", item.get("match_time", item.get("startTime", "")))
+            status = item.get("CurrentMatchStatus", item.get("status", item.get("match_status", "upcoming")))
+            home_score = item.get("HomeScore", item.get("home_score"))
+            away_score = item.get("AwayScore", item.get("away_score"))
             stream_url = item.get("direct_url", item.get("stream_url", ""))
 
-            if status in ("live", "1", "in_progress"):
-                match_status = "live"
-            elif status in ("finished", "2", "ft", "ended"):
-                match_status = "finished"
+            if isinstance(status, str):
+                status_lower = status.lower()
+                if status_lower in ("live", "1", "in_progress", "مباشر"):
+                    match_status = "live"
+                elif status_lower in ("finished", "2", "ft", "ended", "منتهي", "انتهى"):
+                    match_status = "finished"
+                else:
+                    match_status = "upcoming"
+            elif isinstance(status, (int, float)):
+                if status == 1:
+                    match_status = "live"
+                elif status == 2:
+                    match_status = "finished"
+                else:
+                    match_status = "upcoming"
             else:
                 match_status = "upcoming"
 
@@ -86,8 +100,8 @@ def parse_matches(raw_data, date_str: str) -> list:
                 "league": league,
                 "match_time": time_str,
                 "match_status": match_status,
-                "home_score": int(home_score) if home_score else None,
-                "away_score": int(away_score) if away_score else None,
+                "home_score": int(home_score) if home_score is not None else None,
+                "away_score": int(away_score) if away_score is not None else None,
                 "stream_url": stream_url,
                 "match_date": date_str,
                 "last_updated": datetime.now(timezone.utc).isoformat(),
@@ -100,7 +114,7 @@ def parse_matches(raw_data, date_str: str) -> list:
 
 
 def save_matches(matches: list):
-    if not matches_col:
+    if matches_col is None:
         print("[FilGoal] No DB connection, skipping save")
         return 0
     saved = 0
@@ -118,7 +132,7 @@ def save_matches(matches: list):
 
 
 def crawl_filgoal():
-    print("\n⚽ [FilGoal] Starting sports scraper...")
+    print("\n[FilGoal] Starting sports scraper...")
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     raw = get_matches(today)
     matches = parse_matches(raw, today)

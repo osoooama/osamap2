@@ -20,11 +20,14 @@ DB_URI = os.getenv('MONGODB_URI')
 channels_col = None
 if DB_URI:
     try:
-        client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000)
+        client = pymongo.MongoClient(DB_URI, serverSelectionTimeoutMS=5000, connectTimeoutMS=5000, socketTimeoutMS=5000)
         db = client['OSAMAP2_DB']
         channels_col = db['channels']
+        # Test connection
+        client.admin.command('ping')
     except Exception as e:
-        print(f'[DB INIT WARN] {e}')
+        print(f'[IPTV] DB not available: {e}')
+        channels_col = None
 
 # Free IPTV source from Novatv
 FREE_IPTV_URL = "https://abdotv.online/abdotvapp/url.json"
@@ -157,7 +160,7 @@ def parse_channels(raw_data: list) -> list:
 
 def save_channels(channels: list):
     """Save channels to MongoDB."""
-    if not channels_col:
+    if channels_col is None:
         print("[IPTV] No DB connection, skipping save")
         return 0
     saved = 0
@@ -176,7 +179,7 @@ def save_channels(channels: list):
 
 def crawl_iptv():
     """Main entry point — no credentials needed."""
-    print("\n📺 [IPTV] Starting free IPTV channel scraper...")
+    print("\n[IPTV] Starting free IPTV channel scraper...")
 
     raw = fetch_free_channels()
     channels = parse_channels(raw)

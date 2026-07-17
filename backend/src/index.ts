@@ -74,7 +74,7 @@ async function seedIfEmpty() {
   }
 }
 
-mongoose.connect(process.env.MONGODB_URI!).then(async () => {
+mongoose.connect(process.env.MONGODB_URI!, { dbName: 'OSAMAP2_DB' }).then(async () => {
   console.log('✅ MongoDB connected');
   await seedIfEmpty();
   app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));

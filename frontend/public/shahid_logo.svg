@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none">
+  <rect width="50" height="50" rx="6" fill="#1A1D23"/>
+  <text x="25" y="35" font-family="Arial,sans-serif" font-weight="900" font-size="20" fill="white" text-anchor="middle">ش</text>
+  <circle cx="35" cy="15" r="3" fill="#00C853"/>
+  <circle cx="30" cy="12" r="3" fill="#26A69A"/>
+  <circle cx="25" cy="10" r="3" fill="#0091EA"/>
+</svg>

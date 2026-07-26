@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import axios from 'axios';
-import { gotScraping } from 'got-scraping';
 
 const router = Router();
 const limiter = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
@@ -17,14 +16,13 @@ let tokenExpiry = 0;
 async function getHDboxToken(): Promise<string> {
   if (cachedToken && Date.now() < tokenExpiry) return cachedToken;
 
-  const resp = await gotScraping({
-    url: `${HDBOX_BASE}/country-code`,
+  const resp = await axios.get(`${HDBOX_BASE}/country-code`, {
     headers: {
       'accept': 'application/json',
       'origin': HDBOX_SITE,
       'referer': `${HDBOX_SITE}/`,
     },
-    timeout: { request: 10000 },
+    timeout: 10000,
   });
 
   const setCookie = resp.headers['set-cookie'];
@@ -56,44 +54,41 @@ function hdboxAuthHeaders(token: string, referer = `${HDBOX_SITE}/`) {
 }
 
 async function searchHDbox(token: string, keyword: string, subjectType: number) {
-  const resp = await gotScraping({
-    url: `${HDBOX_BASE}/subject/search`,
-    method: 'POST',
-    body: JSON.stringify({ keyword, page: 1, perPage: 10, subjectType }),
-    headers: { ...hdboxAuthHeaders(token), 'content-type': 'application/json; charset=utf-8' },
-    timeout: { request: 10000 },
-  });
-  return JSON.parse(resp.body)?.data?.items || [];
+  const resp = await axios.post(`${HDBOX_BASE}/subject/search`,
+    { keyword, page: 1, perPage: 10, subjectType },
+    {
+      headers: { ...hdboxAuthHeaders(token), 'content-type': 'application/json; charset=utf-8' },
+      timeout: 10000,
+    }
+  );
+  return resp.data?.data?.items || [];
 }
 
 async function getHDboxDetail(token: string, detailPath: string) {
-  const resp = await gotScraping({
-    url: `${HDBOX_BASE}/detail?detailPath=${detailPath}`,
+  const resp = await axios.get(`${HDBOX_BASE}/detail?detailPath=${detailPath}`, {
     headers: hdboxAuthHeaders(token),
-    timeout: { request: 10000 },
+    timeout: 10000,
   });
-  return JSON.parse(resp.body)?.data?.subject || {};
+  return resp.data?.data?.subject || {};
 }
 
 async function getHDboxPlay(token: string, subjectId: string, se: number, ep: number, detailPath: string) {
   const referer = `${HDBOX_SITE}/spa/videoPlayPage/movies/${detailPath}?id=${subjectId}&type=/movie/detail&detailSe=${se}&detailEp=${ep}&lang=en`;
-  const resp = await gotScraping({
-    url: `${HDBOX_SITE}/wefeed-h5api-bff/subject/play?subjectId=${subjectId}&se=${se}&ep=${ep}&detailPath=${detailPath}`,
-    headers: hdboxAuthHeaders(token, referer),
-    timeout: { request: 10000 },
-  });
-  return JSON.parse(resp.body)?.data || {};
+  const resp = await axios.get(
+    `${HDBOX_SITE}/wefeed-h5api-bff/subject/play?subjectId=${subjectId}&se=${se}&ep=${ep}&detailPath=${detailPath}`,
+    { headers: hdboxAuthHeaders(token, referer), timeout: 10000 }
+  );
+  return resp.data?.data || {};
 }
 
 async function getHDboxCaptions(token: string, streamId: string, subjectId: string, detailPath: string) {
   try {
     const referer = `${HDBOX_SITE}/spa/videoPlayPage/movies/${detailPath}?id=${subjectId}&type=/movie/detail&detailSe=0&detailEp=0&lang=en`;
-    const resp = await gotScraping({
-      url: `${HDBOX_SITE}/wefeed-h5api-bff/subject/caption?format&id=${streamId}&subjectId=${subjectId}&detailPath=${detailPath}`,
-      headers: hdboxAuthHeaders(token, referer),
-      timeout: { request: 10000 },
-    });
-    return JSON.parse(resp.body)?.data?.captions || [];
+    const resp = await axios.get(
+      `${HDBOX_SITE}/wefeed-h5api-bff/subject/caption?format&id=${streamId}&subjectId=${subjectId}&detailPath=${detailPath}`,
+      { headers: hdboxAuthHeaders(token, referer), timeout: 10000 }
+    );
+    return resp.data?.data?.captions || [];
   } catch {
     return [];
   }
@@ -124,17 +119,12 @@ async function extractVixSrc(tmdbId: string, type: string, season?: number, epis
     ? `/api/tv/${tmdbId}/${season}/${episode}?lang=en`
     : `/api/movie/${tmdbId}?lang=en`;
 
-  const resp = await gotScraping({
-    url: `https://vixsrc.to${apiPath}`,
-    headers: {
-      'accept': 'application/json',
-      'x-requested-with': 'XMLHttpRequest',
-    },
-    timeout: { request: 10000 },
+  const apiResp = await axios.get(`https://vixsrc.to${apiPath}`, {
+    headers: { 'User-Agent': UA, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    timeout: 10000,
   });
 
-  const data = JSON.parse(resp.body);
-  const src = data?.src;
+  const src = apiResp.data?.src;
   if (!src) throw new Error('No src in VixSrc response');
 
   const embedUrl = `https://vixsrc.to${src.startsWith('/') ? src : '/' + src}`;

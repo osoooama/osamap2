@@ -9,10 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const platforms = [
-  { name: 'Netflix', href: '/netflix', color: '#E50914', logo: '/netflix.svg' },
+  { name: 'Netflix', href: '/netflix', color: '#E50914', logo: '/netflix.png' },
   { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid_logo.svg' },
   { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disneyplus.svg' },
-  { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.svg' },
+  { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.png' },
   { name: 'المباريات', href: '/sports', color: '#22c55e', icon: Trophy },
   { name: 'بث مباشر', href: '/live', color: '#3b82f6', icon: Tv },
 ];

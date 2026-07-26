@@ -5,7 +5,7 @@ import MovieRow from '@/components/MovieRow';
 import Top10Row from '@/components/Top10Row';
 import ContinueWatchingRow from '@/components/ContinueWatchingRow';
 import NetflixFooter from '@/components/NetflixFooter';
-import InfoModal from '@/components/InfoModal';
+import NetflixModal from '@/components/NetflixModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
@@ -362,7 +362,7 @@ export default function NetflixPage() {
 
       <NetflixFooter />
 
-      <InfoModal
+      <NetflixModal
         visible={modalVisible}
         onClose={handleCloseInfo}
         movie={selectedMovie}

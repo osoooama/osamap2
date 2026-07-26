@@ -6,8 +6,6 @@ const api = axios.create({
 
 export default api;
 
-const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
-
 export async function getMovies(category: string, page = 1, type?: string) {
   const params: any = { page };
   if (type) params.type = type;
@@ -27,14 +25,8 @@ export async function searchMovies(query: string, category?: string) {
 
 export async function getTMDBTrailer(tmdbId: string, mediaType: 'movie' | 'tv' = 'movie'): Promise<string | null> {
   try {
-    const { data } = await axios.get(
-      `https://api.themoviedb.org/3/${mediaType}/${tmdbId}/videos?api_key=${TMDB_KEY}&language=ar-SA`
-    );
-    const trailer =
-      data.results?.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') ||
-      data.results?.find((v: any) => v.type === 'Teaser' && v.site === 'YouTube') ||
-      data.results?.find((v: any) => v.site === 'YouTube');
-    return trailer?.key || null;
+    const { data } = await api.get(`/tmdb/trailer/${tmdbId}`, { params: { type: mediaType } });
+    return data.key || null;
   } catch {
     return null;
   }

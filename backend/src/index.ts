@@ -12,6 +12,7 @@ import sportsRoutes from './routes/sports.routes';
 import iptvRoutes from './routes/iptv.routes';
 import subtitleRoutes from './routes/subtitle.routes';
 import extractRoutes from './routes/extract.routes';
+import tmdbRoutes from './routes/tmdb.routes';
 import Movie from './models/Movie.model';
 import { seedAllCategories } from './services/tmdb.service';
 import { errorHandler } from './middleware/errorHandler';
@@ -34,6 +35,7 @@ app.use('/api', sportsRoutes);
 app.use('/api', iptvRoutes);
 app.use('/api', subtitleRoutes);
 app.use('/api', extractRoutes);
+app.use('/api/tmdb', tmdbRoutes);
 
 app.use(errorHandler);
 

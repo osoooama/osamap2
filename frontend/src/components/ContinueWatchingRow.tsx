@@ -68,7 +68,7 @@ export default function ContinueWatchingRow({ onInfo }: ContinueWatchingRowProps
               className="relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] cursor-pointer group"
               onMouseEnter={() => setHoveredIdx(idx)}
               onMouseLeave={() => setHoveredIdx(null)}
-              onClick={() => router.push(`/player?tmdb_id=${item.tmdb_id}&type=${item.media_type}&ref=netflix`)}
+              onClick={() => onInfo?.({ ...item, media_type: item.media_type })}
             >
               <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-zinc-900 shadow-lg">
                 {imgSrc ? (

@@ -171,7 +171,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
 
   const handleMobileTap = () => {
     if (isMobile.current) {
-      goToPlayer();
+      onInfo?.(movie);
     }
   };
 

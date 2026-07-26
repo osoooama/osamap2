@@ -89,7 +89,7 @@ export default function Top10Row({ title, subtitle, movies, accentColor = '#E509
                   transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className="relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] cursor-pointer"
                   onClick={() => {
-                    if (movie.tmdb_id) router.push(`/player?tmdb_id=${movie.tmdb_id}&type=${movie.media_type || 'movie'}&ref=netflix`);
+                    if (movie.tmdb_id) onInfo?.(movie);
                   }}
                 >
                   <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-zinc-900 shadow-lg shadow-black/40">
@@ -118,7 +118,7 @@ export default function Top10Row({ title, subtitle, movies, accentColor = '#E509
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (movie.tmdb_id) router.push(`/player?tmdb_id=${movie.tmdb_id}&type=${movie.media_type || 'movie'}&ref=netflix`);
+                              if (movie.tmdb_id) onInfo?.(movie);
                             }}
                             className="w-8 h-8 rounded-full flex items-center justify-center bg-white hover:bg-white/90 transition shadow-xl"
                           >

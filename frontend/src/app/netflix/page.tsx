@@ -92,7 +92,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
 
   return (
     <div
-      className="relative h-[55vh] sm:h-[65vh] md:h-[75vh] lg:h-[85vh] overflow-hidden bg-black"
+      className="relative h-[50vh] sm:h-[58vh] md:h-[65vh] lg:h-[70vh] overflow-hidden bg-black"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -118,9 +118,9 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
 
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-black/20" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a]" />
+      <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
 
-      <div className="absolute bottom-[10%] sm:bottom-[12%] left-0 right-0 px-4 sm:px-8 md:px-14 lg:px-20">
+      <div className="absolute bottom-[20%] sm:bottom-[25%] md:bottom-[28%] left-0 right-0 px-4 sm:px-8 md:px-14 lg:px-20">
         <AnimatePresence mode="wait">
           <motion.div
             key={featured?.tmdb_id}
@@ -182,7 +182,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
         </AnimatePresence>
       </div>
 
-      <div className="absolute bottom-[10%] sm:bottom-[12%] right-4 sm:right-8 md:right-14 lg:right-20">
+      <div className="absolute bottom-[20%] sm:bottom-[25%] md:bottom-[28%] right-4 sm:right-8 md:right-14 lg:right-20">
         <button
           onClick={() => setIsMuted(!isMuted)}
           className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-white/30 flex items-center justify-center hover:border-white/60 transition-all duration-300 bg-black/30 backdrop-blur-sm hover:bg-black/50"
@@ -192,7 +192,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
       </div>
 
       {featuredMovies.length > 1 && (
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-1.5">
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5">
           {featuredMovies.map((_, i) => (
             <button
               key={i}
@@ -207,7 +207,7 @@ function Billboard({ movies, isLoading }: { movies: any[]; isLoading: boolean })
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 1.5 }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2"
       >
         <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}>
           <ChevronDown className="w-5 h-5 text-zinc-500" />
@@ -275,7 +275,7 @@ export default function NetflixPage() {
     <div className="min-h-screen bg-[#0a0a0a]">
       <Billboard movies={movies || []} isLoading={isLoading} />
 
-      <div className="relative z-10 -mt-16 sm:-mt-24 md:-mt-32">
+      <div className="relative z-10 -mt-10 sm:-mt-14 md:-mt-20">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pb-12 sm:pb-16 space-y-5 sm:space-y-8">
           <GenrePills selected={selectedGenre} onSelect={setSelectedGenre} />
 

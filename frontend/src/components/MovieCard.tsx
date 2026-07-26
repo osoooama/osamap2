@@ -96,7 +96,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
   };
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    goToPlayer();
+    onInfo?.(movie);
   };
 
   const loadTrailer = async () => {

@@ -25,7 +25,7 @@ export async function searchMovies(query: string, category?: string) {
 
 export async function getTMDBTrailer(tmdbId: string, mediaType: 'movie' | 'tv' = 'movie'): Promise<string | null> {
   try {
-    const { data } = await api.get(`/tmdb/trailer/${tmdbId}`, { params: { type: mediaType } });
+    const { data } = await api.get(`/api/tmdb/trailer/${tmdbId}`, { params: { type: mediaType } });
     return data.key || null;
   } catch {
     return null;

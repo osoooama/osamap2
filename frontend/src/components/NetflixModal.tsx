@@ -301,10 +301,35 @@ export default function NetflixModal({ visible, onClose, movie, accentColor = '#
                 {/* Title overlay */}
                 <div className="absolute bottom-4 left-5 right-16 pointer-events-none">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded overflow-hidden ring-1 ring-red-500/30">
-                      <Image src="/netflix.webp" alt="" width={24} height={24} className="w-full h-full object-cover" />
-                    </div>
-                    <span className="text-red-500 text-[9px] font-bold tracking-wider">NETFLIX</span>
+                    {platformRef === 'disney' ? (
+                      <>
+                        <div className="w-6 h-6 rounded overflow-hidden ring-1 ring-blue-500/30 bg-gradient-to-br from-[#0063E5] to-[#003399] flex items-center justify-center">
+                          <span className="text-white font-black text-[8px]">D+</span>
+                        </div>
+                        <span className="text-[#0063E5] text-[9px] font-bold tracking-wider">DISNEY+</span>
+                      </>
+                    ) : platformRef === 'crunchyroll' ? (
+                      <>
+                        <div className="w-6 h-6 rounded overflow-hidden ring-1 ring-orange-500/30 bg-[#F47521] flex items-center justify-center">
+                          <span className="text-white font-black text-[8px]">CR</span>
+                        </div>
+                        <span className="text-[#F47521] text-[9px] font-bold tracking-wider">CRUNCHYROLL</span>
+                      </>
+                    ) : platformRef === 'shahid' ? (
+                      <>
+                        <div className="w-6 h-6 rounded overflow-hidden ring-1 ring-green-500/30 bg-[#00C853] flex items-center justify-center">
+                          <span className="text-white font-black text-[8px]">ش</span>
+                        </div>
+                        <span className="text-[#00C853] text-[9px] font-bold tracking-wider">SHAHID</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-6 h-6 rounded overflow-hidden ring-1 ring-red-500/30">
+                          <Image src="/netflix.webp" alt="" width={24} height={24} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-red-500 text-[9px] font-bold tracking-wider">NETFLIX</span>
+                      </>
+                    )}
                   </div>
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white drop-shadow-2xl leading-tight">{movie.title}</h2>
                 </div>

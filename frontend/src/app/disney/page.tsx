@@ -1,9 +1,7 @@
 'use client';
 
 import { useMovies } from '@/hooks/useMovies';
-import MovieRow from '@/components/MovieRow';
-import Top10Row from '@/components/Top10Row';
-import ContinueWatchingRow from '@/components/ContinueWatchingRow';
+import DisneyRow from '@/components/DisneyRow';
 import NetflixFooter from '@/components/NetflixFooter';
 import NetflixModal from '@/components/NetflixModal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -284,87 +282,68 @@ export default function DisneyPage() {
           <BrandRow selected={selectedBrand} onSelect={setSelectedBrand} />
 
           {isFiltered ? (
-            <MovieRow
+            <DisneyRow
               title={`${brandName}`}
               subtitle={`كل محتوى ${brandName}`}
               movies={allAnimation}
-              accentColor={BRANDS.find(b => b.id === selectedBrand)?.color || theme.primary}
               loading={moviesLoading}
-              platformRef="disney"
               onInfo={handleOpenInfo}
+              onPlay={handlePlay}
             />
           ) : (
             <>
-              <ContinueWatchingRow onInfo={handleOpenInfo} />
-
-              {top10.length > 0 && (
-                <Top10Row
-                  title="Top 10 اليوم"
-                  subtitle="الأكثر مشاهدة - أنيميشن"
-                  movies={top10}
-                  accentColor={theme.primary}
-                  onInfo={handleOpenInfo}
-                />
-              )}
-
-              <MovieRow
+              <DisneyRow
                 title="ديزني وبكسلر"
                 subtitle="أفلام الأنيميشن العائلية"
                 movies={disneyPixar}
-                accentColor="#0063E5"
                 loading={moviesLoading}
-                platformRef="disney"
                 onInfo={handleOpenInfo}
+                onPlay={handlePlay}
               />
 
-              <MovieRow
+              <DisneyRow
                 title="مارفل وستار وورز"
                 subtitle="أكشن ومغامرة وخيال علمي"
                 movies={marvelStarWars}
-                accentColor="#E23636"
                 loading={moviesLoading}
-                platformRef="disney"
                 onInfo={handleOpenInfo}
+                onPlay={handlePlay}
               />
 
-              <MovieRow
+              <DisneyRow
                 title="مسلسلات أنيميشن"
                 subtitle="مسلسلات كرتونية مميزة"
                 movies={[...(animationTv || []), ...(animationTv2 || [])]}
-                accentColor="#6BCB77"
                 loading={tvLoading}
-                platformRef="disney"
                 onInfo={handleOpenInfo}
+                onPlay={handlePlay}
               />
 
-              <MovieRow
+              <DisneyRow
                 title="عائلي وأطفال"
                 subtitle="للعائلات والأطفال"
                 movies={familyKids}
-                accentColor="#FFE818"
                 loading={moviesLoading}
-                platformRef="disney"
                 onInfo={handleOpenInfo}
+                onPlay={handlePlay}
               />
 
-              <MovieRow
+              <DisneyRow
                 title="ناشونال جيوغرافيك"
                 subtitle="وثائقيات مذهلة"
                 movies={documentaries}
-                accentColor="#FFCC00"
                 loading={moviesLoading}
-                platformRef="disney"
                 onInfo={handleOpenInfo}
+                onPlay={handlePlay}
               />
 
-              <MovieRow
+              <DisneyRow
                 title="الأكثر تقييماً"
                 subtitle="أفضل أفلام الأنيميشن"
                 movies={top10}
-                accentColor={theme.primary}
                 loading={moviesLoading}
-                platformRef="disney"
                 onInfo={handleOpenInfo}
+                onPlay={handlePlay}
               />
             </>
           )}

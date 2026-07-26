@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Play, Star, Tv, Info, Heart } from 'lucide-react';
+import { Play, Tv, Info, Heart } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getTMDBTrailer } from '@/lib/api';
@@ -57,7 +57,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
   const backdropUrl = movie.backdrop_path || '';
   const imgSrc = posterUrl.startsWith('http') ? posterUrl : posterUrl ? `https://image.tmdb.org/t/p/w500${posterUrl}` : '';
   const backdropSrc = backdropUrl ? `https://image.tmdb.org/t/p/w780${backdropUrl}` : imgSrc;
-  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
+  const rating = movie.vote_average ? Math.round(movie.vote_average * 10) : null;
   const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
   const genreNames = movie.genres?.slice(0, 2).map(g => g.name).join('، ') || movie.genre || '';
   const overview = movie.overview || '';
@@ -244,8 +244,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
         </motion.div>
 
         <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-black/70 backdrop-blur-md text-[10px] sm:text-xs border border-white/10">
-          <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 fill-yellow-400" />
-          <span className="text-white font-semibold">{rating}</span>
+          <span className="text-emerald-400 font-bold">{rating}%</span>
         </div>
 
         <div className="absolute top-1.5 sm:top-2 left-1.5 sm:left-2 flex gap-1">
@@ -265,9 +264,8 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
         <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-zinc-500 flex-wrap">
           {year && <span className="mixed-text" dir="auto">{year}</span>}
           {rating && (
-            <span className="flex items-center gap-0.5">
-              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-500 fill-yellow-500" />
-              {rating}
+            <span className="flex items-center gap-0.5 text-emerald-400 font-semibold">
+              {rating}%
             </span>
           )}
         </div>
@@ -324,9 +322,8 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
               <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] text-zinc-400">
                 {year && <span>{year}</span>}
                 {rating && (
-                  <span className="flex items-center gap-0.5">
-                    <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-500 fill-yellow-500" />
-                    {rating}
+                  <span className="flex items-center gap-0.5 text-emerald-400 font-semibold">
+                    {rating}% Match
                   </span>
                 )}
                 {genreNames && <span>{genreNames}</span>}

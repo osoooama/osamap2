@@ -255,6 +255,15 @@ function AnimeRow({ title, subtitle, animeList, loading, onPlay }: { title: stri
 function ContinueWatching({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a: AnimeEntry) => void }) {
   if (animes.length === 0) return null;
 
+  const getProgress = (id: number): number => {
+    try {
+      const raw = localStorage.getItem('osk_watch_progress');
+      if (!raw) return 0;
+      const progress = JSON.parse(raw);
+      return progress[String(id)]?.progress || 0;
+    } catch { return 0; }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -264,8 +273,8 @@ function ContinueWatching({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a
       </div>
       <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
         {animes.slice(0, 8).map((anime, i) => {
-          const progress = Math.floor(Math.random() * 80) + 10;
-          const minsLeft = Math.floor(Math.random() * 20) + 2;
+          const progress = getProgress(anime.id) || ((i + 1) * 12) % 80 + 10;
+          const minsLeft = Math.max(2, 24 - Math.floor(progress * 0.24));
           return (
             <div key={anime.id} onClick={() => onPlay(anime)} className="flex-shrink-0 w-[260px] sm:w-[300px] cursor-pointer group/watch">
               <div className="relative rounded overflow-hidden bg-[#23252b]">
@@ -287,7 +296,7 @@ function ContinueWatching({ animes, onPlay }: { animes: AnimeEntry[]; onPlay: (a
                   </div>
                   {/* Time badge */}
                   <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] font-semibold text-white">
-                    {minsLeft} دقيقة
+                    {minsLeft} دقيقة متبقية
                   </div>
                 </div>
                 {/* Progress bar */}

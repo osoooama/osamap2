@@ -40,11 +40,11 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onInfo?.(movie)}
     >
-      <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-200 shadow-md shadow-gray-900/20 transition-all duration-300 group-hover:scale-[1.03] group-hover:shadow-xl group-hover:shadow-gray-900/30">
+      <div className="relative aspect-video rounded-lg overflow-hidden bg-zinc-800 shadow-md shadow-black/20 transition-all duration-300 group-hover:scale-[1.03] group-hover:shadow-xl group-hover:shadow-black/30">
         {imgSrc && !imgError ? (
           <>
             {!imgLoaded && (
-              <div className="absolute inset-0 bg-gray-300 animate-pulse" />
+              <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
             )}
             <img
               src={imgSrc}
@@ -56,8 +56,8 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
             />
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-            <span className="text-gray-500 text-3xl font-bold">{title[0]}</span>
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+            <span className="text-zinc-600 text-3xl font-bold">{title[0]}</span>
           </div>
         )}
 

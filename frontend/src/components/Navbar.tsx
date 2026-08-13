@@ -9,10 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const platforms = [
-  { name: 'Netflix', href: '/netflix', color: '#E50914', logo: '/netflix.png' },
-  { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid_logo.svg' },
-  { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disneyplus.svg' },
-  { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.png' },
+  { name: 'Netflix', href: '/netflix', color: '#E50914', logo: '/netflix.webp' },
+  { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid.webp' },
+  { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disney.webp' },
+  { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.webp' },
   { name: 'المباريات', href: '/sports', color: '#22c55e', icon: Trophy },
   { name: 'بث مباشر', href: '/live', color: '#3b82f6', icon: Tv },
 ];
@@ -144,12 +144,9 @@ export default function Navbar() {
                         <Image src={p.logo} alt={p.name} width={32} height={32} className="w-full h-full object-cover" />
                       </div>
                     ) : 'icon' in p && p.icon ? (
-                      <>
-                        <p.icon className="w-4 h-4 shrink-0" style={{ color: active ? p.color : undefined }} />
-                        <span style={active ? { color: p.color } : undefined}>{p.name}</span>
-                      </>
+                      <p.icon className="w-4 h-4 shrink-0" style={{ color: active ? p.color : undefined }} />
                     ) : null}
-                    {'icon' in p && <span style={active ? { color: p.color } : undefined}>{p.name}</span>}
+                    <span style={active ? { color: p.color } : undefined}>{p.name}</span>
                   </Link>
                 );
               })}
@@ -215,12 +212,9 @@ export default function Navbar() {
                         <Image src={p.logo} alt={p.name} width={32} height={32} className="w-full h-full object-cover" />
                       </div>
                     ) : 'icon' in p && p.icon ? (
-                      <>
-                        <p.icon className="w-5 h-5 shrink-0" style={{ color: active ? p.color : undefined }} />
-                        <span style={active ? { color: p.color } : undefined}>{p.name}</span>
-                      </>
+                      <p.icon className="w-5 h-5 shrink-0" style={{ color: active ? p.color : undefined }} />
                     ) : null}
-                    {'icon' in p && <span style={active ? { color: p.color } : undefined}>{p.name}</span>}
+                    <span style={active ? { color: p.color } : undefined}>{p.name}</span>
                   </Link>
                 );
               })}

@@ -13,7 +13,7 @@ const links = [
   { text: 'معلومات الشركة', href: '#' },
 ];
 
-export default function NetflixFooter() {
+export default function SiteFooter() {
   return (
     <footer className="bg-[#0a0a0a] border-t border-white/5 mt-8">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

@@ -2,7 +2,7 @@
 
 import { useMovies } from '@/hooks/useMovies';
 import DisneyRow from '@/components/DisneyRow';
-import NetflixFooter from '@/components/NetflixFooter';
+import SiteFooter from '@/components/NetflixFooter';
 import NetflixModal from '@/components/NetflixModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, ChevronDown, Plus, Check, Play, Info } from 'lucide-react';
@@ -106,9 +106,9 @@ function HeroBanner({ movies, isLoading, onInfo, onPlay }: { movies: any[]; isLo
         )}
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0C111B]/95 via-[#0C111B]/40 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0C111B] via-transparent to-black/20" />
-      <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-[#0C111B] via-[#0C111B]/80 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/95 via-[#0a0a0a]/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-black/20" />
+      <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
 
       <div className="absolute bottom-[18%] sm:bottom-[22%] md:bottom-[25%] left-0 right-0 px-4 sm:px-8 md:px-14 lg:px-20">
         <AnimatePresence mode="wait">
@@ -274,7 +274,7 @@ export default function DisneyPage() {
   const brandName = selectedBrand ? BRANDS.find(b => b.id === selectedBrand)?.label : null;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0C111B' }}>
+    <div className="min-h-screen bg-[#0a0a0a]">
       <HeroBanner movies={allAnimation || []} isLoading={moviesLoading} onInfo={handleOpenInfo} onPlay={handlePlay} />
 
       <div className="relative z-10 -mt-12 sm:-mt-16 md:-mt-20">
@@ -350,7 +350,7 @@ export default function DisneyPage() {
         </div>
       </div>
 
-      <NetflixFooter />
+      <SiteFooter />
 
       <NetflixModal
         visible={modalVisible}

@@ -4,7 +4,7 @@ import { useMovies } from '@/hooks/useMovies';
 import MovieRow from '@/components/MovieRow';
 import Top10Row from '@/components/Top10Row';
 import ContinueWatchingRow from '@/components/ContinueWatchingRow';
-import NetflixFooter from '@/components/NetflixFooter';
+import SiteFooter from '@/components/NetflixFooter';
 import NetflixModal from '@/components/NetflixModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, ChevronDown } from 'lucide-react';
@@ -360,7 +360,7 @@ export default function NetflixPage() {
         </div>
       </div>
 
-      <NetflixFooter />
+      <SiteFooter />
 
       <NetflixModal
         visible={modalVisible}

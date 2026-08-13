@@ -9,9 +9,7 @@ const IPTV_SOURCES = [
 ];
 
 const EPG_SOURCES = [
-  'https://iptv-org.github.io/epg/guides/ara/epg.xml',
-  'https://iptv-org.github.io/epg/guides/tur/epg.xml',
-  'https://iptv-org.github.io/epg/grid.json',
+  'https://epg.112114.xyz/channels.json',
 ];
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
@@ -185,31 +183,48 @@ export interface EPGProgram {
 
 export async function getEPG(channelId?: string): Promise<EPGProgram[]> {
   try {
-    const { data } = await axios.get(EPG_SOURCES[2], {
+    const { data } = await axios.get(EPG_SOURCES[0], {
       timeout: 15000,
       headers: { 'User-Agent': 'OSAMADev/2.0' },
     });
 
-    if (!Array.isArray(data)) return [];
+    if (!data) return [];
 
-    let programs = data;
+    let channels: Array<Record<string, unknown>> = [];
 
-    if (channelId) {
-      const channel = await Channel.findOne({ channel_id: channelId }).lean();
-      if (channel) {
-        programs = data.filter((p: Record<string, unknown>) =>
-          String(p.channel || '').toLowerCase().includes(channel.name.toLowerCase().slice(0, 10))
-        );
+    if (Array.isArray(data)) {
+      channels = data;
+    } else if (data.channels && Array.isArray(data.channels)) {
+      channels = data.channels;
+    }
+
+    const programs: EPGProgram[] = [];
+
+    for (const ch of channels.slice(0, 50)) {
+      const chName = String(ch.name || ch.id || '');
+      const chPrograms = ch.programs || ch.epg || [];
+
+      if (channelId) {
+        const channel = await Channel.findOne({ channel_id: channelId }).lean();
+        if (channel && !chName.toLowerCase().includes(channel.name.toLowerCase().slice(0, 10))) {
+          continue;
+        }
+      }
+
+      if (Array.isArray(chPrograms)) {
+        for (const p of chPrograms.slice(0, 5)) {
+          programs.push({
+            channel: chName,
+            title: String((p as Record<string, unknown>).title || ''),
+            start: String((p as Record<string, unknown>).start || ''),
+            end: String((p as Record<string, unknown>).end || ''),
+            description: (p as Record<string, unknown>).description ? String((p as Record<string, unknown>).description) : undefined,
+          });
+        }
       }
     }
 
-    return programs.slice(0, 100).map((p: Record<string, unknown>) => ({
-      channel: String(p.channel || ''),
-      title: String(p.title || ''),
-      start: String(p.start || ''),
-      end: String(p.end || ''),
-      description: p.description ? String(p.description) : undefined,
-    }));
+    return programs.slice(0, 100);
   } catch (err) {
     console.error('[IPTV] EPG fetch error:', err);
     return [];

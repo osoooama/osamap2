@@ -18,40 +18,53 @@ function urlToProvider(url: string): string {
   }
 }
 
-export async function getEmbedUrls(tmdbId: string, mediaType: 'movie' | 'tv', season?: number, episode?: number): Promise<EmbedSource[]> {
+function generateEmbedUrls(tmdbId: string, mediaType: 'movie' | 'tv', season?: number, episode?: number): EmbedSource[] {
   const sources: EmbedSource[] = [];
+  const t = tmdbId;
 
-  try {
-    const { buildMovieSources, buildTvSources } = await import('tmdb-embed-providers');
-
-    if (mediaType === 'movie') {
-      const urls: string[] = buildMovieSources(Number(tmdbId));
-      for (const url of urls) {
-        if (url) {
-          sources.push({
-            url,
-            provider: urlToProvider(url),
-            type: 'embed',
-          });
-        }
-      }
-    } else if (mediaType === 'tv' && season && episode) {
-      const urls: string[] = buildTvSources(Number(tmdbId), season, episode);
-      for (const url of urls) {
-        if (url) {
-          sources.push({
-            url,
-            provider: urlToProvider(url),
-            type: 'embed',
-          });
-        }
-      }
+  if (mediaType === 'movie') {
+    const patterns = [
+      { url: `https://vidfast.pro/movie/${t}?autoPlay=true`, provider: 'vidfast' },
+      { url: `https://vidlink.pro/movie/${t}`, provider: 'vidlink' },
+      { url: `https://vidsrc.pm/embed/movie/${t}`, provider: 'vidsrc' },
+      { url: `https://www.2embed.skin/embed/${t}`, provider: '2embed' },
+      { url: `https://vidsrc.to/embed/movie/${t}`, provider: 'vidsrc' },
+      { url: `https://vidsrc.cc/v2/embed/movie/${t}`, provider: 'vidsrc' },
+      { url: `https://www.2embed.cc/embed/${t}`, provider: '2embed' },
+      { url: `https://www.nontongo.win/embed/${t}`, provider: 'nontongo' },
+      { url: `https://autoembed.co/movie/tmdb/${t}`, provider: 'autoembed' },
+      { url: `https://moviesapi.to/movie/${t}`, provider: 'moviesapi' },
+      { url: `https://player.smashystream.com/playere.php?tmdb=${t}`, provider: 'smashystream' },
+      { url: `https://frembed.icu/api/film.php?id=${t}`, provider: 'frembed' },
+    ];
+    for (const p of patterns) {
+      sources.push({ url: p.url, provider: p.provider, type: 'embed' });
     }
-  } catch (err) {
-    console.error('[EMBED] Error generating embed URLs:', err);
+  } else if (mediaType === 'tv' && season && episode) {
+    const patterns = [
+      { url: `https://vidfast.pro/tv/${t}/${season}/${episode}?autoPlay=true`, provider: 'vidfast' },
+      { url: `https://vidlink.pro/tv/${t}/${season}/${episode}`, provider: 'vidlink' },
+      { url: `https://vidsrc.pm/embed/tv/${t}/${season}/${episode}`, provider: 'vidsrc' },
+      { url: `https://www.2embed.skin/embed/${t}?s=${season}&e=${episode}`, provider: '2embed' },
+      { url: `https://vidsrc.to/embed/tv/${t}/${season}/${episode}`, provider: 'vidsrc' },
+      { url: `https://vidsrc.cc/v2/embed/tv/${t}/${season}/${episode}`, provider: 'vidsrc' },
+      { url: `https://www.2embed.cc/embed/${t}?s=${season}&e=${episode}`, provider: '2embed' },
+      { url: `https://www.nontongo.win/embed/${t}?s=${season}&e=${episode}`, provider: 'nontongo' },
+      { url: `https://autoembed.co/tv/tmdb/${t}/${season}/${episode}`, provider: 'autoembed' },
+      { url: `https://moviesapi.to/tv/${t}/${season}/${episode}`, provider: 'moviesapi' },
+      { url: `https://player.smashystream.com/playere.php?tmdb=${t}&season=${season}&episode=${episode}`, provider: 'smashystream' },
+      { url: `https://frembed.icu/api/serie.php?id=${t}&sa=${season}&epi=${episode}`, provider: 'frembed' },
+    ];
+    for (const p of patterns) {
+      sources.push({ url: p.url, provider: p.provider, type: 'embed' });
+    }
   }
 
   return sources;
+}
+
+export async function getEmbedUrls(tmdbId: string, mediaType: 'movie' | 'tv', season?: number, episode?: number): Promise<EmbedSource[]> {
+  return generateEmbedUrls(tmdbId, mediaType, season, episode);
 }
 
 export async function getEmbedFromApi(tmdbId: string, mediaType: 'movie' | 'tv'): Promise<EmbedSource[]> {

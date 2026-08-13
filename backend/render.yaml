@@ -14,3 +14,14 @@ services:
         sync: false
       - key: PORT
         value: 5000
+
+  - type: web
+    name: osamap2-embed-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.embed-api
+    envVars:
+      - key: TMDB_API_KEY
+        sync: false
+      - key: PORT
+        value: 8787

@@ -183,7 +183,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
       onClick={handleMobileTap}
       className="relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] lg:w-[200px] cursor-pointer z-0 hover:z-50 group"
     >
-      <div className="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-[0_8px_40px_-8px_rgba(201,168,76,0.3)] group-hover:scale-[1.05] group-hover:-translate-y-1 ring-0 group-hover:ring-1 ring-[#C9A84C]/20">
+      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 transition-all duration-500 group-hover:scale-[1.03] group-hover:-translate-y-1" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
         {imgSrc && !imgError ? (
           <>
             {!imgLoaded && (

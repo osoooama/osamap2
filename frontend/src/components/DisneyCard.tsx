@@ -42,7 +42,7 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onInfo?.(movie)}
     >
-      <div className="relative aspect-video rounded-lg overflow-hidden bg-zinc-800 shadow-md shadow-black/20 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-[0_8px_40px_-8px_rgba(201,168,76,0.25)] ring-0 group-hover:ring-1 ring-[#C9A84C]/20">
+      <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-800 transition-all duration-500 group-hover:scale-[1.02]" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
         {imgSrc && !imgError ? (
           <>
             {!imgLoaded && (

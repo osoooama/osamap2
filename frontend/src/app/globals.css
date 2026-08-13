@@ -41,7 +41,7 @@
 }
 
 body {
-  font-family: var(--font-arabic-body), 'Inter', sans-serif;
+  font-family: var(--font-arabic-body), 'Outfit', sans-serif;
   line-height: 1.7;
   letter-spacing: 0.01em;
   overflow-wrap: break-word;
@@ -55,8 +55,8 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-arabic-display), var(--font-arabic-body), sans-serif;
-  line-height: 1.4;
-  letter-spacing: 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 p, span, div, a, button, input, textarea, select, option, li, label {
@@ -156,11 +156,11 @@ p, span, div, a, button, input, textarea, select, option, li, label {
 }
 
 @utility font-arabic-body {
-  font-family: var(--font-arabic-body), 'Inter', sans-serif;
+  font-family: var(--font-arabic-body), 'Outfit', sans-serif;
 }
 
 @utility font-english {
-  font-family: var(--font-english), 'Inter', sans-serif;
+  font-family: var(--font-english), 'Outfit', sans-serif;
 }
 
 @utility glass {
@@ -188,7 +188,8 @@ p, span, div, a, button, input, textarea, select, option, li, label {
   background: rgba(26, 26, 26, 0.8);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 @utility text-gradient-brand {
@@ -258,12 +259,11 @@ p, span, div, a, button, input, textarea, select, option, li, label {
 }
 
 @utility card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @utility card-hover:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 30px rgba(201, 168, 76, 0.15), 0 0 0 1px rgba(201, 168, 76, 0.1);
 }
 
 /* === Mobile & PWA Fixes === */

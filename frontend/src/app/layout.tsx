@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Reem_Kufi, Alexandria, Inter } from "next/font/google";
+import { Reem_Kufi, Alexandria, Outfit } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Navbar from "@/components/Navbar";
@@ -18,7 +18,7 @@ const alexandria = Alexandria({
   weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-const inter = Inter({
+const outfit = Outfit({
   variable: "--font-english",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -37,22 +37,22 @@ export const metadata: Metadata = {
   },
   other: {
     "mobile-web-app-capable": "yes",
-    "theme-color": "#0a0a0a",
+    "theme-color": "#0A0A0A",
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" className={`${reemKufi.variable} ${alexandria.variable} ${inter.variable} dark h-full`}>
+    <html lang="ar" className={`${reemKufi.variable} ${alexandria.variable} ${outfit.variable} dark h-full`}>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="OSK+" />
         <meta name="application-name" content="OSK+" />
-        <link rel="apple-touch-icon" href="/logo.webp" />
-        <link rel="apple-touch-icon-precomposed" href="/logo.webp" />
-        <link rel="mask-icon" href="/icon.svg" color="#059669" />
+        <link rel="apple-touch-icon" href="/logo_new.jpg" />
+        <link rel="apple-touch-icon-precomposed" href="/logo_new.jpg" />
+        <link rel="mask-icon" href="/icon.svg" color="#C9A84C" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased font-arabic-body">
         <script

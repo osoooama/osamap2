@@ -1,8 +1,8 @@
-name: IPTV Refresh
+name: IPTV Refresh & Cleanup
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -11,10 +11,20 @@ jobs:
     steps:
       - name: Refresh IPTV Channels
         run: |
-          echo "Refreshing IPTV channels..."
+          echo "Refreshing IPTV channels from all sources..."
           curl -s -X POST "${{ secrets.BACKEND_URL || 'https://osamap2.onrender.com' }}/api/channels/refresh" | jq .
           
+      - name: Cleanup Dead Channels
+        run: |
+          echo "Cleaning up dead channels..."
+          curl -s -X POST "${{ secrets.BACKEND_URL || 'https://osamap2.onrender.com' }}/api/channels/cleanup" | jq .
+
       - name: Get Channel Stats
         run: |
           echo "Channel statistics:"
           curl -s "${{ secrets.BACKEND_URL || 'https://osamap2.onrender.com' }}/api/channels/stats" | jq .
+
+      - name: Get Channel Health
+        run: |
+          echo "Channel health:"
+          curl -s "${{ secrets.BACKEND_URL || 'https://osamap2.onrender.com' }}/api/channels/health" | jq .

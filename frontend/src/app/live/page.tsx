@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Tv, Search, Play, Radio, Film, X, RefreshCw, Wifi, Globe, Baby, Newspaper, Swords, Music, BookOpen, Clapperboard } from 'lucide-react';
+import { Tv, Search, Play, Radio, X, RefreshCw, Wifi, Globe, Baby, Newspaper, Swords, Music, BookOpen, Clapperboard, Circle, AlertTriangle, Loader2 } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://osamap2.onrender.com';
 
@@ -13,6 +13,17 @@ interface Channel {
   category: string;
   logo_url?: string;
   stream_type: 'live' | 'movie' | 'series';
+  source: string;
+  is_alive: boolean;
+  last_checked: string;
+}
+
+interface ChannelHealth {
+  total: number;
+  alive: number;
+  dead: number;
+  healthPercent: number;
+  lastChecked: string | null;
 }
 
 const CATEGORY_ICONS: Record<string, typeof Tv> = {
@@ -50,7 +61,10 @@ export default function LivePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [channelCount, setChannelCount] = useState(0);
+  const [health, setHealth] = useState<ChannelHealth | null>(null);
+  const [playerError, setPlayerError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<{ destroy: () => void } | null>(null);
 
   const fetchChannels = useCallback(async () => {
     setLoading(true);
@@ -75,10 +89,95 @@ export default function LivePage() {
     }
   }, []);
 
+  const fetchHealth = useCallback(async () => {
+    try {
+      const resp = await fetch(`${API_URL}/api/channels/health`);
+      const data = await resp.json();
+      setHealth(data);
+    } catch {
+      // silent
+    }
+  }, []);
+
   useEffect(() => {
     fetchChannels();
     fetchCategories();
-  }, [fetchChannels, fetchCategories]);
+    fetchHealth();
+  }, [fetchChannels, fetchCategories, fetchHealth]);
+
+  useEffect(() => {
+    return () => {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+    };
+  }, []);
+
+  const initPlayer = useCallback(async (channel: Channel) => {
+    setPlayerError(false);
+
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+
+    const url = channel.stream_url;
+
+    if (url.includes('.m3u8')) {
+      try {
+        const Hls = (await import('hls.js')).default;
+        if (Hls.isSupported() && videoRef.current) {
+          const hls = new Hls({
+            maxBufferLength: 30,
+            maxMaxBufferLength: 60,
+            enableWorker: true,
+          });
+          hlsRef.current = hls as unknown as { destroy: () => void };
+          hls.loadSource(url);
+          hls.attachMedia(videoRef.current);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            videoRef.current?.play().catch(() => {});
+          });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          hls.on(Hls.Events.ERROR, (_: any, data: any) => {
+            if (data.fatal) {
+              setPlayerError(true);
+            }
+          });
+        } else if (videoRef.current) {
+          videoRef.current.src = url;
+          videoRef.current.play().catch(() => {});
+        }
+      } catch {
+        if (videoRef.current) {
+          videoRef.current.src = url;
+          videoRef.current.play().catch(() => {});
+        }
+      }
+    } else if (videoRef.current) {
+      videoRef.current.src = url;
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
+  const handleSelectChannel = useCallback((channel: Channel) => {
+    setSelectedChannel(channel);
+    setTimeout(() => initPlayer(channel), 100);
+  }, [initPlayer]);
+
+  const handleClosePlayer = useCallback(() => {
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.src = '';
+    }
+    setSelectedChannel(null);
+    setPlayerError(false);
+  }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -86,6 +185,7 @@ export default function LivePage() {
       await fetch(`${API_URL}/api/channels/refresh`, { method: 'POST' });
       await fetchChannels();
       await fetchCategories();
+      await fetchHealth();
     } catch {
       // silent
     }
@@ -115,7 +215,13 @@ export default function LivePage() {
             <div>
               <h1 className="text-white font-bold text-lg">بث مباشر</h1>
               <p className="text-zinc-500 text-[10px]">
-                {channelCount > 0 ? `${channelCount} قناة متاحة` : 'قنوات IPTV'}
+                {channelCount > 0 ? `${channelCount} قناة` : 'قنوات IPTV'}
+                {health && (
+                  <span className="mr-2">
+                    <Circle className={`inline w-1.5 h-1.5 fill-current ${health.healthPercent > 70 ? 'text-green-500' : health.healthPercent > 40 ? 'text-yellow-500' : 'text-red-500'}`} />
+                    {' '}{health.healthPercent}% تعمل
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -126,18 +232,12 @@ export default function LivePage() {
               className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-zinc-400 text-xs font-medium hover:bg-white/10 transition disabled:opacity-50"
               aria-label="تحديث القنوات"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
               تحديث
             </button>
             {selectedChannel && (
               <button
-                onClick={() => {
-                  setSelectedChannel(null);
-                  if (videoRef.current) {
-                    videoRef.current.pause();
-                    videoRef.current.src = '';
-                  }
-                }}
+                onClick={handleClosePlayer}
                 className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs font-medium hover:bg-red-500/20 transition"
                 aria-label="إغلاق البث"
               >
@@ -158,34 +258,39 @@ export default function LivePage() {
             className="mb-6"
           >
             <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden">
-              {selectedChannel.stream_url.includes('.m3u8') || selectedChannel.stream_url.includes('.mp4') ? (
+              {playerError ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900">
+                  <AlertTriangle className="w-12 h-12 text-yellow-500 mb-3" />
+                  <p className="text-white font-medium">القناة غير متاحة حالياً</p>
+                  <p className="text-zinc-500 text-sm mt-1">قد يكون الرابط معطلاً أو غير مدعوم</p>
+                  <button
+                    onClick={handleClosePlayer}
+                    className="mt-4 px-4 py-2 bg-white/10 rounded-lg text-white text-sm hover:bg-white/20 transition"
+                  >
+                    إغلاق المشغل
+                  </button>
+                </div>
+              ) : (
                 <video
                   ref={videoRef}
                   key={selectedChannel.channel_id}
-                  src={selectedChannel.stream_url}
                   className="w-full h-full"
                   controls
                   autoPlay
                   playsInline
-                />
-              ) : (
-                <iframe
-                  key={selectedChannel.channel_id}
-                  src={selectedChannel.stream_url}
-                  className="w-full h-full border-0"
-                  allowFullScreen
-                  allow="autoplay; encrypted-media; fullscreen"
                 />
               )}
             </div>
             <div className="mt-2 flex items-center justify-between">
               <div>
                 <h2 className="text-white font-semibold text-sm">{selectedChannel.name}</h2>
-                <p className="text-zinc-500 text-[10px]">{selectedChannel.category}</p>
+                <p className="text-zinc-500 text-[10px]">{selectedChannel.category} • {selectedChannel.source}</p>
               </div>
-              <div className="flex items-center gap-1">
-                <Wifi className="w-3 h-3 text-green-500" />
-                <span className="text-green-500 text-[10px] font-medium"> LIVE</span>
+              <div className="flex items-center gap-1.5">
+                <Circle className={`w-2 h-2 fill-current ${selectedChannel.is_alive ? 'text-green-500' : 'text-red-500'}`} />
+                <span className={`text-[10px] font-medium ${selectedChannel.is_alive ? 'text-green-500' : 'text-red-500'}`}>
+                  {selectedChannel.is_alive ? 'LIVE' : 'OFFLINE'}
+                </span>
               </div>
             </div>
           </motion.div>
@@ -268,12 +373,17 @@ export default function LivePage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: Math.min(i * 0.02, 0.5) }}
-                onClick={() => setSelectedChannel(ch)}
+                onClick={() => handleSelectChannel(ch)}
                 className={`relative group bg-zinc-900/50 border border-white/5 rounded-xl p-3 text-right hover:bg-zinc-900/80 transition-all ${
                   selectedChannel?.channel_id === ch.channel_id ? 'ring-2 ring-red-500/50' : ''
                 }`}
                 aria-label={`تشغيل ${ch.name}`}
               >
+                {/* Health indicator */}
+                <div className="absolute top-2 left-2">
+                  <Circle className={`w-2 h-2 fill-current ${ch.is_alive ? 'text-green-500' : 'text-red-500'}`} />
+                </div>
+
                 {ch.logo_url ? (
                   <img src={ch.logo_url} alt="" className="w-full aspect-square object-contain rounded-lg mb-2 bg-zinc-800/50" loading="lazy" />
                 ) : (

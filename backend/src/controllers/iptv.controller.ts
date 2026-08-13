@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Channel from '../models/Channel.model';
-import { refreshIptvChannels, getChannelStats, getEPG } from '../services/iptv.service';
+import { refreshIptvChannels, cleanupDeadChannels, getChannelStats, getEPG } from '../services/iptv.service';
 
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -8,10 +8,12 @@ function escapeRegex(str: string): string {
 
 export const getChannels = async (req: Request, res: Response) => {
   try {
-    const { category, type, search } = req.query;
+    const { category, type, search, source, alive } = req.query;
     const filter: Record<string, unknown> = { is_active: true };
     if (category) filter.category = String(category);
     if (type) filter.stream_type = String(type);
+    if (source) filter.source = String(source);
+    if (alive !== undefined) filter.is_alive = alive === 'true';
     if (search) filter.name = { $regex: escapeRegex(String(search)), $options: 'i' };
 
     const channels = await Channel.find(filter).sort({ name: 1 }).limit(500);
@@ -50,12 +52,30 @@ export const refreshChannels = async (_req: Request, res: Response) => {
     res.json({
       message: 'Refresh complete',
       added: result.added,
-      totalParsed: result.total,
+      updated: result.updated,
+      totalParsed: result.totalParsed,
       errors: result.errors,
     });
   } catch (err) {
     console.error('Error refreshing channels:', err);
     res.status(500).json({ error: 'Failed to refresh channels' });
+  }
+};
+
+export const cleanupChannels = async (_req: Request, res: Response) => {
+  try {
+    console.log('[IPTV] Manual cleanup triggered');
+    const result = await cleanupDeadChannels();
+    res.json({
+      message: 'Cleanup complete',
+      checked: result.checked,
+      alive: result.alive,
+      removed: result.removed,
+      errors: result.errors,
+    });
+  } catch (err) {
+    console.error('Error cleaning up channels:', err);
+    res.status(500).json({ error: 'Failed to cleanup channels' });
   }
 };
 
@@ -66,6 +86,26 @@ export const getChannelStatsController = async (_req: Request, res: Response) =>
   } catch (err) {
     console.error('Error fetching stats:', err);
     res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+};
+
+export const getChannelHealth = async (_req: Request, res: Response) => {
+  try {
+    const total = await Channel.countDocuments({ is_active: true });
+    const alive = await Channel.countDocuments({ is_active: true, is_alive: true });
+    const dead = total - alive;
+    const lastChecked = await Channel.findOne({}).sort({ last_checked: -1 }).select('last_checked -_id').lean();
+
+    res.json({
+      total,
+      alive,
+      dead,
+      healthPercent: total > 0 ? Math.round((alive / total) * 100) : 0,
+      lastChecked: lastChecked?.last_checked || null,
+    });
+  } catch (err) {
+    console.error('Error fetching health:', err);
+    res.status(500).json({ error: 'Failed to fetch health' });
   }
 };
 

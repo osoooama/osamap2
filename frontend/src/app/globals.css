@@ -262,7 +262,7 @@ p, span, div, a, button, input, textarea, select, option, li, label {
   transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-@utility card-hover:hover {
+.card-hover:hover {
   transform: translateY(-4px) scale(1.02);
 }
 

@@ -8,6 +8,12 @@ const IPTV_SOURCES = [
   },
 ];
 
+const EPG_SOURCES = [
+  'https://iptv-org.github.io/epg/guides/ara/epg.xml',
+  'https://iptv-org.github.io/epg/guides/tur/epg.xml',
+  'https://iptv-org.github.io/epg/grid.json',
+];
+
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
   'Sports': ['sport', 'football', 'soccer', 'basketball', 'tennis', 'golf', 'f1', 'nba', 'nfl', 'mlb', 'ufc', 'mma', 'boxing', 'bein', 'espn', 'sky sport', 'dazn', 'canal+ sport', 'match', 'ryze', 'supersport', ' premier league', ' la liga', ' bundesliga', ' serie a', ' ligue 1', ' champions league'],
   'Kids': ['kid', 'child', 'baby', 'cartoon', 'disney', 'nickelodeon', 'cartoon network', 'boomerang', 'junior', 'popeye', 'paw patrol', 'barbie', 'ben 10', 'tom and jerry'],
@@ -167,4 +173,45 @@ export async function getChannelStats(): Promise<{
   typeAgg.forEach((a: { _id: string; count: number }) => { byType[a._id] = a.count; });
 
   return { total, byCategory, byType, lastUpdated: lastChannel?.last_updated || null };
+}
+
+export interface EPGProgram {
+  channel: string;
+  title: string;
+  start: string;
+  end: string;
+  description?: string;
+}
+
+export async function getEPG(channelId?: string): Promise<EPGProgram[]> {
+  try {
+    const { data } = await axios.get(EPG_SOURCES[2], {
+      timeout: 15000,
+      headers: { 'User-Agent': 'OSAMADev/2.0' },
+    });
+
+    if (!Array.isArray(data)) return [];
+
+    let programs = data;
+
+    if (channelId) {
+      const channel = await Channel.findOne({ channel_id: channelId }).lean();
+      if (channel) {
+        programs = data.filter((p: Record<string, unknown>) =>
+          String(p.channel || '').toLowerCase().includes(channel.name.toLowerCase().slice(0, 10))
+        );
+      }
+    }
+
+    return programs.slice(0, 100).map((p: Record<string, unknown>) => ({
+      channel: String(p.channel || ''),
+      title: String(p.title || ''),
+      start: String(p.start || ''),
+      end: String(p.end || ''),
+      description: p.description ? String(p.description) : undefined,
+    }));
+  } catch (err) {
+    console.error('[IPTV] EPG fetch error:', err);
+    return [];
+  }
 }

@@ -17,11 +17,11 @@ services:
 
   - type: web
     name: osamap2-embed-api
-    runtime: docker
+    runtime: node
     plan: free
-    dockerfilePath: ./Dockerfile.embed-api
+    rootDir: embed-api
+    buildCommand: npm install
+    startCommand: node server.js
     envVars:
-      - key: TMDB_API_KEY
-        sync: false
       - key: PORT
         value: 8787

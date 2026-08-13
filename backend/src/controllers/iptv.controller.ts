@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Channel from '../models/Channel.model';
-import { refreshIptvChannels, getChannelStats } from '../services/iptv.service';
+import { refreshIptvChannels, getChannelStats, getEPG } from '../services/iptv.service';
 
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -66,5 +66,16 @@ export const getChannelStatsController = async (_req: Request, res: Response) =>
   } catch (err) {
     console.error('Error fetching stats:', err);
     res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+};
+
+export const getEPGController = async (req: Request, res: Response) => {
+  try {
+    const channelId = req.query.channel as string;
+    const programs = await getEPG(channelId);
+    res.json({ programs, count: programs.length });
+  } catch (err) {
+    console.error('Error fetching EPG:', err);
+    res.status(500).json({ error: 'Failed to fetch EPG' });
   }
 };

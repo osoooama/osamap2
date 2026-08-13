@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+import Link from 'next/link';
 import { Mail, GitBranch } from 'lucide-react';
 
 const links = [
@@ -15,13 +17,22 @@ const links = [
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-[#0a0a0a] border-t border-white/5 mt-8">
+    <footer className="bg-[#0A0A0A] border-t border-[#C9A84C]/5 mt-8">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex items-center gap-3 mb-6">
-          <a href="mailto:osamakreshan49@gmail.com" className="text-zinc-500 hover:text-white transition-colors">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-lg overflow-hidden ring-1 ring-[#C9A84C]/20 group-hover:ring-[#C9A84C]/40 transition-all">
+              <Image src="/logo_new.jpg" alt="OSK+" width={32} height={32} className="w-full h-full object-cover" />
+            </div>
+            <span className="text-white font-bold font-arabic-display">OSK<span className="text-[#C9A84C]">+</span></span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3 mb-6">
+          <a href="mailto:osamakreshan49@gmail.com" className="text-zinc-500 hover:text-[#C9A84C] transition-colors">
             <Mail className="w-5 h-5" />
           </a>
-          <a href="https://github.com/osoooama" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-white transition-colors">
+          <a href="https://github.com/osoooama" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#C9A84C] transition-colors">
             <GitBranch className="w-5 h-5" />
           </a>
         </div>
@@ -31,14 +42,14 @@ export default function SiteFooter() {
             <a
               key={link.text}
               href={link.href}
-              className="text-zinc-500 hover:text-zinc-300 text-xs sm:text-sm transition-colors underline-offset-4 hover:underline"
+              className="text-zinc-500 hover:text-[#C9A84C] text-xs sm:text-sm transition-colors underline-offset-4 hover:underline"
             >
               {link.text}
             </a>
           ))}
         </div>
 
-        <button className="border border-zinc-600 px-3 py-1.5 text-zinc-500 text-xs rounded hover:text-white hover:border-zinc-400 transition-colors mb-4">
+        <button className="border border-[#C9A84C]/20 px-3 py-1.5 text-zinc-500 text-xs rounded hover:text-[#C9A84C] hover:border-[#C9A84C]/40 transition-colors mb-4">
           خدمة العملاء
         </button>
 

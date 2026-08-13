@@ -183,7 +183,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
       onClick={handleMobileTap}
       className="relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] lg:w-[200px] cursor-pointer z-0 hover:z-50 group"
     >
-      <div className="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-[0_8px_40px_-8px_rgba(0,0,0,0.8)] group-hover:scale-[1.05] group-hover:-translate-y-1">
+      <div className="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-[0_8px_40px_-8px_rgba(201,168,76,0.3)] group-hover:scale-[1.05] group-hover:-translate-y-1 ring-0 group-hover:ring-1 ring-[#C9A84C]/20">
         {imgSrc && !imgError ? (
           <>
             {!imgLoaded && (
@@ -211,7 +211,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
         {watchProgress > 0 && (
           <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-zinc-800/80">
             <div
-              className="h-full bg-emerald-500 transition-all duration-300"
+              className="h-full bg-[#C9A84C] transition-all duration-300"
               style={{ width: `${Math.min(watchProgress, 100)}%` }}
             />
           </div>
@@ -243,8 +243,8 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
           )}
         </motion.div>
 
-        <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-black/70 backdrop-blur-md text-[10px] sm:text-xs border border-white/10">
-          <span className="text-emerald-400 font-bold">{rating}%</span>
+        <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-black/70 backdrop-blur-md text-[10px] sm:text-xs border border-[#C9A84C]/20">
+          <span className="text-[#C9A84C] font-bold">{rating}%</span>
         </div>
 
         <div className="absolute top-1.5 sm:top-2 left-1.5 sm:left-2 flex gap-1">
@@ -264,7 +264,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
         <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-zinc-500 flex-wrap">
           {year && <span className="mixed-text" dir="auto">{year}</span>}
           {rating && (
-            <span className="flex items-center gap-0.5 text-emerald-400 font-semibold">
+            <span className="flex items-center gap-0.5 text-[#C9A84C] font-semibold">
               {rating}%
             </span>
           )}
@@ -322,7 +322,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
               <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] text-zinc-400">
                 {year && <span>{year}</span>}
                 {rating && (
-                  <span className="flex items-center gap-0.5 text-emerald-400 font-semibold">
+                  <span className="flex items-center gap-0.5 text-[#C9A84C] font-semibold">
                     {rating}% Match
                   </span>
                 )}

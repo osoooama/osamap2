@@ -67,7 +67,7 @@ function FloatingOrbs() {
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
         className="absolute top-[-15%] left-[-5%] w-[50%] h-[50%] rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(5,150,105,0.12) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%)' }}
         animate={{ x: [0, 30, -20, 0], y: [0, -30, 20, 0] }}
         transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
       />
@@ -85,11 +85,11 @@ function FloatingOrbs() {
       />
       <motion.div
         className="absolute top-[50%] left-[20%] w-80 h-80 rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(0,202,151,0.08) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%)' }}
         animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.7, 0.3] }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.02)_0%,transparent_70%)]" />
     </div>
   );
 }
@@ -99,7 +99,7 @@ function PlatformCard({ p, index }: { p: typeof platforms[0]; index: number }) {
     <motion.div variants={itemVariants} custom={index}>
       <Link href={p.href} className="group block">
         <div
-          className={`relative h-[320px] sm:h-[380px] rounded-2xl overflow-hidden transition-all duration-500 ${p.bgGradient} border border-white/5 hover:border-white/20`}
+          className={`relative h-[320px] sm:h-[380px] rounded-2xl overflow-hidden transition-all duration-500 ${p.bgGradient} border border-white/5 hover:border-[#C9A84C]/20`}
         >
           <motion.div
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -108,14 +108,14 @@ function PlatformCard({ p, index }: { p: typeof platforms[0]; index: number }) {
 
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
             <motion.div
-              className="w-24 h-24 rounded-2xl overflow-hidden mb-5 ring-2 ring-white/5 group-hover:ring-white/20 transition-all"
+              className="w-24 h-24 rounded-2xl overflow-hidden mb-5 ring-2 ring-white/5 group-hover:ring-[#C9A84C]/30 transition-all"
               whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
               transition={{ duration: 0.3 }}
             >
               <Image src={p.logo} alt={p.name} width={96} height={96} className="w-full h-full object-cover" />
             </motion.div>
 
-            <h3 className="text-2xl font-bold text-white mb-1">{p.name}</h3>
+            <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-[#C9A84C] transition-colors">{p.name}</h3>
             <p className="text-sm font-medium mb-3" style={{ color: p.color }}>{p.tagline}</p>
             <p className="text-zinc-500 text-sm leading-relaxed max-w-[200px]">{p.desc}</p>
           </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="min-h-screen bg-[#0a0a0a] relative overflow-hidden"
+          className="min-h-screen bg-[#0A0A0A] relative overflow-hidden"
         >
           <FloatingOrbs />
 
@@ -158,9 +158,9 @@ export default function HomePage() {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-zinc-300 text-sm mb-8 border border-white/10"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-zinc-300 text-sm mb-8 border border-[#C9A84C]/10"
               >
-                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <Sparkles className="w-4 h-4 text-[#C9A84C]" />
                 <span>منصة البث المتكاملة - 4 منصات في مكان واحد</span>
               </motion.div>
 
@@ -171,14 +171,14 @@ export default function HomePage() {
                 className="flex items-center justify-center gap-6 mb-6"
               >
                 <motion.div
-                  className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-4 ring-white/10 shadow-2xl shadow-emerald-600/20"
+                  className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-4 ring-[#C9A84C]/20 shadow-2xl shadow-[#C9A84C]/10"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <Image src="/logo.webp" alt="OSK+" width={112} height={112} className="w-full h-full object-cover" />
+                  <Image src="/logo_new.jpg" alt="OSK+" width={112} height={112} className="w-full h-full object-cover" />
                 </motion.div>
                 <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tight font-arabic-display">
                   OSK
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A84C] via-[#D4B96A] to-[#E8D5A0]">
                     +
                   </span>
                 </h1>
@@ -203,15 +203,15 @@ export default function HomePage() {
               >
                   <Link
                     href="/netflix"
-                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-600/25 overflow-hidden"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-[#C9A84C] to-[#A8893D] text-black font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-[#C9A84C]/25 overflow-hidden"
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      <Play className="w-5 h-5 fill-white" />
+                      <Play className="w-5 h-5 fill-current" />
                       ابدأ المشاهدة
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-600"
+                      className="absolute inset-0 bg-gradient-to-r from-[#D4B96A] to-[#C9A84C]"
                       animate={{ opacity: [0, 0.5, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
@@ -224,7 +224,7 @@ export default function HomePage() {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <ChevronDown className="w-6 h-6 text-zinc-600" />
+              <ChevronDown className="w-6 h-6 text-[#C9A84C]/30" />
             </motion.div>
           </section>
 
@@ -262,7 +262,7 @@ export default function HomePage() {
               >
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
-                    { number: '4', label: 'منصات بث', color: '#E50914' },
+                    { number: '4', label: 'منصات بث', color: '#C9A84C' },
                     { number: '80+', label: 'موقع زحف', color: '#00ca97' },
                     { number: '10K+', label: 'فيلم ومسلسل', color: '#113CCF' },
                     { number: '16', label: 'مزودات تشغيل', color: '#F47521' },
@@ -273,7 +273,7 @@ export default function HomePage() {
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.1 }}
-                      className="glass rounded-2xl p-6 text-center hover:border-white/20 transition-all duration-300"
+                      className="glass rounded-2xl p-6 text-center hover:border-[#C9A84C]/20 transition-all duration-300"
                     >
                       <p className="text-3xl sm:text-4xl font-black mb-1" style={{ color: stat.color }}>
                         {stat.number}

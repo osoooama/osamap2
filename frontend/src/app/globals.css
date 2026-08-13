@@ -10,32 +10,34 @@
   --font-arabic-display: var(--font-arabic-display);
   --font-arabic-body: var(--font-arabic-body);
   --font-english: var(--font-english);
-  --color-brand: #059669;
-  --color-brand-light: #10b981;
-  --color-brand-dark: #047857;
-  --color-brand-glow: rgba(5, 150, 105, 0.3);
+  --color-brand: #C9A84C;
+  --color-brand-light: #D4B96A;
+  --color-brand-dark: #A8893D;
+  --color-brand-glow: rgba(201, 168, 76, 0.3);
   --color-netflix: #E50914;
   --color-shahid: #00ca97;
   --color-disney: #113CCF;
   --color-crunchyroll: #F47521;
   --color-glass: rgba(255, 255, 255, 0.05);
   --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-surface: #1A1A1A;
+  --color-surface-light: #242424;
 }
 
 :root {
-  --background: oklch(0.145 0 0);
+  --background: oklch(0.100 0 0);
   --foreground: oklch(0.985 0 0);
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --background: oklch(0.100 0 0);
   --foreground: oklch(0.985 0 0);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.08) transparent;
+  scrollbar-color: rgba(201, 168, 76, 0.15) transparent;
 }
 
 body {
@@ -48,6 +50,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  background: #0A0A0A;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -106,8 +109,13 @@ p, span, div, a, button, input, textarea, select, option, li, label {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(5, 150, 105, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(5, 150, 105, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(201, 168, 76, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(201, 168, 76, 0.6); }
+}
+
+@keyframes pulse-glow-brand {
+  0%, 100% { box-shadow: 0 0 15px rgba(201, 168, 76, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(201, 168, 76, 0.5); }
 }
 
 @keyframes gradient-shift {
@@ -124,6 +132,23 @@ p, span, div, a, button, input, textarea, select, option, li, label {
 @keyframes cardHover {
   0% { transform: translateY(0); }
   100% { transform: translateY(-8px); }
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-20px, 15px) scale(0.95); }
+  75% { transform: translate(15px, 25px) scale(1.02); }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 100% { border-color: transparent; }
+  50% { border-color: #C9A84C; }
 }
 
 @utility font-arabic-display {
@@ -153,14 +178,21 @@ p, span, div, a, button, input, textarea, select, option, li, label {
 }
 
 @utility glass-nav {
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+}
+
+@utility glass-card {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 @utility text-gradient-brand {
-  background: linear-gradient(135deg, #059669, #10b981, #34d399);
+  background: linear-gradient(135deg, #C9A84C, #D4B96A, #E8D5A0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -210,6 +242,30 @@ p, span, div, a, button, input, textarea, select, option, li, label {
   background: linear-gradient(180deg, rgba(244,117,33,0.12) 0%, rgba(244,117,33,0.04) 40%, transparent 100%);
 }
 
+@utility skeleton {
+  background: linear-gradient(90deg, #1A1A1A 25%, #242424 50%, #1A1A1A 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+@utility gold-border {
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+@utility gold-glow {
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.15), 0 0 40px rgba(201, 168, 76, 0.05);
+}
+
+@utility card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility card-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(201, 168, 76, 0.15), 0 0 0 1px rgba(201, 168, 76, 0.1);
+}
+
 /* === Mobile & PWA Fixes === */
 html {
   -webkit-tap-highlight-color: transparent;
@@ -226,24 +282,20 @@ body {
   overflow-x: hidden;
 }
 
-/* Fix 100vh on mobile browsers (address bar) */
 .min-h-screen {
   min-height: 100dvh;
 }
 
-/* Prevent overflow on mobile */
 img, video, iframe {
   max-width: 100%;
 }
 
-/* Better input readability on mobile */
 input, textarea, select {
   font-size: 16px !important;
   -webkit-user-select: text;
   user-select: text;
 }
 
-/* PWA standalone mode tweaks */
 @media (display-mode: standalone) {
   body {
     padding-top: env(safe-area-inset-top);
@@ -258,12 +310,18 @@ input, textarea, select {
   }
 }
 
-/* Android specific: smooth scrolling on scrollable containers only */
 .scrollbar-hide, .overflow-auto, .overflow-x-auto, .overflow-y-auto {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Custom scrollbar for dropdowns */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -271,20 +329,18 @@ input, textarea, select {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(201, 168, 76, 0.15);
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(201, 168, 76, 0.3);
 }
 
-/* Fix for mobile tap to play */
 button, a, [role="button"] {
   touch-action: manipulation;
   cursor: pointer;
 }
 
-/* Prevent pull-to-refresh on PWA */
 html {
   overscroll-behavior-y: none;
 }

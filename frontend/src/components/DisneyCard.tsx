@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Info } from 'lucide-react';
+import { Play, Info, Star } from 'lucide-react';
 
 interface DisneyCardProps {
   movie: {
@@ -27,6 +27,8 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
 
   const title = movie.title || 'غير معروف';
   const backdropUrl = movie.backdrop_path || '';
+  const rating = movie.vote_average ? Math.round(movie.vote_average * 10) : null;
+  const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
   const imgSrc = backdropUrl
     ? backdropUrl.startsWith('http')
       ? backdropUrl
@@ -40,17 +42,17 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onInfo?.(movie)}
     >
-      <div className="relative aspect-video rounded-lg overflow-hidden bg-zinc-800 shadow-md shadow-black/20 transition-all duration-300 group-hover:scale-[1.03] group-hover:shadow-xl group-hover:shadow-black/30">
+      <div className="relative aspect-video rounded-lg overflow-hidden bg-zinc-800 shadow-md shadow-black/20 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-[0_8px_40px_-8px_rgba(201,168,76,0.25)] ring-0 group-hover:ring-1 ring-[#C9A84C]/20">
         {imgSrc && !imgError ? (
           <>
             {!imgLoaded && (
-              <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
+              <div className="absolute inset-0 skeleton" />
             )}
             <img
               src={imgSrc}
               alt={title}
               loading="lazy"
-              className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-50 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImgLoaded(true)}
               onError={() => setImgError(true)}
             />
@@ -61,7 +63,15 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Rating badge */}
+        {rating && (
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] border border-[#C9A84C]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Star className="w-3 h-3 text-[#C9A84C] fill-[#C9A84C]" />
+            <span className="text-[#C9A84C] font-bold">{rating}%</span>
+          </div>
+        )}
 
         <AnimatePresence>
           {isHovered && (
@@ -74,14 +84,14 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
             >
               <button
                 onClick={(e) => { e.stopPropagation(); onPlay?.(movie); }}
-                className="flex items-center gap-1.5 px-4 py-2 bg-white text-black font-bold text-sm rounded-lg hover:bg-white/90 transition shadow-lg"
+                className="flex items-center gap-1.5 px-4 py-2 bg-white text-black font-bold text-sm rounded-lg hover:bg-[#C9A84C] hover:text-black transition shadow-lg"
               >
-                <Play className="w-4 h-4 fill-black" />
+                <Play className="w-4 h-4 fill-current" />
                 تشغيل
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onInfo?.(movie); }}
-                className="p-2 bg-white/20 backdrop-blur-md rounded-lg border border-white/30 text-white hover:bg-white/30 transition"
+                className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 text-white hover:bg-[#C9A84C]/20 hover:border-[#C9A84C]/30 transition"
               >
                 <Info className="w-4 h-4" />
               </button>
@@ -91,7 +101,8 @@ export default function DisneyCard({ movie, onInfo, onPlay }: DisneyCardProps) {
       </div>
 
       <div className="mt-2 px-1">
-        <h3 className="text-sm font-semibold text-white truncate">{title}</h3>
+        <h3 className="text-sm font-semibold text-white truncate transition-colors group-hover:text-[#C9A84C]">{title}</h3>
+        {year && <p className="text-[10px] text-zinc-500 mt-0.5">{year}</p>}
       </div>
     </div>
   );

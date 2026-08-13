@@ -1,22 +1,27 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Play, Info, Heart } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Play, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
+
+interface Top10Movie {
+  tmdb_id?: string;
+  poster?: string;
+  poster_path?: string;
+  title?: string;
+  [key: string]: unknown;
+}
 
 interface Top10RowProps {
   title: string;
   subtitle?: string;
-  movies: any[];
+  movies: Top10Movie[];
   accentColor?: string;
-  onInfo?: (movie: any) => void;
+  onInfo?: (movie: Top10Movie) => void;
 }
 
 export default function Top10Row({ title, subtitle, movies, accentColor = '#E50914', onInfo }: Top10RowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   if (!movies || movies.length === 0) return null;
@@ -42,12 +47,14 @@ export default function Top10Row({ title, subtitle, movies, accentColor = '#E509
 
       <div className="relative group/row">
         <button
+          aria-label="التمرير لليسار"
           onClick={() => scroll('left')}
           className="absolute left-0 top-0 bottom-0 z-20 w-12 bg-gradient-to-r from-[#0a0a0a] to-transparent flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
         >
           <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </button>
         <button
+          aria-label="التمرير لليمين"
           onClick={() => scroll('right')}
           className="absolute right-0 top-0 bottom-0 z-20 w-12 bg-gradient-to-l from-[#0a0a0a] to-transparent flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
         >
@@ -62,7 +69,7 @@ export default function Top10Row({ title, subtitle, movies, accentColor = '#E509
           {movies.slice(0, 10).map((movie, idx) => {
             const posterUrl = movie.poster || movie.poster_path || '';
             const imgSrc = posterUrl.startsWith('http') ? posterUrl : posterUrl ? `https://image.tmdb.org/t/p/w500${posterUrl}` : '';
-            const title = movie.title || 'غير معروف';
+            const movieTitle = movie.title || 'غير معروف';
             const isHovered = hoveredIdx === idx;
 
             return (
@@ -96,13 +103,13 @@ export default function Top10Row({ title, subtitle, movies, accentColor = '#E509
                     {imgSrc ? (
                       <img
                         src={imgSrc}
-                        alt={title}
+                        alt={movieTitle}
                         loading="lazy"
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
-                        <span className="text-zinc-600 text-3xl font-black">{title[0]}</span>
+                        <span className="text-zinc-600 text-3xl font-black">{movieTitle[0]}</span>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -116,6 +123,7 @@ export default function Top10Row({ title, subtitle, movies, accentColor = '#E509
                           className="absolute bottom-2 left-2 right-2 flex gap-1.5"
                         >
                           <button
+                            aria-label={`تشغيل ${movieTitle}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               if (movie.tmdb_id) onInfo?.(movie);
@@ -125,6 +133,7 @@ export default function Top10Row({ title, subtitle, movies, accentColor = '#E509
                             <Play className="w-3.5 h-3.5 fill-black text-black ml-0.5" />
                           </button>
                           <button
+                            aria-label={`معلومات ${movieTitle}`}
                             onClick={(e) => { e.stopPropagation(); onInfo?.(movie); }}
                             className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition"
                           >

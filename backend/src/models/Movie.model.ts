@@ -1,6 +1,6 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-interface IMovie extends Document {
+export interface IMovie {
   tmdb_id: string;
   title: string;
   overview: string;

@@ -7,6 +7,13 @@ const ANIME3RB_BASE = 'https://anime3rb.com';
 const FASELHD_BASE = 'https://fasselhd.com';
 const MYCIMA_BASE = 'https://mycima.video';
 const ARABSEED_BASE = 'https://arabseed.cam';
+const EGYBEST_BASE = 'https://egybest.org';
+const CIMACIMA_BASE = 'https://cimacima.com';
+const AKWAM_BASE = 'https://akwam.io';
+const CIMACLUB_BASE = 'https://cimaclub.cc';
+const MOVIZLAND_BASE = 'https://movizland.com';
+const HDFILM_BASE = 'https://hdfilmcehennemi.sh';
+const DIZIPAL_BASE = 'https://dizipal104.vip';
 
 const TMDB_KEY = process.env.TMDB_API_KEY || '';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
@@ -212,6 +219,174 @@ export async function resolveArabSeed(tmdbId: string): Promise<string | null> {
   return null;
 }
 
+export async function resolveEgyBest(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /egybest/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${EGYBEST_BASE}/search?q=${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': EGYBEST_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${EGYBEST_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `egybest.org/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveCimaCima(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /cimacima/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${CIMACIMA_BASE}/?s=${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': CIMACIMA_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${CIMACIMA_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `cimacima.com/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveAkwam(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /akwam/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${AKWAM_BASE}/search?q=${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': AKWAM_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${AKWAM_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `akwam.io/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveCimaClub(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /cimaclub/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${CIMACLUB_BASE}/?s=${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': CIMACLUB_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${CIMACLUB_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `cimaclub.cc/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveMovizLand(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /movizland/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${MOVIZLAND_BASE}/?s=${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': MOVIZLAND_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${MOVIZLAND_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `movizland.com/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveHDFilm(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /hdfilm/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${HDFILM_BASE}/search/${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': HDFILM_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${HDFILM_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `hdfilmcehennemi.sh/search?q=${title}`, category: 'turkish', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
+export async function resolveDizipal(tmdbId: string): Promise<string | null> {
+  const LinkModel = await getLinkModel();
+  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /dizipal/i });
+  if (existing) return (existing as any).embed_url;
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  try {
+    const { data } = await axios.get(`${DIZIPAL_BASE}/search/${encodeURIComponent(title)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': DIZIPAL_BASE }, timeout: 10000,
+    });
+    const href = extractUrl(data);
+    if (href) {
+      const url = href.startsWith('http') ? href : `${DIZIPAL_BASE}${href}`;
+      await LinkModel.updateOne({ embed_url: url }, {
+        $set: { tmdb_id: tmdbId, embed_url: url, source: `dizipal104.vip/search?q=${title}`, category: 'turkish', platform: 'shahid', is_active: true, last_checked: new Date() },
+      }, { upsert: true }).catch(() => {});
+      return url;
+    }
+  } catch {}
+  return null;
+}
+
 export async function resolveProvider(tmdbId: string, provider: string): Promise<string | null> {
   const LinkModel = await getLinkModel();
   const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true }).sort({ last_checked: -1 });
@@ -224,6 +399,13 @@ export async function resolveProvider(tmdbId: string, provider: string): Promise
     case 'faselhd': return resolveFaselHD(tmdbId);
     case 'mycima': return resolveMyCima(tmdbId);
     case 'arabseed': return resolveArabSeed(tmdbId);
+    case 'egybest': return resolveEgyBest(tmdbId);
+    case 'cimacima': return resolveCimaCima(tmdbId);
+    case 'akwam': return resolveAkwam(tmdbId);
+    case 'cimaclub': return resolveCimaClub(tmdbId);
+    case 'movizland': return resolveMovizLand(tmdbId);
+    case 'hdfilm': return resolveHDFilm(tmdbId);
+    case 'dizipal': return resolveDizipal(tmdbId);
     default: return null;
   }
 }

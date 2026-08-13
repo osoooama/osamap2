@@ -1,14 +1,7 @@
-import time, json, os, sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
+import time
+import json
 from playwright.sync_api import sync_playwright
-from sites.base import save_link, log_result
-import requests
-
-TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
-TMDB_BASE = 'https://api.themoviedb.org/3'
+from sites.base import save_link, log_result, get_tmdb_popular
 
 ANIME_TMDB_IDS = [
     {'id': 37854, 'title': 'One Piece', 'media_type': 'tv'},
@@ -24,19 +17,17 @@ ANIME_TMDB_IDS = [
 ]
 
 
-def get_tmdb_popular(media_type='tv', count=5):
+def get_popular_anime(count=5):
     ids = []
     for page in range(1, 4):
-        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=ar&page={page}&with_original_language=ja'
         try:
-            resp = requests.get(url, timeout=10)
-            if resp.ok:
-                for item in resp.json().get('results', []):
-                    ids.append({'id': item['id'], 'title': item.get('name', item.get('title', '')), 'media_type': media_type})
-                if len(ids) >= count:
-                    break
-        except Exception:
-            pass
+            items = get_tmdb_popular(language='ar', page=page, with_original_language='ja')
+            for item in items:
+                ids.append({'id': item['id'], 'title': item.get('name', item.get('title', '')), 'media_type': 'tv'})
+            if len(ids) >= count:
+                break
+        except Exception as e:
+            print(f'[ANIME3RB-v2] TMDB page {page} error: {e}')
     return ids[:count]
 
 
@@ -50,7 +41,7 @@ def crawl(site_info):
     base_url = f'https://{name}'
     print(f'[ANIME3RB-v2] Starting enhanced crawl for {name}...')
 
-    targets = get_tmdb_popular('tv', 5)
+    targets = get_popular_anime(5)
     seen_ids = set()
     for t in ANIME_TMDB_IDS:
         if t['id'] not in seen_ids:
@@ -58,6 +49,7 @@ def crawl(site_info):
             seen_ids.add(t['id'])
 
     total = 0
+    browser = None
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
@@ -72,20 +64,20 @@ def crawl(site_info):
 
                 try:
                     page.goto(ep_url, wait_until='domcontentloaded', timeout=20000)
-                    time.sleep(3)
+                    page.wait_for_timeout(3000)
 
                     if '404' in page.title() or page.query_selector('text=غير موجود'):
                         print(f'    Episode 1 not found, trying title page')
                         title_url = f'{base_url}/titles/{slug}'
                         page.goto(title_url, wait_until='domcontentloaded', timeout=20000)
-                        time.sleep(2)
+                        page.wait_for_timeout(2000)
                         ep_links = [a.get_attribute('href') for a in page.query_selector_all('a[href*="/episode/"]') if a.get_attribute('href')]
                         if not ep_links:
                             print(f'    No episodes found')
                             continue
                         ep_url = ep_links[0] if ep_links[0].startswith('http') else f'{base_url}{ep_links[0]}'
                         page.goto(ep_url, wait_until='domcontentloaded', timeout=20000)
-                        time.sleep(3)
+                        page.wait_for_timeout(3000)
 
                     iframe_el = page.query_selector('iframe[src*="vid3rb"]')
                     if iframe_el:
@@ -95,7 +87,7 @@ def crawl(site_info):
                         player_page = browser.new_page()
                         try:
                             player_page.goto(player_src, wait_until='domcontentloaded', timeout=30000)
-                            time.sleep(5)
+                            player_page.wait_for_timeout(5000)
 
                             sources_json = player_page.evaluate("""
                                 () => {
@@ -144,11 +136,13 @@ def crawl(site_info):
                 except Exception as e:
                     print(f'    Error: {e}')
 
-                time.sleep(1)
+                page.wait_for_timeout(1000)
 
-            browser.close()
     except Exception as e:
         print(f'[ANIME3RB-v2] Fatal: {e}')
+    finally:
+        if browser:
+            browser.close()
 
     log_result(base_url, category, total)
     print(f'[ANIME3RB-v2] {name}: {total} streams')

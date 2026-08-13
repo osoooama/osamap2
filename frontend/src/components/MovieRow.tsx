@@ -4,14 +4,20 @@ import { useRef, useState } from 'react';
 import MovieCard from './MovieCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+interface Movie {
+  tmdb_id?: string;
+  _id?: string;
+  [key: string]: unknown;
+}
+
 interface MovieRowProps {
   title: string;
   subtitle?: string;
-  movies: any[];
+  movies: Movie[];
   accentColor?: string;
   loading?: boolean;
   platformRef?: string;
-  onInfo?: (movie: any) => void;
+  onInfo?: (movie: Movie) => void;
   showSeeAll?: boolean;
 }
 
@@ -76,7 +82,7 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
           </div>
         </div>
         {showSeeAll && !loading && movies.length > 0 && (
-          <button className="text-zinc-500 hover:text-white text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 mr-auto">
+          <button aria-label="عرض الكل" className="text-zinc-500 hover:text-white text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 mr-auto">
             عرض الكل
             <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
@@ -87,6 +93,7 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
       <div className="relative">
         {canScrollLeft && (
           <button
+            aria-label="التمرير لليسار"
             onClick={() => scroll('left')}
             className="absolute -left-2 sm:left-0 top-0 bottom-3 z-20 w-10 sm:w-12 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-300 rounded-r-lg"
           >
@@ -95,6 +102,7 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
         )}
         {canScrollRight && (
           <button
+            aria-label="التمرير لليمين"
             onClick={() => scroll('right')}
             className="absolute -right-2 sm:right-0 top-0 bottom-3 z-20 w-10 sm:w-12 bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-300 rounded-l-lg"
           >
@@ -126,7 +134,7 @@ export default function MovieRow({ title, subtitle, movies, accentColor = '#E509
                   </div>
                 </div>
               ))
-            : movies.map((movie: any, i: number) => (
+            : movies.map((movie, i) => (
                 <div key={movie.tmdb_id || movie._id || i} className="flex-shrink-0 pointer-events-auto">
                   <MovieCard movie={movie} accentColor={accentColor} platformRef={platformRef} onInfo={onInfo} />
                 </div>

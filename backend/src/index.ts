@@ -17,9 +17,30 @@ import Movie from './models/Movie.model';
 import { seedAllCategories } from './services/tmdb.service';
 import { errorHandler } from './middleware/errorHandler';
 
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'TMDB_API_KEY'] as const;
+for (const key of requiredEnvVars) {
+  if (!process.env[key]) {
+    console.error(`❌ Missing required environment variable: ${key}`);
+    process.exit(1);
+  }
+}
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://osamap2.pages.dev',
+  'https://osamap2-frontend.pages.dev',
+];
+
 const app = express();
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '1mb' }));
@@ -85,3 +106,15 @@ mongoose.connect(process.env.MONGODB_URI!, { dbName: 'OSAMAP2_DB' }).then(async 
   await seedIfEmpty();
   app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
 }).catch(err => console.log('❌ DB Error:', err));
+
+process.on('SIGTERM', async () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  await mongoose.disconnect();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('🛑 SIGINT received, shutting down gracefully...');
+  await mongoose.disconnect();
+  process.exit(0);
+});

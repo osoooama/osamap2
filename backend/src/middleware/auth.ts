@@ -5,6 +5,13 @@ export interface AuthRequest extends Request {
   user?: { id: string; username: string };
 }
 
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET environment variable is required');
+  process.exit(1);
+}
+const JWT_SECRET_TYPED: string = JWT_SECRET;
+
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
@@ -12,7 +19,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   }
   try {
     const token = header.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; username: string };
+    const decoded = jwt.verify(token, JWT_SECRET_TYPED) as unknown as { id: string; username: string };
     req.user = decoded;
     next();
   } catch {

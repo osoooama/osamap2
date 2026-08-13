@@ -4,16 +4,34 @@ import Link from '../models/Link.model';
 import * as tmdb from '../services/tmdb.service';
 import { resolveProvider } from '../services/provider-resolver.service';
 
-const VALID_CATEGORIES = ['foreign', 'arabic', 'turkish', 'anime', 'animation'];
+const VALID_CATEGORIES = ['foreign', 'arabic', 'turkish', 'anime', 'animation'] as const;
 
 function sanitizeCategory(input: unknown): string | null {
   if (typeof input !== 'string') return null;
-  return VALID_CATEGORIES.includes(input) ? input : null;
+  return VALID_CATEGORIES.includes(input as typeof VALID_CATEGORIES[number]) ? input : null;
 }
 
 function sanitizeId(input: unknown): string | null {
   if (typeof input !== 'string') return null;
   return /^\d+$/.test(input) ? input : null;
+}
+
+function tmdbItemToDocument(item: Record<string, unknown>, category: string) {
+  return {
+    tmdb_id: String(item.tmdb_id || ''),
+    title: String(item.title || item.name || 'Unknown'),
+    overview: String(item.overview || ''),
+    poster_path: String(item.poster_path || ''),
+    backdrop_path: String(item.backdrop_path || ''),
+    media_type: String(item.media_type || 'movie'),
+    category,
+    images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
+    vote_average: Number(item.vote_average) || 0,
+    release_date: String(item.release_date || item.first_air_date || ''),
+    genre_ids: (item.genre_ids as number[]) || [],
+    original_language: String(item.original_language || ''),
+    popularity: Number(item.popularity) || 0,
+  };
 }
 
 export async function getMoviesByCategory(req: Request, res: Response) {
@@ -24,9 +42,9 @@ export async function getMoviesByCategory(req: Request, res: Response) {
     }
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
-    const type = req.query.type as string; // 'movie' | 'tv' | undefined (both)
+    const type = req.query.type as string;
 
-    const filter: any = { category };
+    const filter: Record<string, unknown> = { category };
     if (type === 'movie' || type === 'tv') filter.media_type = type;
 
     let movies = await Movie.find(filter)
@@ -36,21 +54,7 @@ export async function getMoviesByCategory(req: Request, res: Response) {
 
     if (movies.length === 0 && page === 1) {
       const tmdbResults = await tmdb.discoverByCategory(category);
-      const docs = tmdbResults.map((item: any) => ({
-        tmdb_id: item.tmdb_id,
-        title: item.title || item.name || 'Unknown',
-        overview: item.overview || '',
-        poster_path: item.poster_path || '',
-        backdrop_path: item.backdrop_path || '',
-        media_type: item.media_type || 'movie',
-        category,
-        images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
-        vote_average: item.vote_average || 0,
-        release_date: item.release_date || item.first_air_date || '',
-        genre_ids: item.genre_ids || [],
-        original_language: item.original_language || '',
-        popularity: item.popularity || 0,
-      }));
+      const docs = tmdbResults.map((item) => tmdbItemToDocument(item, category));
       if (docs.length > 0) {
         await Movie.insertMany(docs, { ordered: false }).catch(() => {});
         movies = await Movie.find(filter)
@@ -69,7 +73,8 @@ export async function getMoviesByCategory(req: Request, res: Response) {
     });
 
     res.json({ items: enriched, total, page, totalPages: Math.ceil(total / limit) });
-  } catch {
+  } catch (err) {
+    console.error('Error fetching movies:', err);
     res.status(500).json({ error: 'Failed to fetch movies' });
   }
 }
@@ -92,7 +97,7 @@ export async function getMovieDetails(req: Request, res: Response) {
           media_type: 'movie',
           vote_average: tmdbData.vote_average || 0,
           release_date: tmdbData.release_date || '',
-          genre_ids: tmdbData.genres?.map((g: any) => g.id) || [],
+          genre_ids: tmdbData.genres?.map((g: { id: number }) => g.id) || [],
           original_language: tmdbData.original_language || '',
           popularity: tmdbData.popularity || 0,
         });
@@ -108,7 +113,7 @@ export async function getMovieDetails(req: Request, res: Response) {
             media_type: 'tv',
             vote_average: tmdbData.vote_average || 0,
             release_date: tmdbData.first_air_date || '',
-            genre_ids: tmdbData.genres?.map((g: any) => g.id) || [],
+            genre_ids: tmdbData.genres?.map((g: { id: number }) => g.id) || [],
             original_language: tmdbData.original_language || '',
             popularity: tmdbData.popularity || 0,
           });
@@ -121,13 +126,13 @@ export async function getMovieDetails(req: Request, res: Response) {
     const links = await Link.find({ tmdb_id, is_active: true });
 
     const qualityRank: Record<string, number> = { '360p': 0, '480p': 1, '720p': 2, '1080p': 3, '2K': 4, '4K': 5 };
-    const sorted = [...links].sort((a: any, b: any) => (qualityRank[b.quality] || 0) - (qualityRank[a.quality] || 0));
+    const sorted = [...links].sort((a, b) => (qualityRank[b.quality] || 0) - (qualityRank[a.quality] || 0));
 
     const seen = new Set<string>();
-    const uniqueSources: any[] = [];
+    const uniqueSources: typeof links = [];
     const allUrls = new Set<string>();
     for (const l of sorted) {
-      const url = (l as any).embed_url || '';
+      const url = l.embed_url || '';
       if (url && !seen.has(url)) {
         seen.add(url);
         uniqueSources.push(l);
@@ -135,13 +140,13 @@ export async function getMovieDetails(req: Request, res: Response) {
       }
     }
 
-    const result: any = { ...movie.toObject(), links: uniqueSources };
+    const result: Record<string, unknown> = { ...movie.toObject(), links: uniqueSources };
     result.embed_urls = [...allUrls];
 
     if (movie.media_type === 'tv') {
       try {
         const tvData = await tmdb.getTVDetails(tmdb_id);
-        result.seasons = (tvData.seasons || []).map((s: any) => ({
+        result.seasons = (tvData.seasons || []).map((s: Record<string, unknown>) => ({
           season_number: s.season_number,
           episode_count: s.episode_count,
           name: s.name,
@@ -152,7 +157,7 @@ export async function getMovieDetails(req: Request, res: Response) {
         result.status = tvData.status;
         result.last_air_date = tvData.last_air_date;
       } catch {
-        // season data optional
+        // season data is optional
       }
     }
 
@@ -199,21 +204,7 @@ export async function seedDatabase(req: Request, res: Response) {
 
     for (const category of categories) {
       const results = await tmdb.seedCategoryFull(category, 10);
-      const docs = results.map((item: any) => ({
-        tmdb_id: item.tmdb_id,
-        title: item.title || item.name || 'Unknown',
-        overview: item.overview || '',
-        poster_path: item.poster_path || '',
-        backdrop_path: item.backdrop_path || '',
-        media_type: item.media_type || 'movie',
-        category,
-        images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
-        vote_average: item.vote_average || 0,
-        release_date: item.release_date || '',
-        genre_ids: item.genre_ids || [],
-        original_language: item.original_language || '',
-        popularity: item.popularity || 0,
-      }));
+      const docs = results.map((item) => tmdbItemToDocument(item, category));
 
       for (const doc of docs) {
         await Movie.updateOne({ tmdb_id: doc.tmdb_id }, { $set: doc }, { upsert: true });
@@ -222,7 +213,7 @@ export async function seedDatabase(req: Request, res: Response) {
 
     const counts = await Promise.all(
       categories.map(async (c) => {
-        const count = await Movie.countDocuments({ category: c as any });
+        const count = await Movie.countDocuments({ category: c } as Record<string, unknown>);
         return `${c}: ${count}`;
       })
     );
@@ -238,30 +229,16 @@ export async function seedCategory(req: Request, res: Response) {
   try {
     const category = sanitizeCategory(req.params.category);
     if (!category) return res.status(400).json({ error: 'Invalid category' });
-    const maxPages = parseInt(req.query.pages as string) || 10;
+    const maxPages = Math.min(parseInt(req.query.pages as string) || 10, 50);
 
     const results = await tmdb.seedCategoryFull(category, maxPages);
-    const docs = results.map((item: any) => ({
-      tmdb_id: item.tmdb_id,
-      title: item.title || item.name || 'Unknown',
-      overview: item.overview || '',
-      poster_path: item.poster_path || '',
-      backdrop_path: item.backdrop_path || '',
-      media_type: item.media_type || 'movie',
-      category,
-      images: { tmdb: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '' },
-      vote_average: item.vote_average || 0,
-      release_date: item.release_date || '',
-      genre_ids: item.genre_ids || [],
-      original_language: item.original_language || '',
-      popularity: item.popularity || 0,
-    }));
+    const docs = results.map((item) => tmdbItemToDocument(item, category));
 
     for (const doc of docs) {
       await Movie.updateOne({ tmdb_id: doc.tmdb_id }, { $set: doc }, { upsert: true });
     }
 
-    const count = await Movie.countDocuments({ category: category as any });
+    const count = await Movie.countDocuments({ category } as Record<string, unknown>);
     res.json({ message: `Seed complete for ${category}`, count });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Seed failed';

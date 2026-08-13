@@ -19,7 +19,8 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.7.4"
+    "mongoose": "^9.7.4",
+    "tmdb-embed-providers": "^0.1.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

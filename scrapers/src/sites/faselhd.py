@@ -1,15 +1,9 @@
-import re, os, sys, time
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
+import re
+import time
 from curl_cffi import requests as cffi
 import jsbeautifier
 from bs4 import BeautifulSoup
-from sites.base import save_link, save_all_qualities, log_result
-
-TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
-TMDB_BASE = 'https://api.themoviedb.org/3'
+from sites.base import save_link, save_all_qualities, log_result, get_tmdb_popular, encode_search_query
 
 FASEL_DOMAINS = ['faselhd.club', 'faselhd.ac', 'faselhd.pro', 'faselhd.cam']
 
@@ -20,29 +14,27 @@ HEADERS = {
 }
 
 
-def get_tmdb_popular(media_type='movie', count=10):
+def get_popular_ids(media_type='movie', count=10):
     ids = []
     for page_num in range(1, 4):
-        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=ar&page={page_num}'
         try:
-            resp = cffi.get(url, impersonate='chrome', timeout=10)
-            if resp.ok:
-                for item in resp.json().get('results', []):
-                    ids.append({
-                        'id': item['id'],
-                        'title': item.get('title') or item.get('name', ''),
-                        'year': (item.get('release_date') or '')[:4],
-                        'media_type': media_type,
-                    })
+            items = get_tmdb_popular(language='ar', page=page_num)
+            for item in items:
+                ids.append({
+                    'id': item['id'],
+                    'title': item.get('title') or item.get('name', ''),
+                    'year': (item.get('release_date') or '')[:4],
+                    'media_type': media_type,
+                })
             if len(ids) >= count:
                 break
-        except Exception:
-            pass
+        except Exception as e:
+            print(f'[FASELHD] TMDB page {page_num} error: {e}')
     return ids[:count]
 
 
 def search_fasel(base_url, query):
-    search_url = f'{base_url}/?s={query.replace(" ", "+")}'
+    search_url = f'{base_url}/?s={encode_search_query(query)}'
     try:
         resp = cffi.get(search_url, impersonate='chrome', timeout=15, headers=HEADERS)
         if not resp.ok:
@@ -96,8 +88,8 @@ def extract_stream_from_embed(embed_url):
                     if inner:
                         return inner
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(f'    [EMBED ERROR] {e}')
         if attempt < 1:
             time.sleep(1)
     return None
@@ -116,8 +108,8 @@ def crawl(site_info):
             if resp.status_code == 200 and 'fasel' in resp.text[:2000].lower():
                 base_url = f'https://{domain}'
                 break
-        except Exception:
-            pass
+        except Exception as e:
+            print(f'[FASELHD] Domain {domain} error: {e}')
 
     if not base_url:
         print(f'[FASELHD] No accessible domain found')
@@ -126,8 +118,8 @@ def crawl(site_info):
 
     print(f'[FASELHD] Using domain: {base_url}')
 
-    popular = get_tmdb_popular('movie', 10)
-    popular += get_tmdb_popular('tv', 10)
+    popular = get_popular_ids('movie', 10)
+    popular += get_popular_ids('tv', 10)
     print(f'[FASELHD] {len(popular)} TMDB titles to search')
 
     total = 0

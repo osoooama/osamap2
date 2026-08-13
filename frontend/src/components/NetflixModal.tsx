@@ -87,10 +87,11 @@ export default function NetflixModal({ visible, onClose, movie, accentColor = '#
     getMovieDetails(tmdbId).then(d => {
       if (d) {
         setFullDetails(d);
-        if (d.seasons) {
-          setTotalSeasons(d.seasons.length);
-          const ep = d.seasons.find((s: any) => s.season_number === currentSeason);
-          if (ep) setTotalEpisodes(ep.episode_count);
+        const seasons = d.seasons;
+        if (Array.isArray(seasons)) {
+          setTotalSeasons(seasons.length);
+          const ep = seasons.find((s: Record<string, unknown>) => s.season_number === currentSeason);
+          if (ep) setTotalEpisodes(ep.episode_count as number);
         }
       }
     }).catch(() => {});

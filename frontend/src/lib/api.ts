@@ -6,19 +6,31 @@ const api = axios.create({
 
 export default api;
 
-export async function getMovies(category: string, page = 1, type?: string) {
-  const params: any = { page };
+interface MoviesResponse {
+  items: Record<string, unknown>[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+interface SearchResponse {
+  local: Record<string, unknown>[];
+  tmdb: Record<string, unknown>[];
+}
+
+export async function getMovies(category: string, page = 1, type?: string): Promise<MoviesResponse> {
+  const params: Record<string, string | number> = { page };
   if (type) params.type = type;
   const { data } = await api.get(`/api/movies/category/${category}`, { params });
   return data;
 }
 
-export async function getMovieDetails(tmdb_id: string) {
+export async function getMovieDetails(tmdb_id: string): Promise<Record<string, unknown>> {
   const { data } = await api.get(`/api/movies/details/${tmdb_id}`);
   return data;
 }
 
-export async function searchMovies(query: string, category?: string) {
+export async function searchMovies(query: string, category?: string): Promise<SearchResponse> {
   const { data } = await api.get('/api/movies/search', { params: { q: query, category } });
   return data;
 }
@@ -44,7 +56,7 @@ export interface Subtitle {
 
 export async function getSubtitles(tmdbId: string, mediaType = 'movie', season?: number, episode?: number): Promise<Subtitle[]> {
   try {
-    const params: any = { type: mediaType };
+    const params: Record<string, string | number> = { type: mediaType };
     if (season) params.season = season;
     if (episode) params.episode = episode;
     const { data } = await api.get(`/api/subtitles/${tmdbId}`, { params });

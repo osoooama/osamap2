@@ -3,6 +3,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.model';
 
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET environment variable is required');
+  process.exit(1);
+}
+const JWT_SECRET_TYPED: string = JWT_SECRET;
+
 function sanitizeString(input: unknown): string {
   if (typeof input !== 'string') return '';
   return input.replace(/[<>"'`]/g, '').trim();
@@ -30,13 +37,14 @@ export async function register(req: Request, res: Response) {
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ username, password: hashed });
 
-    const token = jwt.sign({ id: user._id, username }, process.env.JWT_SECRET!, { expiresIn: '30d' });
+    const token = jwt.sign({ id: user._id, username }, JWT_SECRET_TYPED, { expiresIn: '30d' });
 
     res.status(201).json({
       token,
       user: { id: user._id, username: user.username },
     });
-  } catch {
+  } catch (err) {
+    console.error('Registration error:', err);
     res.status(500).json({ error: 'Registration failed' });
   }
 }
@@ -55,13 +63,14 @@ export async function login(req: Request, res: Response) {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: user._id, username }, process.env.JWT_SECRET!, { expiresIn: '30d' });
+    const token = jwt.sign({ id: user._id, username }, JWT_SECRET_TYPED, { expiresIn: '30d' });
 
     res.json({
       token,
       user: { id: user._id, username: user.username },
     });
-  } catch {
+  } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
   }
 }
@@ -73,7 +82,7 @@ export async function verifyToken(req: Request, res: Response) {
       return res.status(401).json({ error: 'No token' });
     }
     const token = header.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; username: string };
+    const decoded = jwt.verify(token, JWT_SECRET_TYPED) as unknown as { id: string; username: string };
     const user = await User.findById(decoded.id).select('username _id');
     if (!user) return res.status(401).json({ error: 'User not found' });
     res.json({ user: { id: user._id, username: user.username } });

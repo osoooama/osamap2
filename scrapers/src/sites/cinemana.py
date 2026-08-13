@@ -1,13 +1,7 @@
-import time, re, os, sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
+import time
+import re
 from playwright.sync_api import sync_playwright
-from sites.base import save_link, log_result
-import requests
-
-TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
+from sites.base import save_link, log_result, search_tmdb
 
 BASE = 'https://cinemana.cc'
 
@@ -22,22 +16,6 @@ CATEGORIES = [
 SERVER_URL = f'{BASE}/wp-content/themes/EEE/Inc/Ajax/Single/Server.php'
 
 QUALITY_MAP = {'1080': '1080p', '720': '720p', '480': '480p', '360': '360p'}
-
-TMDB_SEARCH = 'https://api.themoviedb.org/3/search/multi'
-
-
-def search_tmdb(title, api_key=TMDB_API_KEY):
-    if not title or len(title) < 3:
-        return None
-    try:
-        resp = requests.get(f'{TMDB_SEARCH}?api_key={api_key}&language=ar&query={title[:50]}', timeout=10)
-        if resp.ok:
-            results = resp.json().get('results', [])
-            if results:
-                return str(results[0]['id'])
-    except Exception:
-        pass
-    return None
 
 
 def extract_tmdb_id_from_page(page):
@@ -63,7 +41,7 @@ def crawl_category(browser, cat_info, limit=20):
 
     try:
         page.goto(url, wait_until='domcontentloaded', timeout=30000)
-        time.sleep(3)
+        page.wait_for_timeout(3000)
 
         watch_links = list(set(
             a.get_attribute('href')
@@ -77,7 +55,7 @@ def crawl_category(browser, cat_info, limit=20):
 
             try:
                 page.goto(link, wait_until='domcontentloaded', timeout=30000)
-                time.sleep(2)
+                page.wait_for_timeout(2000)
 
                 post_id = None
                 id_match = re.search(r'/watch=(\d+)', page.url)
@@ -92,6 +70,7 @@ def crawl_category(browser, cat_info, limit=20):
                 if not post_id:
                     continue
 
+                import requests
                 resp = requests.post(SERVER_URL, data={'post_id': post_id}, timeout=15,
                     headers={'User-Agent': 'Mozilla/5.0', 'Referer': link})
                 if not resp.ok:
@@ -120,7 +99,7 @@ def crawl_category(browser, cat_info, limit=20):
             except Exception as e:
                 print(f'    Error on {link}: {e}')
 
-            time.sleep(1)
+            page.wait_for_timeout(1000)
 
     except Exception as e:
         print(f'    Category error: {e}')
@@ -136,6 +115,7 @@ def crawl(site_info):
     print(f'[CINEMANA] Starting crawl for {name}...')
 
     total = 0
+    browser = None
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
@@ -145,9 +125,11 @@ def crawl(site_info):
                     count = crawl_category(browser, cat, limit=15)
                     total += count
 
-            browser.close()
     except Exception as e:
         print(f'[CINEMANA] Fatal: {e}')
+    finally:
+        if browser:
+            browser.close()
 
     log_result(f'{BASE}/main/', category, total)
     print(f'[CINEMANA] {name}: {total} streams')

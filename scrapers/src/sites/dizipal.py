@@ -1,15 +1,9 @@
-import re, os, sys, time
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
+import re
+import time
 from curl_cffi import requests as cffi
 import jsbeautifier
 from bs4 import BeautifulSoup
-from sites.base import save_link, save_all_qualities, log_result
-
-TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'b4905ea858601abd0565baa117b69b24')
-TMDB_BASE = 'https://api.themoviedb.org/3'
+from sites.base import save_link, save_all_qualities, log_result, get_tmdb_popular, encode_search_query
 
 DIZIPAL_DOMAINS = [
     'dizipal104.vip', 'dizipal105.com', 'dizipal106.com',
@@ -29,25 +23,23 @@ HEADERS = {
 }
 
 
-def get_tmdb_popular(media_type='movie', count=10):
+def get_popular_ids(media_type='movie', count=10):
     ids = []
     for page_num in range(1, 4):
-        url = f'{TMDB_BASE}/{media_type}/popular?api_key={TMDB_API_KEY}&language=tr&page={page_num}'
         try:
-            resp = cffi.get(url, impersonate='chrome', timeout=10)
-            if resp.ok:
-                for item in resp.json().get('results', []):
-                    ids.append({
-                        'id': item['id'],
-                        'title': item.get('title') or item.get('name', ''),
-                        'name': item.get('name', ''),
-                        'year': (item.get('release_date') or '')[:4],
-                        'media_type': media_type,
-                    })
+            items = get_tmdb_popular(language='tr', page=page_num)
+            for item in items:
+                ids.append({
+                    'id': item['id'],
+                    'title': item.get('title') or item.get('name', ''),
+                    'name': item.get('name', ''),
+                    'year': (item.get('release_date') or '')[:4],
+                    'media_type': media_type,
+                })
             if len(ids) >= count:
                 break
-        except Exception:
-            pass
+        except Exception as e:
+            print(f'[DIZIPAL] TMDB page {page_num} error: {e}')
     return ids[:count]
 
 
@@ -62,8 +54,8 @@ def find_active_domain():
                 if 'bilgilendirme' not in body_text.lower():
                     print(f'[DIZIPAL] Domain {domain} -> {final_domain}')
                     return f'https://{final_domain}'
-        except Exception:
-            pass
+        except Exception as e:
+            print(f'[DIZIPAL] Domain {domain} error: {e}')
     return None
 
 
@@ -155,7 +147,7 @@ def crawl(site_info):
 
     print(f'[DIZIPAL] Using domain: {base_url}')
 
-    popular = get_tmdb_popular('tv', 15)
+    popular = get_popular_ids('tv', 15)
     print(f'[DIZIPAL] {len(popular)} TMDB TV titles to search')
 
     total = 0

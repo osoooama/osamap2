@@ -3,7 +3,7 @@ import sys
 import re
 import requests
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -21,6 +21,8 @@ if DB_URI:
         db = client['OSAMAP2_DB']
         links_col = db['links']
         logs_col = db['crawl_logs']
+    except pymongo.errors.ConnectionFailure as e:
+        print(f'[DB INIT WARN] Connection failed: {e}')
     except Exception as e:
         print(f'[DB INIT WARN] {e}')
 
@@ -57,6 +59,69 @@ BLOCKED_PATH_PATTERNS = (
 STREAM_PROTOCOLS = ('http://', 'https://', 'rtmp://', 'rtmps://',
     'rtsp://', 'rtsps://', 'rtp://', 'udp://', 'srt://',
     'rist://', 'mms://')
+
+TMDB_API_KEY = os.getenv('TMDB_API_KEY')
+if not TMDB_API_KEY:
+    print('[WARN] TMDB_API_KEY not set in environment')
+
+_notifier_instance = None
+
+
+def _get_notifier():
+    global _notifier_instance
+    if _notifier_instance is None:
+        try:
+            from notifier import send_telegram_alert
+            _notifier_instance = send_telegram_alert
+        except ImportError:
+            print('[WARN] Could not import notifier module')
+            _notifier_instance = lambda *a, **kw: False
+    return _notifier_instance
+
+
+def get_tmdb_popular(language='ar', page=1, with_original_language=None):
+    if not TMDB_API_KEY:
+        return []
+    try:
+        params = {'api_key': TMDB_API_KEY, 'language': language, 'page': page}
+        if with_original_language:
+            params['with_original_language'] = with_original_language
+        resp = requests.get(
+            'https://api.themoviedb.org/3/movie/popular',
+            params=params, timeout=15
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get('results', [])
+    except requests.RequestException as e:
+        print(f'[TMDB] Popular fetch error: {e}')
+        return []
+    except (KeyError, ValueError) as e:
+        print(f'[TMDB] Popular parse error: {e}')
+        return []
+
+
+def search_tmdb(title, language='ar'):
+    if not TMDB_API_KEY or not title:
+        return None
+    try:
+        resp = requests.get(
+            'https://api.themoviedb.org/3/search/movie',
+            params={'api_key': TMDB_API_KEY, 'language': language, 'query': title[:80]},
+            timeout=15
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        results = data.get('results', [])
+        if results:
+            return results[0]
+    except (requests.RequestException, KeyError, ValueError) as e:
+        print(f'[TMDB] Search error for "{title[:50]}": {e}')
+    return None
+
+
+def encode_search_query(title):
+    return quote(str(title)[:80]) if title else ''
 
 
 def has_required_extension(url):
@@ -134,7 +199,8 @@ def parse_m3u8_playlists(master_url):
         if not variants:
             return [{'url': master_url, 'quality': '720p'}]
         return variants
-    except Exception:
+    except Exception as e:
+        print(f'[M3U8] Parse error for {master_url[:80]}: {e}')
         return [{'url': master_url, 'quality': '720p'}]
 
 
@@ -166,6 +232,8 @@ def verify_stream_url(url):
                 return False
             return True
         return False
+    except requests.RequestException:
+        return False
     except Exception:
         return False
 
@@ -187,7 +255,7 @@ def save_link(tmdb_id, source_url, stream_url, category, title=''):
                     'source': source_url,
                     'category': category,
                     'platform': CATEGORY_PLATFORM.get(category, category),
-                    'title': title,
+                    'title': str(title)[:500] if title else '',
                     'quality': quality,
                     'tmdb_id': str(tmdb_id) if tmdb_id else '',
                     'is_active': True,
@@ -195,14 +263,14 @@ def save_link(tmdb_id, source_url, stream_url, category, title=''):
                 }},
                 upsert=True,
             )
-        except Exception as e:
+        except pymongo.errors.PyMongoError as e:
             print(f'    [DB SAVE ERROR] {e}')
 
-    from notifier import send_telegram_alert
+    notify = _get_notifier()
     try:
-        send_telegram_alert(title, category, quality, stream_url)
-    except Exception:
-        pass
+        notify(title, category, quality, stream_url)
+    except Exception as e:
+        print(f'    [NOTIFY ERROR] {e}')
 
     return True
 
@@ -217,6 +285,7 @@ def save_all_qualities(tmdb_id, source_url, stream_url, category, title=''):
 
     variants = parse_m3u8_playlists(stream_url)
     saved = 0
+    notify = _get_notifier()
     for v in variants:
         if not is_media_url(v['url']):
             continue
@@ -229,7 +298,7 @@ def save_all_qualities(tmdb_id, source_url, stream_url, category, title=''):
                         'source': source_url,
                         'category': category,
                         'platform': CATEGORY_PLATFORM.get(category, category),
-                        'title': title,
+                        'title': str(title)[:500] if title else '',
                         'quality': v['quality'],
                         'tmdb_id': str(tmdb_id) if tmdb_id else '',
                         'is_active': True,
@@ -237,13 +306,12 @@ def save_all_qualities(tmdb_id, source_url, stream_url, category, title=''):
                     }},
                     upsert=True,
                 )
-            except Exception as e:
+            except pymongo.errors.PyMongoError as e:
                 print(f'    [DB SAVE ERROR] {e}')
-        from notifier import send_telegram_alert
         try:
-            send_telegram_alert(title, category, v['quality'], v['url'])
-        except Exception:
-            pass
+            notify(title, category, v['quality'], v['url'])
+        except Exception as e:
+            print(f'    [NOTIFY ERROR] {e}')
         saved += 1
     return saved
 
@@ -258,7 +326,7 @@ def log_result(url, category, streams_found, error=None):
             'error': error or '',
             'timestamp': datetime.now(timezone.utc),
         })
-    except Exception as e:
+    except pymongo.errors.PyMongoError as e:
         print(f'    [DB LOG ERROR] {e}')
 
 

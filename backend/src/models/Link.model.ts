@@ -1,6 +1,6 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-interface ILink extends Document {
+export interface ILink {
   tmdb_id: string;
   source: string;
   embed_url: string;

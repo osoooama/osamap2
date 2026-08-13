@@ -1,6 +1,6 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-interface IUser extends Document {
+export interface IUser {
   username: string;
   password: string;
   favorites: mongoose.Types.ObjectId[];

@@ -4,13 +4,19 @@ import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import DisneyCard from './DisneyCard';
 
+interface DisneyMovie {
+  tmdb_id?: string;
+  id?: string | number;
+  [key: string]: unknown;
+}
+
 interface DisneyRowProps {
   title: string;
   subtitle?: string;
-  movies: any[];
+  movies: DisneyMovie[];
   loading?: boolean;
-  onInfo?: (movie: any) => void;
-  onPlay?: (movie: any) => void;
+  onInfo?: (movie: DisneyMovie) => void;
+  onPlay?: (movie: DisneyMovie) => void;
 }
 
 export default function DisneyRow({ title, subtitle, movies, loading, onInfo, onPlay }: DisneyRowProps) {
@@ -51,6 +57,7 @@ export default function DisneyRow({ title, subtitle, movies, loading, onInfo, on
 
       <div className="relative">
         <button
+          aria-label="التمرير لليسار"
           onClick={() => scroll('left')}
           className="absolute left-0 top-0 bottom-8 w-12 z-10 bg-gradient-to-r from-[#0C111B] to-transparent flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
         >
@@ -73,6 +80,7 @@ export default function DisneyRow({ title, subtitle, movies, loading, onInfo, on
         </div>
 
         <button
+          aria-label="التمرير لليمين"
           onClick={() => scroll('right')}
           className="absolute right-0 top-0 bottom-8 w-12 z-10 bg-gradient-to-l from-[#0C111B] to-transparent flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
         >

@@ -1,5 +1,4 @@
-const TMDB_BASE = 'https://api.themoviedb.org/3';
-const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export interface ExternalMovie {
   id: number;
@@ -64,26 +63,25 @@ const GENRE_MAP: Record<number, string> = {
 };
 
 export async function fetchTrending(category: 'movie' | 'tv' = 'movie', timeWindow: 'day' | 'week' = 'week'): Promise<ExternalMovie[] | ExternalTVShow[]> {
-  const res = await fetch(`${TMDB_BASE}/trending/${category}/${timeWindow}?api_key=${TMDB_KEY}&language=ar`);
+  const res = await fetch(`${API_BASE}/api/tmdb/trending/${category}/${timeWindow}?language=ar`);
   if (!res.ok) throw new Error('فشل في جلب المحتوى الرائج');
   const data = await res.json();
   return data.results || [];
 }
 
 export async function fetchTopRated(category: 'movie' | 'tv' = 'movie'): Promise<ExternalMovie[] | ExternalTVShow[]> {
-  const res = await fetch(`${TMDB_BASE}/${category}/top_rated?api_key=${TMDB_KEY}&language=ar&page=1`);
+  const res = await fetch(`${API_BASE}/api/tmdb/top-rated/${category}?language=ar&page=1`);
   if (!res.ok) throw new Error('فشل في جلب الأعلى تقييماً');
   const data = await res.json();
   return data.results || [];
 }
 
 export async function searchTMDB(query: string, category?: 'movie' | 'tv'): Promise<(ExternalMovie | ExternalTVShow)[]> {
-  const multi = !category;
-  const endpoint = multi ? 'search/multi' : `search/${category}`;
-  const res = await fetch(`${TMDB_BASE}/${endpoint}?api_key=${TMDB_KEY}&language=ar&query=${encodeURIComponent(query)}`);
+  const endpoint = category || 'multi';
+  const res = await fetch(`${API_BASE}/api/tmdb/search/${endpoint}?q=${encodeURIComponent(query)}&language=ar`);
   if (!res.ok) throw new Error('فشل البحث');
   const data = await res.json();
-  return (data.results || []).filter((r: any) => r.media_type === 'movie' || r.media_type === 'tv');
+  return (data.results || []).filter((r: { media_type?: string }) => r.media_type === 'movie' || r.media_type === 'tv');
 }
 
 export async function fetchAniListTrending(page = 1, perPage = 20): Promise<AnimeEntry[]> {
@@ -114,21 +112,25 @@ export async function fetchAniListTrending(page = 1, perPage = 20): Promise<Anim
   if (!res.ok) throw new Error('خطأ في خدمة AniList');
   const data = await res.json();
 
-  return (data.data?.Page?.media || []).map((m: any) => ({
-    id: m.id,
-    anilist_id: m.id,
-    mal_id: m.idMal,
-    title: m.title.english || m.title.romaji || '',
-    title_japanese: m.title.native || '',
-    overview: stripHtml(m.description || '').substring(0, 300),
-    cover_image: m.coverImage?.large || '',
-    banner_image: m.bannerImage || '',
-    episodes: m.episodes,
-    status: m.status,
-    score: m.meanScore ? m.meanScore / 10 : undefined,
-    genres: m.genres || [],
-    media_type: 'anime' as const,
-  }));
+  return (data.data?.Page?.media || []).map((m: Record<string, unknown>) => {
+    const title = m.title as Record<string, string>;
+    const coverImage = m.coverImage as Record<string, string>;
+    return {
+      id: m.id as number,
+      anilist_id: m.id as number,
+      mal_id: m.idMal as number | undefined,
+      title: title.english || title.romaji || '',
+      title_japanese: title.native || '',
+      overview: stripHtml((m.description as string) || '').substring(0, 300),
+      cover_image: coverImage?.large || '',
+      banner_image: (m.bannerImage as string) || '',
+      episodes: m.episodes as number | undefined,
+      status: m.status as string,
+      score: m.meanScore ? (m.meanScore as number) / 10 : undefined,
+      genres: (m.genres as string[]) || [],
+      media_type: 'anime' as const,
+    };
+  });
 }
 
 export async function searchAniList(keyword: string, page = 1): Promise<AnimeEntry[]> {
@@ -158,21 +160,25 @@ export async function searchAniList(keyword: string, page = 1): Promise<AnimeEnt
   if (!res.ok) throw new Error('فشل البحث في AniList');
   const data = await res.json();
 
-  return (data.data?.Page?.media || []).map((m: any) => ({
-    id: m.id,
-    anilist_id: m.id,
-    mal_id: m.idMal,
-    title: m.title.english || m.title.romaji || '',
-    title_japanese: m.title.native || '',
-    overview: stripHtml(m.description || '').substring(0, 300),
-    cover_image: m.coverImage?.large || '',
-    banner_image: m.bannerImage || '',
-    episodes: m.episodes,
-    status: m.status,
-    score: m.meanScore ? m.meanScore / 10 : undefined,
-    genres: m.genres || [],
-    media_type: 'anime' as const,
-  }));
+  return (data.data?.Page?.media || []).map((m: Record<string, unknown>) => {
+    const title = m.title as Record<string, string>;
+    const coverImage = m.coverImage as Record<string, string>;
+    return {
+      id: m.id as number,
+      anilist_id: m.id as number,
+      mal_id: m.idMal as number | undefined,
+      title: title.english || title.romaji || '',
+      title_japanese: title.native || '',
+      overview: stripHtml((m.description as string) || '').substring(0, 300),
+      cover_image: coverImage?.large || '',
+      banner_image: (m.bannerImage as string) || '',
+      episodes: m.episodes as number | undefined,
+      status: m.status as string,
+      score: m.meanScore ? (m.meanScore as number) / 10 : undefined,
+      genres: (m.genres as string[]) || [],
+      media_type: 'anime' as const,
+    };
+  });
 }
 
 export async function fetchAniListById(id: number): Promise<AnimeEntry | null> {
@@ -202,14 +208,16 @@ export async function fetchAniListById(id: number): Promise<AnimeEntry | null> {
   const m = data.data?.Media;
   if (!m) return null;
 
+  const title = m.title as Record<string, string>;
+  const coverImage = m.coverImage as Record<string, string>;
   return {
     id: m.id,
     anilist_id: m.id,
     mal_id: m.idMal,
-    title: m.title.english || m.title.romaji || '',
-    title_japanese: m.title.native || '',
+    title: title.english || title.romaji || '',
+    title_japanese: title.native || '',
     overview: stripHtml(m.description || '').substring(0, 300),
-    cover_image: m.coverImage?.large || '',
+    cover_image: coverImage?.large || '',
     banner_image: m.bannerImage || '',
     episodes: m.episodes,
     status: m.status,

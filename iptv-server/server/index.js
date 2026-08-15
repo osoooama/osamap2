@@ -5,7 +5,7 @@ const cors = require('cors');
 const syncService = require('./services/syncService');
 
 // Initialize database
-try { require('./db/sqlite'); } catch(e) { console.warn('SQLite init:', e.message); }
+require('./db/sqlite');
 
 const app = express();
 const PORT = process.env.PORT || 4000;

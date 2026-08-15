@@ -3,6 +3,7 @@
 import { useMovies } from '@/hooks/useMovies';
 import MovieRow from '@/components/MovieRow';
 import InfoModal from '@/components/InfoModal';
+import NetflixFooter from '@/components/NetflixFooter';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Play, Info, Volume2, VolumeX, ChevronDown } from 'lucide-react';
@@ -205,6 +206,8 @@ export default function ShahidPage() {
             <MovieRow title="أفلام تركية" subtitle="أفلام تركية مميزة" movies={turkishMovies || []} accentColor="#f59e0b" loading={turkishMoviesLoading} platformRef="shahid" onInfo={handleOpenInfo} />
           </div>
         </div>
+
+        <NetflixFooter />
 
         <InfoModal visible={modalVisible} onClose={handleCloseInfo} movie={selectedMovie} accentColor={theme.primary} platformRef="shahid" />
       </div>

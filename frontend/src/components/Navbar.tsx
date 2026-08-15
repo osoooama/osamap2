@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Search, Heart, GitBranch, Mail, Trophy, Tv } from 'lucide-react';
+import { Menu, X, Search, Heart, GitBranch, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -13,8 +13,7 @@ const platforms = [
   { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid_logo.svg' },
   { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disneyplus.svg' },
   { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.png' },
-  { name: 'المباريات', href: '/sports', color: '#22c55e', icon: Trophy },
-  { name: 'بث مباشر', href: '/live', color: '#3b82f6', icon: Tv },
+  { name: 'IPTV', href: '/iptv', color: '#D4A853' },
 ];
 
 function DeveloperModal({ open, onClose }: { open: boolean; onClose: () => void }) {

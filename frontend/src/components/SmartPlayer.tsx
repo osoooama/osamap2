@@ -139,6 +139,7 @@ export default function SmartPlayer({
   const [showMenu, setShowMenu] = useState(false);
   const [failedIndices, setFailedIndices] = useState<Set<number>>(new Set());
   const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [nextEpCountdown, setNextEpCountdown] = useState<number | null>(null);
   const [favoriteServer, setFavoriteServer] = useState<string | null>(null);
@@ -314,6 +315,12 @@ export default function SmartPlayer({
     } else {
       el.requestFullscreen().catch(() => {});
     }
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
   }, []);
 
   const handlePiP = useCallback(() => {
@@ -798,7 +805,7 @@ export default function SmartPlayer({
               onClick={handleFullscreen}
               className="flex items-center justify-center w-10 h-10 sm:w-auto sm:px-3.5 sm:h-10 bg-white/5 border border-white/5 rounded-xl text-zinc-400 text-xs font-medium hover:bg-white/10 hover:border-white/10 hover:text-white transition-all active:scale-95"
             >
-              {document.fullscreenElement ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline ml-1.5">ملء الشاشة</span>
             </button>
           )}

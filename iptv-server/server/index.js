@@ -1,0 +1,170 @@
+const express = require('express');
+require('dotenv').config();
+const path = require('path');
+const cors = require('cors');
+const syncService = require('./services/syncService');
+
+// Initialize database
+require('./db');
+
+const app = express();
+const PORT = process.env.PORT || 4000;
+
+app.set('trust proxy', true);
+
+// CORS — allow the IPTV frontend
+app.use(cors({
+    origin: ['http://localhost:3004', 'http://localhost:3000'],
+    credentials: true,
+}));
+
+app.use(express.json({ limit: '50mb' }));
+
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// FFMPEG Configuration
+const { execSync } = require('child_process');
+
+function findFFmpeg() {
+    try {
+        execSync('ffmpeg -version', { stdio: 'ignore' });
+        console.log('FFmpeg: system');
+        return 'ffmpeg';
+    } catch (e) {}
+    try {
+        let ffmpegPath = require('ffmpeg-static');
+        if (ffmpegPath && ffmpegPath.includes('app.asar')) {
+            ffmpegPath = ffmpegPath.replace('app.asar', 'app.asar.unpacked');
+        }
+        console.log('FFmpeg:', ffmpegPath);
+        return ffmpegPath;
+    } catch (err) {
+        console.warn('FFmpeg not available — transcoding disabled.');
+        return null;
+    }
+}
+
+function findFFprobe() {
+    try {
+        execSync('ffprobe -version', { stdio: 'ignore' });
+        console.log('FFprobe: system');
+        return 'ffprobe';
+    } catch (e) {}
+    try {
+        const ffprobePath = require('@ffprobe-installer/ffprobe').path;
+        if (ffprobePath) {
+            console.log('FFprobe:', ffprobePath);
+            return ffprobePath;
+        }
+    } catch (err) {}
+    console.warn('FFprobe not available.');
+    return null;
+}
+
+app.locals.ffmpegPath = findFFmpeg();
+app.locals.ffprobePath = findFFprobe();
+
+// Dynamic services loader
+const fs = require('fs');
+const services = {};
+try {
+    const servicesDir = path.join(__dirname, 'services');
+    const serviceFiles = fs.readdirSync(servicesDir).filter(f => f.endsWith('.js'));
+    for (const file of serviceFiles) {
+        const name = file.replace(/\.js$/, '');
+        try {
+            services[name] = require(path.join(servicesDir, file));
+        } catch (e) {
+            console.warn(`Failed to load service ${file}:`, e.message);
+        }
+    }
+} catch (e) {
+    console.warn('Services directory:', e.message);
+}
+Object.freeze(services);
+
+// Plugin loader
+const loadedPlugins = [];
+async function loadPlugins() {
+    try {
+        const pluginsDir = path.join(__dirname, 'plugins');
+        if (fs.existsSync(pluginsDir)) {
+            const pluginFiles = fs.readdirSync(pluginsDir)
+                .filter(f => f.endsWith('.js'))
+                .sort();
+            for (const file of pluginFiles) {
+                try {
+                    const plugin = require(path.join(pluginsDir, file));
+                    if (typeof plugin === 'function') {
+                        await plugin(app, services);
+                        loadedPlugins.push({ name: file, plugin: null });
+                        console.log(`✓ Plugin: ${file}`);
+                    } else if (plugin && typeof plugin.init === 'function') {
+                        await plugin.init(app, services);
+                        loadedPlugins.push({ name: file, plugin });
+                        console.log(`✓ Plugin: ${file} (lifecycle)`);
+                    }
+                } catch (err) {
+                    console.error(`✗ Plugin ${file}:`, err.message);
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('Plugin loader:', err.message);
+    }
+}
+
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM — shutting down plugins...');
+    for (const { name, plugin } of loadedPlugins) {
+        if (plugin && typeof plugin.shutdown === 'function') {
+            try { await plugin.shutdown(); } catch (_) {}
+        }
+    }
+    process.exit(0);
+});
+
+// API Routes (auth disabled — all routes are public)
+app.use('/api/channels', require('./routes/channels'));
+app.use('/api/sources', require('./routes/sources'));
+app.use('/api/proxy', require('./routes/proxy'));
+app.use('/api/favorites', require('./routes/favorites'));
+app.use('/api/transcode', require('./routes/transcode'));
+app.use('/api/remux', require('./routes/remux'));
+app.use('/api/probe', require('./routes/probe'));
+app.use('/api/subtitle', require('./routes/subtitle'));
+app.use('/api/settings', require('./routes/settings'));
+app.use('/api/history', require('./routes/history'));
+app.use('/api/browse', require('./routes/browse'));
+
+app.get('/api/version', (req, res) => {
+    const pkg = require('../package.json');
+    res.json({ version: pkg.version });
+});
+
+// SPA fallback
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
+
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
+
+app.listen(PORT, async () => {
+    console.log(`NodeCast TV server running on http://localhost:${PORT}`);
+    await loadPlugins().catch(err => {
+        console.error('Plugin init failed:', err);
+    });
+    setTimeout(async () => {
+        await syncService.syncAll().catch(console.error);
+        await syncService.startSyncTimer().catch(console.error);
+        try {
+            const hwDetect = require('./services/hwDetect');
+            await hwDetect.detect();
+        } catch (err) {
+            console.warn('HW detection:', err.message);
+        }
+    }, 5000);
+});

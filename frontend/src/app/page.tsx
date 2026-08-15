@@ -265,7 +265,7 @@ export default function HomePage() {
                     { number: '4', label: 'منصات بث', color: '#E50914' },
                     { number: '80+', label: 'موقع زحف', color: '#00ca97' },
                     { number: '10K+', label: 'فيلم ومسلسل', color: '#113CCF' },
-                    { number: '16', label: 'مزودات تشغيل', color: '#F47521' },
+                    { number: '33', label: 'سيرفر تشغيل', color: '#F47521' },
                   ].map((stat, i) => (
                     <motion.div
                       key={stat.label}

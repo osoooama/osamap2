@@ -55,8 +55,8 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
   const mediaType = movie.media_type || 'movie';
   const posterUrl = movie.poster || movie.poster_path || '';
   const backdropUrl = movie.backdrop_path || '';
-  const imgSrc = posterUrl.startsWith('http') ? posterUrl : posterUrl ? `https://image.tmdb.org/t/p/w500${posterUrl}` : '';
-  const backdropSrc = backdropUrl ? `https://image.tmdb.org/t/p/w780${backdropUrl}` : imgSrc;
+  const posterSrc = posterUrl.startsWith('http') ? posterUrl : posterUrl ? `https://image.tmdb.org/t/p/w500${posterUrl}` : '';
+  const backdropSrc = backdropUrl ? `https://image.tmdb.org/t/p/w780${backdropUrl}` : posterSrc;
   const rating = movie.vote_average ? Math.round(movie.vote_average * 10) : null;
   const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
   const genreNames = movie.genres?.slice(0, 2).map(g => g.name).join('، ') || movie.genre || '';
@@ -184,7 +184,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
       className="relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] lg:w-[200px] cursor-pointer z-0 hover:z-50 group"
     >
       <div className="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/20 transition-all duration-500 group-hover:shadow-[0_8px_40px_-8px_rgba(0,0,0,0.8)] group-hover:scale-[1.05] group-hover:-translate-y-1">
-        {imgSrc && !imgError ? (
+        {posterSrc && !imgError ? (
           <>
             {!imgLoaded && (
               <div className="absolute inset-0 bg-zinc-800 animate-pulse">
@@ -192,7 +192,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
               </div>
             )}
             <img
-              src={backdropSrc || imgSrc}
+              src={posterSrc}
               alt={title}
               loading="lazy"
               className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-50 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -275,7 +275,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
       </div>
 
       <AnimatePresence>
-        {showPopup && backdropUrl && !isMobile.current && (
+        {showPopup && !isMobile.current && (
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: -5 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -296,7 +296,7 @@ export default function MovieCard({ movie, accentColor = '#E50914', platformRef,
                   allowFullScreen
                 />
               ) : (
-                <img src={backdropSrc} alt={title} className="w-full h-full object-cover" />
+                <img src={backdropSrc || posterSrc} alt={title} className="w-full h-full object-cover" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
               <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center gap-2">

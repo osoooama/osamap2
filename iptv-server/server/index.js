@@ -5,7 +5,7 @@ const cors = require('cors');
 const syncService = require('./services/syncService');
 
 // Initialize database
-require('./db');
+try { require('./db/sqlite'); } catch(e) { console.warn('SQLite init:', e.message); }
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -14,7 +14,13 @@ app.set('trust proxy', true);
 
 // CORS — allow the IPTV frontend
 app.use(cors({
-    origin: ['http://localhost:3004', 'http://localhost:3000'],
+    origin: function(origin, callback) {
+        if (!origin || origin.includes('localhost') || origin.includes('osamap2') || origin.includes('pages.dev')) {
+            callback(null, true);
+        } else {
+            callback(null, true);
+        }
+    },
     credentials: true,
 }));
 
@@ -125,17 +131,27 @@ process.on('SIGTERM', async () => {
 });
 
 // API Routes (auth disabled — all routes are public)
-app.use('/api/channels', require('./routes/channels'));
-app.use('/api/sources', require('./routes/sources'));
-app.use('/api/proxy', require('./routes/proxy'));
-app.use('/api/favorites', require('./routes/favorites'));
-app.use('/api/transcode', require('./routes/transcode'));
-app.use('/api/remux', require('./routes/remux'));
-app.use('/api/probe', require('./routes/probe'));
-app.use('/api/subtitle', require('./routes/subtitle'));
-app.use('/api/settings', require('./routes/settings'));
-app.use('/api/history', require('./routes/history'));
-app.use('/api/browse', require('./routes/browse'));
+const routeMap = {
+    '/api/channels': './routes/channels',
+    '/api/sources': './routes/sources',
+    '/api/proxy': './routes/proxy',
+    '/api/favorites': './routes/favorites',
+    '/api/transcode': './routes/transcode',
+    '/api/remux': './routes/remux',
+    '/api/probe': './routes/probe',
+    '/api/subtitle': './routes/subtitle',
+    '/api/settings': './routes/settings',
+    '/api/history': './routes/history',
+    '/api/browse': './routes/browse',
+};
+
+for (const [routePath, routeFile] of Object.entries(routeMap)) {
+    try {
+        app.use(routePath, require(routeFile));
+    } catch (e) {
+        console.warn(`Route ${routePath} not loaded:`, e.message);
+    }
+}
 
 app.get('/api/version', (req, res) => {
     const pkg = require('../package.json');

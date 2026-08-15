@@ -13,6 +13,7 @@ const platforms = [
   { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid.webp' },
   { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disney.webp' },
   { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.webp' },
+  { name: 'IPTV', href: '/iptv', color: '#D4A853' },
 ];
 
 function DeveloperModal({ open, onClose }: { open: boolean; onClose: () => void }) {

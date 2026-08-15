@@ -1,21 +1,22 @@
-name: Deploy Frontend to Cloudflare Pages
+name: Deploy IPTV to Cloudflare Pages
 
 on:
   push:
     branches: [main]
     paths:
-      - 'frontend/**'
+      - 'iptv-platform/**'
+      - 'iptv-server/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: cloudflare-pages
+  group: cloudflare-iptv
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy-iptv-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,26 +25,24 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: iptv-platform/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-        working-directory: frontend
+        working-directory: iptv-platform
 
       - name: Build
         run: npm run build
-        working-directory: frontend
+        working-directory: iptv-platform
         env:
-          NEXT_PUBLIC_API_URL: https://osamap2.onrender.com
-          NEXT_PUBLIC_TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-          NEXT_PUBLIC_IPTV_URL: https://osamap2-iptv.pages.dev
+          NEXT_PUBLIC_API_URL: https://osamap2-iptv-api.onrender.com
 
       - name: Install Wrangler CLI
         run: npm i -g wrangler@4
 
       - name: Deploy to Cloudflare Pages
-        run: npx --yes wrangler pages deploy out --project-name=osamap2
-        working-directory: frontend
+        run: npx --yes wrangler pages deploy out --project-name=osamap2-iptv
+        working-directory: iptv-platform
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

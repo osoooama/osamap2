@@ -158,6 +158,29 @@ app.get('/api/version', (req, res) => {
     res.json({ version: pkg.version });
 });
 
+app.get('/api/diag', async (req, res) => {
+    const { sources } = require('./db');
+    const { getDb } = require('./db/sqlite');
+    try {
+        const allSources = await sources.getAll();
+        const db = getDb();
+        const cats = db.prepare('SELECT COUNT(*) as cnt FROM categories').get();
+        const items = db.prepare('SELECT COUNT(*) as cnt FROM playlist_items').get();
+        res.json({ sources: allSources.length, categories: cats?.cnt || 0, items: items?.cnt || 0 });
+    } catch (e) {
+        res.json({ error: e.message });
+    }
+});
+
+app.get('/api/sync-now', async (req, res) => {
+    try {
+        await syncService.syncAll();
+        res.json({ ok: true });
+    } catch (e) {
+        res.json({ error: e.message });
+    }
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));

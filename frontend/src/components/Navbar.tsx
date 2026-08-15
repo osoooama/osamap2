@@ -9,11 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const platforms = [
-  { name: 'Netflix', href: '/netflix', color: '#E50914', logo: '/netflix.png' },
-  { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid_logo.svg' },
-  { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disneyplus.svg' },
-  { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.png' },
-  { name: 'IPTV', href: '/iptv', color: '#D4A853' },
+  { name: 'Netflix', href: '/netflix', color: '#E50914', logo: '/netflix.webp' },
+  { name: 'Shahid', href: '/shahid', color: '#00ca97', logo: '/shahid.webp' },
+  { name: 'Disney+', href: '/disney', color: '#113CCF', logo: '/disney.webp' },
+  { name: 'Crunchyroll', href: '/crunchyroll', color: '#F47521', logo: '/crunchyroll.webp' },
 ];
 
 function DeveloperModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -138,17 +137,12 @@ export default function Navbar() {
                     )}
                     style={active ? { boxShadow: `0 0 20px ${p.color}15` } : undefined}
                   >
-                    {'logo' in p && p.logo ? (
+                    {p.logo ? (
                       <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 ring-1 ring-white/10">
                         <Image src={p.logo} alt={p.name} width={32} height={32} className="w-full h-full object-cover" />
                       </div>
-                    ) : 'icon' in p && p.icon ? (
-                      <>
-                        <p.icon className="w-4 h-4 shrink-0" style={{ color: active ? p.color : undefined }} />
-                        <span style={active ? { color: p.color } : undefined}>{p.name}</span>
-                      </>
                     ) : null}
-                    {'icon' in p && <span style={active ? { color: p.color } : undefined}>{p.name}</span>}
+                    <span style={active ? { color: p.color } : undefined}>{p.name}</span>
                   </Link>
                 );
               })}
@@ -209,17 +203,12 @@ export default function Navbar() {
                     )}
                     style={active ? { borderRight: `3px solid ${p.color}` } : undefined}
                   >
-                    {'logo' in p && p.logo ? (
+                    {p.logo ? (
                       <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 ring-1 ring-white/10">
                         <Image src={p.logo} alt={p.name} width={32} height={32} className="w-full h-full object-cover" />
                       </div>
-                    ) : 'icon' in p && p.icon ? (
-                      <>
-                        <p.icon className="w-5 h-5 shrink-0" style={{ color: active ? p.color : undefined }} />
-                        <span style={active ? { color: p.color } : undefined}>{p.name}</span>
-                      </>
                     ) : null}
-                    {'icon' in p && <span style={active ? { color: p.color } : undefined}>{p.name}</span>}
+                    <span style={active ? { color: p.color } : undefined}>{p.name}</span>
                   </Link>
                 );
               })}

@@ -161,14 +161,30 @@ app.get('/api/version', (req, res) => {
 app.get('/api/diag', async (req, res) => {
     const { sources } = require('./db');
     const { getDb } = require('./db/sqlite');
+    const fs = require('fs');
+    const path = require('path');
     try {
         const allSources = await sources.getAll();
         const db = getDb();
         const cats = db.prepare('SELECT COUNT(*) as cnt FROM categories').get();
         const items = db.prepare('SELECT COUNT(*) as cnt FROM playlist_items').get();
-        res.json({ sources: allSources.length, categories: cats?.cnt || 0, items: items?.cnt || 0 });
+        const contentPath = path.join(__dirname, '..', 'data', 'content.json');
+        const contentExists = fs.existsSync(contentPath);
+        const contentSize = contentExists ? fs.statSync(contentPath).size : 0;
+        const dbPath = path.join(__dirname, '..', 'data', 'db.json');
+        const dbExists = fs.existsSync(dbPath);
+        res.json({
+            sources: allSources.length,
+            sourceUrl: allSources[0]?.url,
+            categories: cats?.cnt || 0,
+            items: items?.cnt || 0,
+            contentExists,
+            contentSize,
+            dbExists,
+            nodeEnv: process.env.NODE_ENV
+        });
     } catch (e) {
-        res.json({ error: e.message });
+        res.json({ error: e.message, stack: e.stack?.substring(0, 200) });
     }
 });
 

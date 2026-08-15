@@ -197,6 +197,30 @@ class JsonStmt {
         const fn = buildWhereFilter(sql, params);
         let result = rows.filter(fn);
 
+        // Handle COUNT(*) aggregation
+        const countMatch = sql.match(/SELECT\s+COUNT\(\s*\*\s*\)/i);
+        if (countMatch) {
+            const aliasMatch = sql.match(/AS\s+(\w+)/i);
+            const alias = aliasMatch ? aliasMatch[1] : 'cnt';
+            return [{ [alias]: result.length }];
+        }
+
+        // Handle SELECT specific columns
+        const selectMatch = sql.match(/SELECT\s+(.+?)\s+FROM/i);
+        if (selectMatch && !selectMatch[1].includes('*')) {
+            const cols = selectMatch[1].split(',').map(c => {
+                const parts = c.trim().split(/\s+AS\s+/i);
+                return { col: parts[0].trim().replace(/[`"']/g, ''), alias: (parts[1] || parts[0]).trim().replace(/[`"']/g, '') };
+            });
+            result = result.map(row => {
+                const out = {};
+                for (const { col, alias } of cols) {
+                    out[alias] = row[col];
+                }
+                return out;
+            });
+        }
+
         const orderMatch = sql.match(/ORDER\s+BY\s+(\w+)(?:\s+(ASC|DESC))?/i);
         if (orderMatch) {
             const col = orderMatch[1];

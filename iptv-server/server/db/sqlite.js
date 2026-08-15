@@ -1,216 +1,296 @@
-const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
 const dataDir = path.join(__dirname, '..', '..', 'data');
-const dbPath = path.join(dataDir, 'content.db');
+const dbPath = path.join(dataDir, 'content.json');
 
-// Ensure data directory exists
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
 
-let db;
+function loadStore() {
+    try {
+        if (fs.existsSync(dbPath)) {
+            return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        }
+    } catch (e) {}
+    return { categories: [], playlist_items: [], epg_programs: [], sync_status: [], favorites: [], watch_history: [] };
+}
+
+function saveStore(store) {
+    try {
+        fs.writeFileSync(dbPath, JSON.stringify(store), 'utf8');
+    } catch (e) {
+        console.warn('[JSON-DB] save error:', e.message);
+    }
+}
+
+let store = loadStore();
+
+function matchRow(row, where) {
+    for (const [key, val] of Object.entries(where)) {
+        if (val === null || val === undefined) continue;
+        if (val instanceof Array) {
+            if (!val.includes(row[key])) return false;
+        } else {
+            if (row[key] !== val) return false;
+        }
+    }
+    return true;
+}
+
+function parseWhere(sql, params) {
+    const conditions = [];
+    const paramIdx = { i: 0 };
+    let s = sql;
+
+    const patterns = [
+        { re: /(\w+)\s*=\s*\?/g, fn: (m, col) => ({ col, op: '=' }) },
+        { re: /(\w+)\s*!=\s*\?/g, fn: (m, col) => ({ col, op: '!=' }) },
+        { re: /(\w+)\s*>\s*\?/g, fn: (m, col) => ({ col, op: '>' }) },
+        { re: /(\w+)\s*<\s*\?/g, fn: (m, col) => ({ col, op: '<' }) },
+        { re: /(\w+)\s*>=\s*\?/g, fn: (m, col) => ({ col, op: '>=' }) },
+        { re: /(\w+)\s*<=\s*\?/g, fn: (m, col) => ({ col, op: '<=' }) },
+        { re: /(\w+)\s+LIKE\s+\?/gi, fn: (m, col) => ({ col, op: 'LIKE' }) },
+    ];
+
+    const whereParts = s.split(/WHERE/i).slice(1).join('WHERE');
+    if (!whereParts) return () => true;
+
+    const andParts = whereParts.split(/AND/i);
+
+    const conditionsList = [];
+    for (const part of andParts) {
+        const trimmed = part.trim().replace(/;.*$/, '').trim();
+        const eqMatch = trimmed.match(/(\w+)\s*=\s*\?/);
+        const neMatch = trimmed.match(/(\w+)\s*!=\s*\?/);
+        const gtMatch = trimmed.match(/(\w+)\s*>\s*\?/);
+        const ltMatch = trimmed.match(/(\w+)\s*<\s*\?/);
+        const gteMatch = trimmed.match(/(\w+)\s*>=\s*\?/);
+        const lteMatch = trimmed.match(/(\w+)\s*<=\s*\?/);
+        const likeMatch = trimmed.match(/(\w+)\s+LIKE\s+\?/i);
+
+        if (eqMatch) conditionsList.push({ col: eqMatch[1], op: '=', val: params[paramIdx.i++] });
+        else if (neMatch) conditionsList.push({ col: neMatch[1], op: '!=', val: params[paramIdx.i++] });
+        else if (gteMatch) conditionsList.push({ col: gteMatch[1], op: '>=', val: params[paramIdx.i++] });
+        else if (lteMatch) conditionsList.push({ col: lteMatch[1], op: '<=', val: params[paramIdx.i++] });
+        else if (gtMatch) conditionsList.push({ col: gtMatch[1], op: '>', val: params[paramIdx.i++] });
+        else if (ltMatch) conditionsList.push({ col: ltMatch[1], op: '<', val: params[paramIdx.i++] });
+        else if (likeMatch) conditionsList.push({ col: likeMatch[1], op: 'LIKE', val: params[paramIdx.i++] });
+    }
+
+    return (row) => {
+        for (const c of conditionsList) {
+            const rv = row[c.col];
+            switch (c.op) {
+                case '=': if (rv !== c.val) return false; break;
+                case '!=': if (rv === c.val) return false; break;
+                case '>': if (!(rv > c.val)) return false; break;
+                case '<': if (!(rv < c.val)) return false; break;
+                case '>=': if (!(rv >= c.val)) return false; break;
+                case '<=': if (!(rv <= c.val)) return false; break;
+                case 'LIKE': {
+                    const pattern = c.val.replace(/%/g, '.*');
+                    if (!new RegExp(`^${pattern}$`, 'i').test(String(rv || ''))) return false;
+                    break;
+                }
+            }
+        }
+        return true;
+    };
+}
+
+function extractTable(sql) {
+    const m = sql.match(/FROM\s+(\w+)/i);
+    return m ? m[1] : null;
+}
+
+function extractInsertValues(sql) {
+    const colsMatch = sql.match(/\(([^)]+)\)\s*VALUES/i);
+    const valsMatch = sql.match(/VALUES\s*\(([^)]+)\)/i);
+    if (!colsMatch || !valsMatch) return null;
+    const cols = colsMatch[1].split(',').map(c => c.trim().replace(/[`"']/g, ''));
+    return cols;
+}
+
+function getTable(name) {
+    if (!store[name]) store[name] = [];
+    return store[name];
+}
+
+const stmtApi = {
+    all(...params) {
+        if (!this._sql) return [];
+        const sql = this._sql;
+        const table = extractTable(sql);
+        if (!table) return [];
+
+        const rows = getTable(table);
+        const fn = parseWhere(sql, params);
+        let result = rows.filter(fn);
+
+        const orderMatch = sql.match(/ORDER\s+BY\s+(\w+)(?:\s+(ASC|DESC))?/i);
+        if (orderMatch) {
+            const col = orderMatch[1];
+            const dir = (orderMatch[2] || 'ASC').toUpperCase();
+            result.sort((a, b) => {
+                if (a[col] < b[col]) return dir === 'ASC' ? -1 : 1;
+                if (a[col] > b[col]) return dir === 'ASC' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        const limitMatch = sql.match(/LIMIT\s+(\d+)/i);
+        if (limitMatch) result = result.slice(0, parseInt(limitMatch[1]));
+
+        return result;
+    },
+
+    get(...params) {
+        return this.all(...params)[0] || undefined;
+    },
+
+    run(...params) {
+        if (!this._sql) return { changes: 0, lastInsertRowid: 0 };
+        const sql = this._sql.trim();
+
+        if (sql.startsWith('INSERT')) {
+            const tableMatch = sql.match(/INTO\s+(\w+)/i);
+            if (!tableMatch) return { changes: 0, lastInsertRowid: 0 };
+            const table = getTable(tableMatch[1]);
+            const colsMatch = sql.match(/\(([^)]+)\)\s*VALUES/i);
+            if (!colsMatch) return { changes: 0, lastInsertRowid: 0 };
+            const cols = colsMatch[1].split(',').map(c => c.trim().replace(/[`"']/g, ''));
+            const row = {};
+            cols.forEach((c, i) => { row[c] = params[i]; });
+            if (sql.includes('INSERT OR IGNORE')) {
+                const exists = table.find(r => {
+                    for (const c of cols) { if (r[c] !== row[c]) return false; }
+                    return true;
+                });
+                if (exists) return { changes: 0, lastInsertRowid: 0 };
+            }
+            table.push(row);
+            saveStore(store);
+            return { changes: 1, lastInsertRowid: table.length };
+        }
+
+        if (sql.startsWith('DELETE')) {
+            const tableMatch = sql.match(/FROM\s+(\w+)/i);
+            if (!tableMatch) return { changes: 0 };
+            const table = getTable(tableMatch[1]);
+            const fn = parseWhere(sql, params);
+            const before = table.length;
+            const newRows = table.filter(r => !fn(r));
+            store[tableMatch[1]] = newRows;
+            saveStore(store);
+            return { changes: before - newRows.length };
+        }
+
+        if (sql.startsWith('UPDATE')) {
+            const tableMatch = sql.match(/UPDATE\s+(\w+)/i);
+            if (!tableMatch) return { changes: 0 };
+            const table = getTable(tableMatch[1]);
+            const setMatch = sql.match(/SET\s+(.+?)\s+WHERE/i);
+            const fn = parseWhere(sql, params);
+            let changes = 0;
+            let pi = 0;
+            const setParts = setMatch ? setMatch[1].split(',').map(p => p.trim()) : [];
+            const setVals = {};
+            for (const part of setParts) {
+                const eq = part.match(/(\w+)\s*=\s*\?/);
+                if (eq) setVals[eq[1]] = params[pi++];
+            }
+            for (const row of table) {
+                if (fn(row)) {
+                    Object.assign(row, setVals);
+                    changes++;
+                }
+            }
+            saveStore(store);
+            return { changes };
+        }
+
+        return { changes: 0 };
+    }
+};
+
+class JsonDb {
+    prepare(sql) {
+        return Object.create(stmtApi, { _sql: { value: sql } });
+    }
+
+    exec(sql) {
+        if (sql.includes('CREATE TABLE')) {
+            return;
+        }
+        if (sql.includes('CREATE INDEX')) {
+            return;
+        }
+        if (sql.startsWith('INSERT')) {
+            this.prepare(sql).run();
+        }
+    }
+
+    pragma(str) {}
+}
+
+let jsonDb;
 
 function getDb() {
-    if (!db) {
-        console.log('[SQLite] Opening database at', dbPath);
-        db = new Database(dbPath);
-        // Optimize performance
-        db.pragma('journal_mode = WAL');
-        db.pragma('synchronous = NORMAL');
+    if (!jsonDb) {
+        console.log('[JSON-DB] Initializing in-memory JSON database');
+        jsonDb = new JsonDb();
         initSchema();
     }
-    return db;
+    return jsonDb;
 }
 
 function initSchema() {
-    if (!db) throw new Error('Database not initialized');
-
-    // Categories (Groups)
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS categories (
-            id TEXT PRIMARY KEY, -- Composite key: sourceId:categoryId
-            source_id INTEGER NOT NULL,
-            category_id TEXT NOT NULL,
-            type TEXT NOT NULL, -- 'live', 'movie', 'series'
-            name TEXT NOT NULL,
-            parent_id TEXT, -- For nested categories
-            is_hidden INTEGER DEFAULT 0,
-            data JSON -- Extra provider data
-        );
-        CREATE INDEX IF NOT EXISTS idx_categories_source_type ON categories(source_id, type);
-    `);
-
-    // Playlist Items (Channels, Movies, Series, Episodes)
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS playlist_items (
-            id TEXT PRIMARY KEY, -- Composite key: sourceId:itemId
-            source_id INTEGER NOT NULL,
-            item_id TEXT NOT NULL, -- Original ID from provider
-            type TEXT NOT NULL, -- 'live', 'movie', 'series', 'episode'
-            name TEXT NOT NULL,
-            category_id TEXT, -- maps to categories.category_id (not our composite id)
-            parent_id TEXT, -- For episodes -> series_id
-            
-            -- Common Media Fields
-            stream_icon TEXT,
-            stream_url TEXT, -- Direct link if available
-            container_extension TEXT,
-            
-            -- VOD/Series Specific
-            rating REAL,
-            year TEXT,
-            added_at TEXT,
-            
-            -- App State
-            is_hidden INTEGER DEFAULT 0,
-            is_favorite INTEGER DEFAULT 0,
-            
-            data JSON -- Full original JSON object
-        );
-        CREATE INDEX IF NOT EXISTS idx_items_source_type ON playlist_items(source_id, type);
-        CREATE INDEX IF NOT EXISTS idx_items_category ON playlist_items(source_id, category_id);
-    `);
-
-    // EPG Programs
-    // Optimized for range queries
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS epg_programs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            channel_id TEXT NOT NULL, -- matches playlist_items.id if possible, or mapping key
-            source_id INTEGER NOT NULL,
-            start_time INTEGER NOT NULL, -- Unix timestamp (ms)
-            end_time INTEGER NOT NULL,   -- Unix timestamp (ms)
-            title TEXT,
-            description TEXT,
-            data JSON
-        );
-        CREATE INDEX IF NOT EXISTS idx_epg_channel_time ON epg_programs(channel_id, start_time, end_time);
-        CREATE INDEX IF NOT EXISTS idx_epg_cleanup ON epg_programs(end_time); -- For deleting old programs
-    `);
-
-    // Sync Status
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS sync_status (
-            source_id INTEGER NOT NULL,
-            type TEXT NOT NULL, -- 'live', 'vod', 'series', 'epg'
-            last_sync INTEGER NOT NULL,
-            status TEXT, -- 'success', 'error', 'syncing'
-            error TEXT,
-            PRIMARY KEY (source_id, type)
-        );
-    `);
-
-    // User Favorites (per-user)
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS favorites (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            source_id INTEGER NOT NULL,
-            item_id TEXT NOT NULL,
-            item_type TEXT NOT NULL, -- 'channel', 'movie', 'series'
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, source_id, item_id, item_type)
-        );
-        CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
-        CREATE INDEX IF NOT EXISTS idx_favorites_user_type ON favorites(user_id, item_type);
-    `);
-
-    // Watch History (per-user)
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS watch_history (
-            id TEXT PRIMARY KEY, -- Composite key: user_id:item_id
-            user_id INTEGER NOT NULL,
-            source_id INTEGER, -- Source ID for Xtream/M3U
-            item_type TEXT NOT NULL, -- 'movie', 'episode'
-            item_id TEXT NOT NULL, -- The original item ID (stream_id or composite)
-            parent_id TEXT, -- For episodes (series ID)
-            progress INTEGER DEFAULT 0, -- Current position in seconds
-            duration INTEGER DEFAULT 0, -- Total duration in seconds
-            updated_at INTEGER NOT NULL, -- Timestamp
-            data JSON -- Snapshot of item data (title, poster, etc)
-        );
-        CREATE INDEX IF NOT EXISTS idx_history_user_updated ON watch_history(user_id, updated_at DESC);
-        CREATE INDEX IF NOT EXISTS idx_history_user_item ON watch_history(user_id, item_id);
-    `);
-
-    // Migration: Add source_id column if missing (for existing databases)
-    try {
-        db.exec(`ALTER TABLE watch_history ADD COLUMN source_id INTEGER`);
-        console.log('[SQLite] Added source_id column to watch_history');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-
-    console.log('[SQLite] Schema initialized');
+    getTable('categories');
+    getTable('playlist_items');
+    getTable('epg_programs');
+    getTable('sync_status');
+    getTable('favorites');
+    getTable('watch_history');
+    console.log('[JSON-DB] Schema initialized');
 }
 
-// ============================================================
-// Favorites CRUD Operations
-// ============================================================
 const favorites = {
     getAll(userId, sourceId = null, itemType = null) {
-        const db = getDb();
-        let sql = 'SELECT * FROM favorites WHERE user_id = ?';
-        const params = [userId];
-
-        if (sourceId) {
-            sql += ' AND source_id = ?';
-            params.push(sourceId);
-        }
-        if (itemType) {
-            sql += ' AND item_type = ?';
-            params.push(itemType);
-        }
-
-        sql += ' ORDER BY created_at DESC';
-        return db.prepare(sql).all(...params);
+        let rows = getTable('favorites').filter(r => r.user_id === userId);
+        if (sourceId) rows = rows.filter(r => r.source_id === sourceId);
+        if (itemType) rows = rows.filter(r => r.item_type === itemType);
+        return rows.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
     },
 
     add(userId, sourceId, itemId, itemType = 'channel') {
-        const db = getDb();
-        const stmt = db.prepare(`
-            INSERT OR IGNORE INTO favorites (user_id, source_id, item_id, item_type)
-            VALUES (?, ?, ?, ?)
-        `);
-        const result = stmt.run(userId, sourceId, itemId, itemType);
-        return result.changes > 0;
+        const table = getTable('favorites');
+        const exists = table.find(r => r.user_id === userId && r.source_id === sourceId && r.item_id === String(itemId) && r.item_type === itemType);
+        if (exists) return false;
+        table.push({ user_id: userId, source_id: sourceId, item_id: String(itemId), item_type: itemType, created_at: new Date().toISOString() });
+        saveStore(store);
+        return true;
     },
 
     remove(userId, sourceId, itemId, itemType = 'channel') {
-        const db = getDb();
-        const stmt = db.prepare(`
-            DELETE FROM favorites 
-            WHERE user_id = ? AND source_id = ? AND item_id = ? AND item_type = ?
-        `);
-        const result = stmt.run(userId, sourceId, itemId, itemType);
-        return result.changes > 0;
+        const table = getTable('favorites');
+        const before = table.length;
+        store.favorites = table.filter(r => !(r.user_id === userId && r.source_id === sourceId && r.item_id === String(itemId) && r.item_type === itemType));
+        saveStore(store);
+        return store.favorites.length < before;
     },
 
     isFavorite(userId, sourceId, itemId, itemType = 'channel') {
-        const db = getDb();
-        const row = db.prepare(`
-            SELECT 1 FROM favorites 
-            WHERE user_id = ? AND source_id = ? AND item_id = ? AND item_type = ?
-        `).get(userId, sourceId, itemId, itemType);
-        return !!row;
+        return getTable('favorites').some(r => r.user_id === userId && r.source_id === sourceId && r.item_id === String(itemId) && r.item_type === itemType);
     },
 
-    // Get all favorites for a user, grouped by type (for bulk checks)
     getAllAsSet(userId) {
-        const db = getDb();
-        const rows = db.prepare('SELECT source_id, item_id, item_type FROM favorites WHERE user_id = ?').all(userId);
+        const rows = getTable('favorites').filter(r => r.user_id === userId);
         const set = new Set();
-        for (const row of rows) {
-            set.add(`${row.source_id}:${row.item_id}:${row.item_type}`);
-        }
+        for (const row of rows) set.add(`${row.source_id}:${row.item_id}:${row.item_type}`);
         return set;
     }
 };
 
-module.exports = {
-    getDb,
-    initSchema,
-    favorites
-};
+module.exports = { getDb, initSchema, favorites };

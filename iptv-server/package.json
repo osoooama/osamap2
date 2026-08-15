@@ -6,11 +6,9 @@
     "main": "server/index.js",
     "scripts": {
         "start": "node server/index.js",
-        "dev": "node --watch server/index.js",
-        "postinstall": "npm rebuild better-sqlite3 || echo 'better-sqlite3 rebuild skipped'"
+        "dev": "node --watch server/index.js"
     },
     "dependencies": {
-        "better-sqlite3": "^11.7.0",
         "cors": "^2.8.5",
         "dotenv": "^17.2.3",
         "express": "^4.18.2",
@@ -20,4 +18,5 @@
     "engines": {
         "node": ">=18.0.0"
     }
+}
 }

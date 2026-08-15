@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: osamap2
+    runtime: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: TMDB_API_KEY
+        sync: false
+
+  - type: web
+    name: osamap2-iptv-api
+    runtime: node
+    plan: free
+    buildCommand: cd iptv-server && npm install
+    startCommand: cd iptv-server && node server/index.js
+    envVars:
+      - key: PORT
+        value: 10000

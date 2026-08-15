@@ -170,17 +170,18 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, async () => {
     console.log(`NodeCast TV server running on http://localhost:${PORT}`);
-    await loadPlugins().catch(err => {
-        console.error('Plugin init failed:', err);
-    });
+    try { await loadPlugins(); } catch(err) { console.error('Plugin init failed:', err.message); }
     setTimeout(async () => {
-        await syncService.syncAll().catch(console.error);
-        await syncService.startSyncTimer().catch(console.error);
-        try {
-            const hwDetect = require('./services/hwDetect');
-            await hwDetect.detect();
-        } catch (err) {
-            console.warn('HW detection:', err.message);
-        }
+        try { await syncService.syncAll(); } catch(e) { console.error('Sync failed:', e.message); }
+        try { await syncService.startSyncTimer(); } catch(e) { console.error('Sync timer failed:', e.message); }
+        try { await require('./services/hwDetect').detect(); } catch(e) { console.warn('HW detection:', e.message); }
     }, 5000);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception:', err.message);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled rejection:', err);
 });

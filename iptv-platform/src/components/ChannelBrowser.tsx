@@ -71,21 +71,6 @@ export function ChannelBrowser() {
 
   useEffect(() => { loadCategories(); }, [loadCategories]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return;
-      if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-        e.preventDefault();
-        handlePrevChannel();
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-        e.preventDefault();
-        handleNextChannel();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleNextChannel, handlePrevChannel]);
-
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => { const next = !prev; if (next) setIsChannelListOpen(false); return next; });
   }, []);
@@ -128,6 +113,21 @@ export function ChannelBrowser() {
       setSelectedStream(filteredStreams[filteredStreams.length - 1]);
     }
   }, [filteredStreams, currentChannelIndex]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        e.preventDefault();
+        handlePrevChannel();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        e.preventDefault();
+        handleNextChannel();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleNextChannel, handlePrevChannel]);
 
   const activeStreamId = selectedStream?.id ?? null;
   const totals = useMemo(() => ({

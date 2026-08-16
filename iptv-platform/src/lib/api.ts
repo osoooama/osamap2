@@ -54,39 +54,49 @@ function buildStreamUrl(ch: BrowseChannel): string {
 
 export async function getCategoriesWithStreams(): Promise<ChannelCategory[]> {
   const categories = await apiFetch<BrowseCategory[]>("/api/browse/categories");
-  const result: ChannelCategory[] = [];
+  const mergedMap = new Map<string, ChannelCategory>();
 
   for (let i = 0; i < categories.length; i++) {
     const cat = categories[i];
+    const key = cat.category_id;
     try {
       const channels = await apiFetch<BrowseChannel[]>(
         `/api/browse/category/${encodeURIComponent(cat.category_id)}`
       );
-      result.push({
-        id: cat.category_id,
-        name: cat.name,
-        order: i,
-        streams: channels.map((ch) => ({
-          id: ch.item_id,
-          name: ch.name,
-          streamType: "live",
-          streamIcon: ch.stream_icon,
-          streamUrl: buildStreamUrl(ch),
-          sourceId: ch.source_id,
-          categoryId: ch.category_id,
-        })),
-      });
+      const mappedStreams = channels.map((ch) => ({
+        id: ch.item_id,
+        name: ch.name,
+        streamType: "live",
+        streamIcon: ch.stream_icon,
+        streamUrl: buildStreamUrl(ch),
+        sourceId: ch.source_id,
+        categoryId: ch.category_id,
+      }));
+
+      if (mergedMap.has(key)) {
+        const existing = mergedMap.get(key)!;
+        existing.streams.push(...mappedStreams);
+      } else {
+        mergedMap.set(key, {
+          id: key,
+          name: cat.name,
+          order: mergedMap.size,
+          streams: mappedStreams,
+        });
+      }
     } catch {
-      result.push({
-        id: cat.category_id,
-        name: cat.name,
-        order: i,
-        streams: [],
-      });
+      if (!mergedMap.has(key)) {
+        mergedMap.set(key, {
+          id: key,
+          name: cat.name,
+          order: mergedMap.size,
+          streams: [],
+        });
+      }
     }
   }
 
-  return result;
+  return Array.from(mergedMap.values());
 }
 
 export async function searchChannels(q: string): Promise<ChannelStream[]> {

@@ -71,6 +71,21 @@ export function ChannelBrowser() {
 
   useEffect(() => { loadCategories(); }, [loadCategories]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        e.preventDefault();
+        handlePrevChannel();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        e.preventDefault();
+        handleNextChannel();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleNextChannel, handlePrevChannel]);
+
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => { const next = !prev; if (next) setIsChannelListOpen(false); return next; });
   }, []);
@@ -83,6 +98,36 @@ export function ChannelBrowser() {
     if (!selectedCategoryId) return orderedCategories[0];
     return orderedCategories.find((c) => c.id === selectedCategoryId) ?? orderedCategories[0];
   }, [orderedCategories, selectedCategoryId]);
+
+  const filteredStreams = useMemo(() => {
+    if (!selectedCategory) return [] as ChannelStream[];
+    return selectedCategory.streams;
+  }, [selectedCategory]);
+
+  const currentChannelIndex = useMemo(() => {
+    if (!selectedStream) return -1;
+    return filteredStreams.findIndex((s) => s.id === selectedStream.id);
+  }, [selectedStream, filteredStreams]);
+
+  const handleNextChannel = useCallback(() => {
+    if (filteredStreams.length === 0) return;
+    const nextIdx = currentChannelIndex + 1;
+    if (nextIdx < filteredStreams.length) {
+      setSelectedStream(filteredStreams[nextIdx]);
+    } else {
+      setSelectedStream(filteredStreams[0]);
+    }
+  }, [filteredStreams, currentChannelIndex]);
+
+  const handlePrevChannel = useCallback(() => {
+    if (filteredStreams.length === 0) return;
+    const prevIdx = currentChannelIndex - 1;
+    if (prevIdx >= 0) {
+      setSelectedStream(filteredStreams[prevIdx]);
+    } else {
+      setSelectedStream(filteredStreams[filteredStreams.length - 1]);
+    }
+  }, [filteredStreams, currentChannelIndex]);
 
   const activeStreamId = selectedStream?.id ?? null;
   const totals = useMemo(() => ({
@@ -198,6 +243,13 @@ export function ChannelBrowser() {
           selectedStream={selectedStream}
           isPlayerOpen={isPlayerOpen}
           onClosePlayer={handleClosePlayer}
+          onNextChannel={handleNextChannel}
+          onPrevChannel={handlePrevChannel}
+          hasNext={filteredStreams.length > 0 && currentChannelIndex < filteredStreams.length - 1}
+          hasPrev={filteredStreams.length > 0 && currentChannelIndex > 0}
+          channelName={selectedStream?.name}
+          channelIndex={currentChannelIndex >= 0 ? currentChannelIndex + 1 : 0}
+          totalChannels={filteredStreams.length}
         />
       </div>
     </div>

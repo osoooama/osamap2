@@ -30,7 +30,7 @@ export const VideoPlayerArea = ({
   totalChannels,
 }: VideoPlayerAreaProps) => {
   return (
-    <div className="flex-1 flex flex-col min-w-0 h-full">
+    <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden">
       {selectedStream && isPlayerOpen ? (
         <div className="flex flex-col h-full">
           <div className="flex-1 min-h-0 bg-black relative">

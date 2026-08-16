@@ -27,7 +27,7 @@ export const CategoriesSidebar = ({
   return (
     <aside
       className={clsx(
-        "fixed lg:static inset-y-0 left-0 z-40 bg-surface-light/95 backdrop-blur-xl border-r border-primary/5 transition-all duration-300 ease-in-out shadow-2xl shadow-black/50 lg:shadow-none pt-14 lg:pt-0",
+        "shrink-0 fixed lg:static inset-y-0 left-0 z-40 bg-surface-light/95 backdrop-blur-xl border-r border-primary/5 transition-all duration-300 ease-in-out shadow-2xl shadow-black/50 lg:shadow-none pt-14 lg:pt-0",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         isMenuCollapsed ? "w-14" : "w-[80vw] max-w-xs sm:w-72 lg:w-64"
       )}

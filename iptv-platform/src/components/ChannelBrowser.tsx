@@ -200,10 +200,10 @@ export function ChannelBrowser() {
   }
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-surface">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-surface">
       <Navbar activePage="home" />
 
-      <div className="flex flex-1 pt-14">
+      <div className="flex flex-1 pt-14 overflow-hidden">
         <MobileControls
           isSidebarOpen={isSidebarOpen}
           onToggleSidebar={toggleSidebar}

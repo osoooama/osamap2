@@ -48,7 +48,7 @@ export const ChannelListPanel = ({
   return (
     <aside
       className={clsx(
-        "fixed lg:static inset-y-0 right-0 z-40 bg-surface-light/95 backdrop-blur-xl border-l border-primary/5 transition-all duration-300 ease-in-out shadow-2xl shadow-black/50 lg:shadow-none pt-14 lg:pt-0",
+        "shrink-0 fixed lg:static inset-y-0 right-0 z-40 bg-surface-light/95 backdrop-blur-xl border-l border-primary/5 transition-all duration-300 ease-in-out shadow-2xl shadow-black/50 lg:shadow-none pt-14 lg:pt-0",
         isChannelPanelCollapsed ? "translate-x-full lg:translate-x-0" : "translate-x-0",
         isChannelPanelCollapsed ? "w-14" : "w-[80vw] max-w-xs sm:w-80 lg:w-72"
       )}

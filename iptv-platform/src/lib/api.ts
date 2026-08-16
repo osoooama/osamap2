@@ -17,14 +17,6 @@ export interface ChannelStream {
   categoryId: string;
 }
 
-interface BrowseCategory {
-  category_id: string;
-  name: string;
-  type: string;
-  is_hidden: number;
-  channel_count: number;
-}
-
 interface BrowseChannel {
   item_id: string;
   name: string;
@@ -53,50 +45,34 @@ function buildStreamUrl(ch: BrowseChannel): string {
 }
 
 export async function getCategoriesWithStreams(): Promise<ChannelCategory[]> {
-  const categories = await apiFetch<BrowseCategory[]>("/api/browse/categories");
+  const channels = await apiFetch<BrowseChannel[]>("/api/browse/all");
+
   const mergedMap = new Map<string, ChannelCategory>();
 
-  for (let i = 0; i < categories.length; i++) {
-    const cat = categories[i];
-    const key = cat.category_id;
-    try {
-      const channels = await apiFetch<BrowseChannel[]>(
-        `/api/browse/category/${encodeURIComponent(cat.category_id)}`
-      );
-      const mappedStreams = channels.map((ch) => ({
-        id: ch.item_id,
-        name: ch.name,
-        streamType: "live",
-        streamIcon: ch.stream_icon,
-        streamUrl: buildStreamUrl(ch),
-        sourceId: ch.source_id,
-        categoryId: ch.category_id,
-      }));
-
-      if (mergedMap.has(key)) {
-        const existing = mergedMap.get(key)!;
-        existing.streams.push(...mappedStreams);
-      } else {
-        mergedMap.set(key, {
-          id: key,
-          name: cat.name,
-          order: mergedMap.size,
-          streams: mappedStreams,
-        });
-      }
-    } catch {
-      if (!mergedMap.has(key)) {
-        mergedMap.set(key, {
-          id: key,
-          name: cat.name,
-          order: mergedMap.size,
-          streams: [],
-        });
-      }
+  for (const ch of channels) {
+    const key = ch.category_id;
+    if (!mergedMap.has(key)) {
+      mergedMap.set(key, {
+        id: key,
+        name: key,
+        order: mergedMap.size,
+        streams: [],
+      });
     }
+    mergedMap.get(key)!.streams.push({
+      id: ch.item_id,
+      name: ch.name,
+      streamType: "live",
+      streamIcon: ch.stream_icon,
+      streamUrl: buildStreamUrl(ch),
+      sourceId: ch.source_id,
+      categoryId: ch.category_id,
+    });
   }
 
-  return Array.from(mergedMap.values());
+  const result = Array.from(mergedMap.values());
+  result.sort((a, b) => a.name.localeCompare(b.name));
+  return result;
 }
 
 export async function searchChannels(q: string): Promise<ChannelStream[]> {

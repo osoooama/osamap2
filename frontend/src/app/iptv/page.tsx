@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-const IPTV_URL = process.env.NEXT_PUBLIC_IPTV_URL || 'http://localhost:3004';
+const IPTV_URL = 'https://osamap2-iptv.pages.dev';
 
 export default function IPTVPage() {
   const [mounted, setMounted] = useState(false);

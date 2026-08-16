@@ -190,10 +190,17 @@ app.get('/api/diag', async (req, res) => {
 
 app.get('/api/sync-now', async (req, res) => {
     try {
+        const origLog = console.log;
+        const origErr = console.error;
+        const logs = [];
+        console.log = (...args) => { logs.push('[LOG] ' + args.join(' ')); origLog(...args); };
+        console.error = (...args) => { logs.push('[ERR] ' + args.join(' ')); origErr(...args); };
         await syncService.syncAll();
-        res.json({ ok: true });
+        console.log = origLog;
+        console.error = origErr;
+        res.json({ ok: true, logs });
     } catch (e) {
-        res.json({ error: e.message });
+        res.json({ error: e.message, stack: e.stack?.substring(0, 500) });
     }
 });
 

@@ -63,7 +63,7 @@ function execSimple(sql, params) {
             const pk = cols[0];
             const existing = table.findIndex(r => r[pk] === row[pk]);
             if (existing >= 0) {
-                const setMatch = s.match(/DO UPDATE SET\s+(.+?)(?:\s+WHERE|$)/i);
+                const setMatch = s.match(/DO UPDATE SET\s+([\s\S]+?)(?:\s+WHERE\s+|$)/i);
                 if (setMatch) {
                     const setParts = setMatch[1].split(',').map(p => p.trim());
                     for (const part of setParts) {
@@ -109,7 +109,7 @@ function execSimple(sql, params) {
         let changes = 0;
         let pi = 0;
 
-        const setMatch = s.match(/SET\s+(.+?)\s+WHERE/i);
+        const setMatch = s.match(/SET\s+([\s\S]+?)\s+WHERE/i);
         const setVals = {};
         if (setMatch) {
             const setParts = setMatch[1].split(',').map(p => p.trim());

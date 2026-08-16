@@ -45,7 +45,11 @@ async function apiFetch<T>(path: string): Promise<T> {
 
 function buildStreamUrl(ch: BrowseChannel): string {
   if (ch.stream_url) return ch.stream_url;
-  return `${API_BASE}/api/proxy/stream?url=${encodeURIComponent(`live/${ch.source_id}/${ch.item_id}.m3u8`)}`;
+  try {
+    const data = JSON.parse(ch.data || '{}');
+    if (data.stream_url) return data.stream_url;
+  } catch {}
+  return '';
 }
 
 export async function getCategoriesWithStreams(): Promise<ChannelCategory[]> {

@@ -85,35 +85,7 @@ export function VideoPlayer({
           liveSyncDurationCount: 3,
           liveMaxLatencyDurationCount: 5,
           debug: process.env.NODE_ENV === "development",
-          // Upstream server'a gerekli header'ları ekle
-          xhrSetup: (xhr, url) => {
-            // Proxy URL'lerini tespit et ve direkt URL'e çevir
-            if (url && url.includes("/api/proxy/stream")) {
-              try {
-                const urlObj = new URL(url);
-                const originalUrl = urlObj.searchParams.get("url");
-                if (originalUrl) {
-                  const decodedUrl = decodeURIComponent(originalUrl);
-                  // XHR'in açılacağı URL'i değiştir
-                  Object.defineProperty(xhr, "open", {
-                    value: function (
-                      method: string,
-                      url: string | URL,
-                      async: boolean = true,
-                      username?: string | null,
-                      password?: string | null
-                    ) {
-                      return XMLHttpRequest.prototype.open.call(
-                        this,
-                        method,
-                        decodedUrl,
-                        async,
-                        username,
-                        password
-                      );
-                    },
-                    writable: false,
-                  });
+        });
                 }
               } catch (e) {
                 console.error("[HLS] Failed to extract direct URL:", e);

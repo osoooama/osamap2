@@ -158,6 +158,10 @@ app.get('/api/version', (req, res) => {
     res.json({ version: pkg.version });
 });
 
+app.get('/', (req, res) => {
+    res.json({ name: 'IPTV API', status: 'ok', endpoints: ['/api/browse', '/api/sources', '/api/proxy'] });
+});
+
 app.get('/api/diag', async (req, res) => {
     const { sources } = require('./db');
     const { getDb } = require('./db/sqlite');
@@ -199,7 +203,10 @@ app.get('/api/sync-now', async (req, res) => {
 
 // SPA fallback
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'Not found' });
+    }
+    res.redirect('https://osamap2-iptv.pages.dev');
 });
 
 app.use((err, req, res, next) => {

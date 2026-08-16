@@ -360,27 +360,21 @@ class SyncService {
         if (!syncedIds || syncedIds.size === 0) return;
 
         const db = getDb();
-        db.exec('CREATE TEMP TABLE IF NOT EXISTS synced_ids (id TEXT PRIMARY KEY)');
-        db.exec('DELETE FROM synced_ids');
+        const table = db.prepare('SELECT id FROM playlist_items WHERE source_id = ? AND type = ?').all(sourceId, type);
+        const allIds = table.map(r => r.id);
+        const toDelete = allIds.filter(id => !syncedIds.has(id));
 
-        const insertTemp = db.prepare('INSERT OR IGNORE INTO synced_ids (id) VALUES (?)');
-        const insertTempBatch = db.transaction((ids) => {
+        if (toDelete.length === 0) return;
+
+        const delStmt = db.prepare('DELETE FROM playlist_items WHERE id = ?');
+        const delBatch = db.transaction((ids) => {
             for (const id of ids) {
-                insertTemp.run(id);
+                delStmt.run(id);
             }
         });
-        insertTempBatch([...syncedIds]);
+        delBatch(toDelete);
 
-        const deleteStmt = db.prepare(`
-            DELETE FROM playlist_items 
-            WHERE source_id = ? AND type = ? 
-            AND id NOT IN (SELECT id FROM synced_ids)
-        `);
-        const deleted = deleteStmt.run(sourceId, type);
-
-        if (deleted.changes > 0) {
-            console.log(`[Sync] Purged ${deleted.changes} stale ${type} items`);
-        }
+        console.log(`[Sync] Purged ${toDelete.length} stale ${type} items`);
     }
 
 

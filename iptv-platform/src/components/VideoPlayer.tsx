@@ -51,19 +51,6 @@ export function VideoPlayer({
     setIsPlaying(false);
 
     try {
-      // Stream URL'ini direkt kullan (artık proxy yok)
-      const normalizedStreamUrl = streamUrl;
-
-      // Stream URL'inden origin'i al (header'lar için)
-      let streamOrigin = "";
-      try {
-        const streamUrlObj = new URL(streamUrl);
-        streamOrigin = streamUrlObj.origin;
-      } catch {
-        // URL parse edilemezse, varsayılan değer kullan
-        streamOrigin = "http://tgrpro25.xyz:8080";
-      }
-
       const Hls = (await import("hls.js")).default;
       const video = videoRef.current;
       if (!video) return;
@@ -85,23 +72,6 @@ export function VideoPlayer({
           liveSyncDurationCount: 3,
           liveMaxLatencyDurationCount: 5,
           debug: process.env.NODE_ENV === "development",
-        });
-                }
-              } catch (e) {
-                console.error("[HLS] Failed to extract direct URL:", e);
-              }
-            }
-
-            // Upstream server'a gerekli header'ları ekle
-            xhr.setRequestHeader(
-              "User-Agent",
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
-            );
-            xhr.setRequestHeader("Accept", "*/*");
-            xhr.setRequestHeader("Accept-Language", "tr,en-US;q=0.9,en;q=0.8");
-            xhr.setRequestHeader("Referer", `${streamOrigin}/`);
-            xhr.setRequestHeader("Origin", streamOrigin);
-          },
         });
 
         hlsRef.current = hls;
@@ -132,9 +102,9 @@ export function VideoPlayer({
         });
 
         hls.attachMedia(video);
-        hls.loadSource(normalizedStreamUrl);
+        hls.loadSource(streamUrl);
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = normalizedStreamUrl;
+        video.src = streamUrl;
         setIsLoading(false);
         try {
           await video.play();

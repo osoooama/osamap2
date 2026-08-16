@@ -197,6 +197,39 @@ app.get('/api/sync-now', async (req, res) => {
     }
 });
 
+app.get('/api/test-insert', async (req, res) => {
+    const { getDb } = require('./db/sqlite');
+    const db = getDb();
+    try {
+        db.prepare('INSERT INTO playlist_items (id, source_id, item_id, type, name, category_id, stream_icon, stream_url, container_extension, rating, year, added_at, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
+            'test:1', 1, '1', 'live', 'Test Channel', 'News', null, 'http://example.com/stream.m3u8', 'm3u8', null, null, null, '{}'
+        );
+        const count = db.prepare('SELECT COUNT(*) as cnt FROM playlist_items').get();
+        res.json({ inserted: true, count: count?.cnt });
+    } catch (e) {
+        res.json({ error: e.message });
+    }
+});
+
+app.get('/api/test-m3u-fetch', async (req, res) => {
+    try {
+        const https = require('https');
+        const url = 'https://iptv-org.github.io/iptv/countries/jo.m3u';
+        const content = await new Promise((resolve, reject) => {
+            https.get(url, (resp) => {
+                let data = '';
+                resp.on('data', (chunk) => data += chunk);
+                resp.on('end', () => resolve(data));
+            }).on('error', reject);
+        });
+        const lines = content.split('\n');
+        const channelCount = lines.filter(l => l.startsWith('#EXTINF')).length;
+        res.json({ ok: true, totalLines: lines.length, channels: channelCount, first100: content.substring(0, 200) });
+    } catch (e) {
+        res.json({ error: e.message });
+    }
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));

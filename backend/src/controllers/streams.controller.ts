@@ -6,7 +6,7 @@ import { resolveProvider } from '../services/provider-resolver.service';
 export async function getStreamsByTmdb(req: Request, res: Response) {
   try {
     const tmdb_id = String(req.params.tmdb_id);
-    const category = req.query.category as string;
+    const category = (req.query.category as string) || 'arabic';
     const mediaType = (req.query.type as string) || 'movie';
     const season = req.query.season ? parseInt(req.query.season as string) : undefined;
     const episode = req.query.episode ? parseInt(req.query.episode as string) : undefined;
@@ -15,18 +15,10 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
       return res.status(400).json({ error: 'Invalid TMDB ID' });
     }
 
-    const filter: Record<string, unknown> = {
-      tmdb_id,
-      is_active: true,
-    };
+    const filter: Record<string, unknown> = { tmdb_id, is_active: true };
+    if (category) filter.category = category;
 
-    if (category) {
-      filter.category = category;
-    }
-
-    const links = await Link.find(filter)
-      .sort({ quality: -1, last_checked: -1 })
-      .limit(20);
+    const links = await Link.find(filter).sort({ quality: -1, last_checked: -1 }).limit(20);
 
     const dbStreams = links.map((link) => ({
       url: link.stream_url || link.embed_url,
@@ -47,6 +39,23 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
       return true;
     });
 
+    if (allStreams.length === 0) {
+      try {
+        const scraped = await resolveProvider(tmdb_id, category);
+        if (scraped) {
+          allStreams.push({
+            url: scraped.url,
+            source: scraped.source,
+            quality: '720p',
+            category,
+            title: '',
+            type: 'embed' as const,
+            last_checked: new Date(),
+          });
+        }
+      } catch {}
+    }
+
     return res.json({ streams: allStreams, count: allStreams.length });
   } catch (error) {
     console.error('Error fetching streams:', error);
@@ -57,18 +66,18 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
 export async function resolveStream(req: Request, res: Response) {
   try {
     const tmdb_id = String(req.params.tmdb_id);
-    const provider = String(req.query.provider);
+    const category = (req.query.category as string) || (req.query.provider as string) || 'arabic';
 
-    if (!tmdb_id || !provider) {
-      return res.status(400).json({ error: 'tmdb_id and provider are required' });
+    if (!tmdb_id) {
+      return res.status(400).json({ error: 'tmdb_id is required' });
     }
 
-    const url = await resolveProvider(tmdb_id, provider);
-    if (!url) {
+    const result = await resolveProvider(tmdb_id, category);
+    if (!result) {
       return res.status(404).json({ error: 'No stream found' });
     }
 
-    return res.json({ url, provider, tmdb_id });
+    return res.json({ streams: [{ url: result.url, source: result.source, quality: '720p', category }], count: 1 });
   } catch (error) {
     console.error('Error resolving stream:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -84,11 +93,7 @@ export async function getAllStreams(req: Request, res: Response) {
     const filter: Record<string, unknown> = { is_active: true };
     if (category) filter.category = category;
 
-    const links = await Link.find(filter)
-      .sort({ last_checked: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
-
+    const links = await Link.find(filter).sort({ last_checked: -1 }).skip((page - 1) * limit).limit(limit);
     const total = await Link.countDocuments(filter);
 
     return res.json({ streams: links, total, page, limit });
@@ -106,7 +111,6 @@ export async function checkStreamHealth(req: Request, res: Response) {
     }
 
     const links = await Link.find({ tmdb_id, is_active: true });
-
     const health = links.map((link) => ({
       url: link.stream_url || link.embed_url,
       source: link.source,

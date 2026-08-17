@@ -18,9 +18,6 @@ export interface AnimeProvider {
   priority: number;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// FOREIGN — Top 8 embed servers for English/Foreign content
-// ═══════════════════════════════════════════════════════════════
 const FOREIGN_PROVIDERS: Provider[] = [
   { name: 'vidlink', displayName: 'VidLink Pro', description: 'أجود جودة، تشغيل تلقائي', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'foreign' },
   { name: 'VidFast', displayName: 'VidFast', description: 'سريع التحميل، جودة عالية', brandColor: '#10b981', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'foreign' },
@@ -34,35 +31,29 @@ const FOREIGN_PROVIDERS: Provider[] = [
   { name: 'HDbox', displayName: 'HDbox', description: 'مصادر متعددة بالدبلجة', brandColor: '#ef4444', url: (t, tp, s, e) => `/api/extract/hdbox/${t}?type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 10, category: 'foreign', needsResolution: true },
 ];
 
-// ═══════════════════════════════════════════════════════════════
-// ARABIC — Scraped Arabic sources + 3 general embeds
-// ═══════════════════════════════════════════════════════════════
 const ARABIC_PROVIDERS: Provider[] = [
-  { name: 'FaselHD', displayName: 'فاصل HD', description: 'مصدر عربي أساسي', brandColor: '#10b981', url: (t) => `/api/streams/${t}?category=arabic`, priority: 1, category: 'arabic', needsResolution: true },
-  { name: 'MyCima', displayName: 'ماي سيما', description: 'مصدر عربي موثوق', brandColor: '#3b82f6', url: (t) => `/api/streams/${t}?category=arabic`, priority: 2, category: 'arabic', needsResolution: true },
-  { name: 'ArabSeed', displayName: 'عرب سيد', description: 'مصدر عربي شهير', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=arabic`, priority: 3, category: 'arabic', needsResolution: true },
-  { name: 'EgyBest', displayName: 'إيجي بست', description: 'مصدر مصري', brandColor: '#ef4444', url: (t) => `/api/streams/${t}?category=arabic`, priority: 4, category: 'arabic', needsResolution: true },
-  { name: 'Cinemana', displayName: 'سينمانا', description: 'عربي وتركي', brandColor: '#d946ef', url: (t) => `/api/streams/${t}?category=arabic`, priority: 5, category: 'arabic', needsResolution: true },
-  { name: 'vidlink', displayName: 'VidLink', description: 'مشغل عام، ترجمة عربية', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 6, category: 'arabic' },
-  { name: 'AutoEmbed', displayName: 'AutoEmbed', description: 'كشف تلقائي', brandColor: '#8b5cf6', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 7, category: 'arabic' },
-  { name: 'EmbedSu', displayName: 'Embed.su', description: 'سريع ومستقر', brandColor: '#06b6d4', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 8, category: 'arabic' },
+  { name: 'vidlink', displayName: 'VidLink', description: 'مشغل عام، ترجمة عربية', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'arabic' },
+  { name: 'VidFast', displayName: 'VidFast', description: 'سريع التحميل، جودة عالية', brandColor: '#10b981', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'arabic' },
+  { name: 'AutoEmbed', displayName: 'AutoEmbed', description: 'كشف تلقائي', brandColor: '#8b5cf6', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 3, category: 'arabic' },
+  { name: 'EmbedSu', displayName: 'Embed.su', description: 'سريع ومستقر', brandColor: '#06b6d4', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 4, category: 'arabic' },
+  { name: 'SmashyStream', displayName: 'SmashyStream', description: 'جودات متعددة', brandColor: '#f97316', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 5, category: 'arabic' },
+  { name: 'screenscape', displayName: 'Screenscape', description: 'مصادر متعددة', brandColor: '#3b82f6', url: (t, tp, s, e) => `https://screenscape.me/embed?tmdb=${t}&type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 6, category: 'arabic' },
+  { name: 'FaselHD', displayName: 'فاصل HD', description: 'زاحف عربي متقدم', brandColor: '#10b981', url: (t) => `/api/streams/${t}?category=arabic`, priority: 7, category: 'arabic', needsResolution: true },
+  { name: 'MyCima', displayName: 'ماي سيما', description: 'زاحف عربي متقدم', brandColor: '#3b82f6', url: (t) => `/api/streams/${t}?category=arabic`, priority: 8, category: 'arabic', needsResolution: true },
+  { name: 'Cinemana', displayName: 'سينمانا', description: 'زاحف عربي متقدم', brandColor: '#d946ef', url: (t) => `/api/streams/${t}?category=arabic`, priority: 9, category: 'arabic', needsResolution: true },
+  { name: 'ArabSeed', displayName: 'عرب سيد', description: 'زاحف عربي متقدم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=arabic`, priority: 10, category: 'arabic', needsResolution: true },
 ];
 
-// ═══════════════════════════════════════════════════════════════
-// TURKISH — Scraped Turkish sources + 3 general embeds
-// ═══════════════════════════════════════════════════════════════
 const TURKISH_PROVIDERS: Provider[] = [
-  { name: 'Qissat', displayName: 'قصة عشق', description: 'مصدر تركي أساسي', brandColor: '#dc2626', url: (t) => `/api/streams/${t}?category=turkish`, priority: 1, category: 'turkish', needsResolution: true },
-  { name: 'Dizipal', displayName: 'ديزبالم', description: 'مصدر تركي موثوق', brandColor: '#3b82f6', url: (t) => `/api/streams/${t}?category=turkish`, priority: 2, category: 'turkish', needsResolution: true },
-  { name: 'HDFilmCehennemi', displayName: 'HD تركي', description: 'أفلام تركية HD', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=turkish`, priority: 3, category: 'turkish', needsResolution: true },
-  { name: 'vidlink', displayName: 'VidLink', description: 'مشغل عام، ترجمة تركية', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 4, category: 'turkish' },
-  { name: 'AutoEmbed', displayName: 'AutoEmbed', description: 'كشف تلقائي', brandColor: '#8b5cf6', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 5, category: 'turkish' },
-  { name: 'EmbedSu', displayName: 'Embed.su', description: 'سريع ومستقر', brandColor: '#06b6d4', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 6, category: 'turkish' },
+  { name: 'vidlink', displayName: 'VidLink', description: 'مشغل عام، ترجمة تركية', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'turkish' },
+  { name: 'VidFast', displayName: 'VidFast', description: 'سريع التحميل', brandColor: '#10b981', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'turkish' },
+  { name: 'AutoEmbed', displayName: 'AutoEmbed', description: 'كشف تلقائي', brandColor: '#8b5cf6', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 3, category: 'turkish' },
+  { name: 'EmbedSu', displayName: 'Embed.su', description: 'سريع ومستقر', brandColor: '#06b6d4', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 4, category: 'turkish' },
+  { name: 'SmashyStream', displayName: 'SmashyStream', description: 'جودات متعددة', brandColor: '#f97316', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 5, category: 'turkish' },
+  { name: 'Qissat', displayName: 'قصة عشق', description: 'زاحف تركي متقدم', brandColor: '#dc2626', url: (t) => `/api/streams/${t}?category=turkish`, priority: 6, category: 'turkish', needsResolution: true },
+  { name: 'HDFilmCehennemi', displayName: 'HD تركي', description: 'زاحف تركي متقدم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=turkish`, priority: 7, category: 'turkish', needsResolution: true },
 ];
 
-// ═══════════════════════════════════════════════════════════════
-// ANIMATION — Disney+ animation content (top 6)
-// ═══════════════════════════════════════════════════════════════
 const ANIMATION_PROVIDERS: Provider[] = [
   { name: 'vidlink', displayName: 'VidLink', description: 'أجود جودة للأنيميشن', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'animation' },
   { name: 'VidFast', displayName: 'VidFast', description: 'سريع التحميل', brandColor: '#10b981', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'animation' },
@@ -72,18 +63,11 @@ const ANIMATION_PROVIDERS: Provider[] = [
   { name: 'SmashyStream', displayName: 'SmashyStream', description: 'جودات متعددة', brandColor: '#f97316', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 6, category: 'animation' },
 ];
 
-// ═══════════════════════════════════════════════════════════════
-// ANIME — Dedicated anime servers (3)
-// ═══════════════════════════════════════════════════════════════
 const ANIME_PROVIDERS: AnimeProvider[] = [
   { name: 'VidLinkAnime', displayName: 'VidLink Anime', description: 'أنمي — أجود مصدر، مترجم/مدبلج', brandColor: '#ffd700', url: (id, ep, lang) => `https://vidlink.pro/anime/${id}/${ep}/${lang}`, priority: 1 },
   { name: 'VidPlusAnime', displayName: 'Anime Plus', description: 'أنمي — مشغل سريع', brandColor: '#a855f7', url: (id, ep, lang) => `https://player.vidplus.to/embed/anime/${id}/${ep}?dub=${lang === 'dub'}`, priority: 2 },
   { name: 'MegaPlay', displayName: 'Anime Mega', description: 'أنمي — مصدر إضافي', brandColor: '#a855f7', url: (id, ep, lang) => `https://megaplay.buzz/stream/ani/${id}/${ep}/${lang}`, priority: 3 },
 ];
-
-// ═══════════════════════════════════════════════════════════════
-// PLATFORM ROUTING
-// ═══════════════════════════════════════════════════════════════
 
 export function getProviders(tmdbId: string, mediaType = 'movie', season?: number, episode?: number, platform?: string) {
   let sourceProviders: Provider[];

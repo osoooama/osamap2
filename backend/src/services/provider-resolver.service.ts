@@ -1,22 +1,18 @@
 import axios from 'axios';
+import * as cheerio from 'cheerio';
 import mongoose from 'mongoose';
-
-const CINEMANA_BASE = 'https://cinemana.cc';
-const HD1_BASE = 'https://hd1.brstej.com';
-const ANIME3RB_BASE = 'https://anime3rb.com';
-const FASELHD_BASE = 'https://fasselhd.com';
-const MYCIMA_BASE = 'https://mycima.video';
-const ARABSEED_BASE = 'https://arabseed.cam';
-const EGYBEST_BASE = 'https://egybest.org';
-const CIMACIMA_BASE = 'https://cimacima.com';
-const AKWAM_BASE = 'https://akwam.io';
-const CIMACLUB_BASE = 'https://cimaclub.cc';
-const MOVIZLAND_BASE = 'https://movizland.com';
-const HDFILM_BASE = 'https://hdfilmcehennemi.sh';
-const DIZIPAL_BASE = 'https://dizipal104.vip';
 
 const TMDB_KEY = process.env.TMDB_API_KEY || '';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
+const CACHE_TTL = 30 * 60 * 1000;
+
+const titleCache = new Map<string, { title: string; ts: number }>();
+const resultCache = new Map<string, { url: string; ts: number }>();
+
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+const HEADERS = { 'User-Agent': UA, Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'ar,en;q=0.9' };
+
+const AD_KEYWORDS = ['doubleclick', 'googlesyndication', 'adservice', 'popunder', 'exoclick', 'propellerads', 'linkvertise', 'adfoc', 'adserver', 'googlead', 'taboola', 'outbrain', 'mgid', 'criteo', 'moatads', 'pubmatic', 'appnexus'];
 
 let Link: mongoose.Model<any>;
 async function getLinkModel() {
@@ -24,388 +20,308 @@ async function getLinkModel() {
   return Link;
 }
 
-async function getTmdbTitle(tmdbId: string): Promise<string | null> {
-  if (!/^\d+$/.test(tmdbId)) return null;
-  try {
-    const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}&language=ar`, { timeout: 8000 });
-    return data.title || data.original_title || null;
-  } catch {
-    try {
-      const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdbId}?api_key=${TMDB_KEY}&language=ar`, { timeout: 8000 });
-      return data.name || data.original_name || null;
-    } catch {
-      return null;
-    }
-  }
+function isAdUrl(url: string): boolean {
+  const lower = url.toLowerCase();
+  return AD_KEYWORDS.some(d => lower.includes(d));
 }
 
-function extractUrl(text: string): string | null {
+function isStreamUrl(url: string): boolean {
+  return /\.(m3u8|mpd|mp4|webm|ts|mkv|mov)(\?|$)/i.test(url);
+}
+
+function extractUrls(html: string, baseUrl: string): string[] {
+  const urls = new Set<string>();
   const patterns = [
-    /href=["']([^"']*(?:watch|play|movie|episode|embed)[^"']*\d+[^"']*)["']/i,
-    /<a[^>]*href=["']([^"']+)["'][^>]*>/i,
+    /(?:src|file|url|source|stream)\s*[:=]\s*["']([^"']*\.(m3u8|mp4|mpd|webm)[^"']*)["']/gi,
+    /(?:https?:\/\/[^\s"'<>]+\.(m3u8|mp4|mpd|webm)(?:\?[^\s"'<>]*)?)/gi,
   ];
   for (const pat of patterns) {
-    const m = text.match(pat);
-    if (m) return m[1];
-  }
-  return null;
-}
-
-export async function resolveCinemana(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /cinemana/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  const queries = [title, title.replace(/[:\-'].*$/, '').trim()];
-  for (const q of queries) {
-    try {
-      const { data } = await axios.get(`${CINEMANA_BASE}/?s=${encodeURIComponent(q)}`, {
-        headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': CINEMANA_BASE }, timeout: 10000,
-      });
-      const href = extractUrl(data);
-      if (href) {
-        const url = href.startsWith('http') ? href : `${CINEMANA_BASE}${href}`;
-        await LinkModel.updateOne({ embed_url: url }, {
-          $set: { tmdb_id: tmdbId, embed_url: url, source: `cinemana.cc/search?q=${q}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-        }, { upsert: true }).catch(() => {});
-        return url;
+    let m: RegExpExecArray | null;
+    while ((m = pat.exec(html)) !== null) {
+      let url = m[1] || m[0];
+      if (url && !isAdUrl(url)) {
+        if (url.startsWith('//')) url = 'https:' + url;
+        else if (url.startsWith('/')) {
+          try { url = new URL(url, baseUrl).href; } catch { continue; }
+        }
+        if (url.startsWith('http')) urls.add(url);
       }
-    } catch { continue; }
+    }
   }
-  return null;
+  return [...urls];
 }
 
-export async function resolveHd1(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /hd1/i });
-  if (existing) return (existing as any).embed_url;
+function extractIframes(html: string, baseUrl: string): string[] {
+  const $ = cheerio.load(html);
+  const srcs = new Set<string>();
+  $('iframe').each((_, el) => {
+    const src = $(el).attr('src') || $(el).attr('data-src') || '';
+    if (src && !isAdUrl(src)) {
+      let full = src;
+      if (src.startsWith('//')) full = 'https:' + src;
+      else if (src.startsWith('/')) {
+        try { full = new URL(src, baseUrl).href; } catch { return; }
+      }
+      if (full.startsWith('http')) srcs.add(full);
+    }
+  });
+  return [...srcs];
+}
 
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
+function findContentLinks(html: string, baseUrl: string): string[] {
+  const $ = cheerio.load(html);
+  const links = new Set<string>();
+  $('a').each((_, el) => {
+    const href = $(el).attr('href') || '';
+    if (href && (href.includes('/movie/') || href.includes('/tv/') || href.includes('/film/') || href.includes('/dizi/') || href.includes('/watch/') || href.includes('/episode/'))) {
+      let full = href;
+      if (href.startsWith('/')) {
+        try { full = new URL(href, baseUrl).href; } catch { return; }
+      }
+      if (full.startsWith('http')) links.add(full);
+    }
+  });
+  return [...links];
+}
+
+async function getTmdbTitle(tmdbId: string): Promise<string | null> {
+  if (!/^\d+$/.test(tmdbId)) return null;
+  const cached = titleCache.get(tmdbId);
+  if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.title;
+  if (!TMDB_KEY) return null;
 
   try {
-    const { data } = await axios.post(`${HD1_BASE}/ajax-search.php`,
-      new URLSearchParams({ q: title }),
-      { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': HD1_BASE, 'X-Requested-With': 'XMLHttpRequest' }, timeout: 10000 }
+    const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}&language=ar`, { timeout: 5000 });
+    const title = data.title || data.original_title || null;
+    if (title) titleCache.set(tmdbId, { title, ts: Date.now() });
+    return title;
+  } catch {
+    try {
+      const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdbId}?api_key=${TMDB_KEY}&language=ar`, { timeout: 5000 });
+      const title = data.name || data.original_name || null;
+      if (title) titleCache.set(tmdbId, { title, ts: Date.now() });
+      return title;
+    } catch { return null; }
+  }
+}
+
+async function httpGet(url: string, timeout = 8000): Promise<string | null> {
+  try {
+    const { data } = await axios.get(url, { headers: HEADERS, timeout, maxRedirects: 5 });
+    return typeof data === 'string' ? data : JSON.stringify(data);
+  } catch { return null; }
+}
+
+async function httpPost(url: string, body: string | URLSearchParams, extra: Record<string, string> = {}, timeout = 8000): Promise<string | null> {
+  try {
+    const { data } = await axios.post(url, body, { headers: { ...HEADERS, ...extra }, timeout });
+    return typeof data === 'string' ? data : JSON.stringify(data);
+  } catch { return null; }
+}
+
+async function saveToDb(tmdbId: string, url: string, source: string, category: string) {
+  try {
+    const LinkModel = await getLinkModel();
+    await LinkModel.updateOne(
+      { tmdb_id: tmdbId, source },
+      { $set: {
+        tmdb_id: tmdbId, embed_url: url, source, category,
+        platform: category === 'arabic' || category === 'turkish' ? 'shahid' : 'netflix',
+        is_active: true, last_checked: new Date(),
+      }},
+      { upsert: true }
     );
-    const m = data.match(/vid=([a-f0-9]{9})/);
-    if (m) {
-      const url = `${HD1_BASE}/embed.php?vid=${m[1]}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `hd1.brstej.com/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
+  } catch { /* DB errors are non-fatal */ }
+}
+
+function getCached(key: string): { url: string; source: string } | null {
+  const c = resultCache.get(key);
+  if (c && Date.now() - c.ts < CACHE_TTL) return { url: c.url, source: key.split(':')[1] };
   return null;
 }
 
-export async function resolveAnime3rb(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /anime3rb|vid3rb/i });
-  if (existing) return (existing as any).embed_url;
+function setCache(key: string, url: string) {
+  resultCache.set(key, { url, ts: Date.now() });
+}
 
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
+interface ResolveResult { url: string; source: string; }
 
-  let slug = title.toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+async function trySite(
+  tmdbId: string, title: string, baseUrl: string, searchPath: string,
+  sourceName: string, category: string,
+  linkSelector?: string
+): Promise<ResolveResult | null> {
+  const cacheKey = `${tmdbId}:${sourceName}`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
 
-  const slugVariants = [slug];
-  if (slug.includes('--')) slugVariants.push(slug.replace(/--+/g, '-'));
-  const specialCases: Record<string, string> = {
-    'one-piece': 'one-piece',
-    'naruto-shippuden': 'naruto-shippuuden',
-    'naruto': 'naruto',
-    'demon-slayer': 'demon-slayer-kimetsu-no-yaiba',
-    'attack-on-titan': 'attack-on-titan',
-  };
-  if (specialCases[slug]) slugVariants.push(specialCases[slug]);
+  const searchUrl = `${baseUrl}${searchPath}${encodeURIComponent(title)}`;
+  const html = await httpGet(searchUrl);
+  if (!html || html.includes('Just a moment') || html.includes('cf-browser-verification')) return null;
 
-  for (const s of slugVariants) {
-    try {
-      const epUrl = `${ANIME3RB_BASE}/episode/${s}/1`;
-      const { data } = await axios.get(epUrl, {
-        headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': ANIME3RB_BASE }, timeout: 8000,
-      });
-      const m = data.match(/<iframe[^>]*src=["']([^"']*vid3rb[^"']*)["']/);
-      if (m) {
-        const url = m[1].startsWith('http') ? m[1] : `https:${m[1]}`;
-        await LinkModel.updateOne({ embed_url: url }, {
-          $set: { tmdb_id: tmdbId, embed_url: url, source: epUrl, category: 'anime', platform: 'crunchyroll', is_active: true, last_checked: new Date() },
-        }, { upsert: true }).catch(() => {});
-        return url;
+  const contentLinks = findContentLinks(html, baseUrl);
+  const targetLinks = linkSelector ? contentLinks.filter(l => l.includes(linkSelector)) : contentLinks;
+
+  for (const linkUrl of targetLinks.slice(0, 3)) {
+    const contentHtml = await httpGet(linkUrl);
+    if (!contentHtml) continue;
+
+    const streamUrls = extractUrls(contentHtml, linkUrl);
+    for (const url of streamUrls) {
+      if (isStreamUrl(url)) {
+        setCache(cacheKey, url);
+        await saveToDb(tmdbId, url, sourceName, category);
+        return { url, source: sourceName };
       }
-    } catch { continue; }
+    }
+
+    const iframes = extractIframes(contentHtml, linkUrl);
+    for (const iframe of iframes) {
+      if (isAdUrl(iframe)) continue;
+      const playerHtml = await httpGet(iframe);
+      if (!playerHtml) continue;
+      const playerUrls = extractUrls(playerHtml, iframe);
+      for (const url of playerUrls) {
+        if (isStreamUrl(url)) {
+          setCache(cacheKey, url);
+          await saveToDb(tmdbId, url, sourceName, category);
+          return { url, source: sourceName };
+        }
+      }
+    }
   }
   return null;
 }
 
-export async function resolveFaselHD(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /fasselhd/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${FASELHD_BASE}/?s=${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': FASELHD_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${FASELHD_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `fasselhd.com/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
+async function resolveCinemana(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  return trySite(tmdbId, title, 'https://cinemana.cc', '/?s=', 'cinemana.cc', 'arabic');
 }
 
-export async function resolveMyCima(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /mycima/i });
-  if (existing) return (existing as any).embed_url;
+async function resolveHd1(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  const cacheKey = `${tmdbId}:hd1`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
 
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
+  const searchData = await httpPost('https://hd1.brstej.com/ajax-search.php', new URLSearchParams({ q: title }), { 'X-Requested-With': 'XMLHttpRequest' });
+  if (!searchData) return null;
 
-  try {
-    const { data } = await axios.get(`${MYCIMA_BASE}/search/${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': MYCIMA_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${MYCIMA_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `mycima.video/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
+  const vidMatch = searchData.match(/vid=([a-f0-9]{8,12})/);
+  if (!vidMatch) return null;
+
+  const embedUrl = `https://hd1.brstej.com/embed.php?vid=${vidMatch[1]}`;
+  const embedHtml = await httpGet(embedUrl);
+  if (embedHtml) {
+    const urls = extractUrls(embedHtml, embedUrl);
+    for (const url of urls) {
+      if (isStreamUrl(url)) {
+        setCache(cacheKey, url);
+        await saveToDb(tmdbId, url, 'hd1.brstej.com', 'arabic');
+        return { url, source: 'hd1.brstej.com' };
+      }
     }
-  } catch {}
-  return null;
-}
-
-export async function resolveArabSeed(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /arabseed/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${ARABSEED_BASE}/?s=${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': ARABSEED_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${ARABSEED_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `arabseed.cam/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveEgyBest(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /egybest/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${EGYBEST_BASE}/search?q=${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': EGYBEST_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${EGYBEST_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `egybest.org/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveCimaCima(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /cimacima/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${CIMACIMA_BASE}/?s=${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': CIMACIMA_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${CIMACIMA_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `cimacima.com/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveAkwam(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /akwam/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${AKWAM_BASE}/search?q=${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': AKWAM_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${AKWAM_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `akwam.io/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveCimaClub(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /cimaclub/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${CIMACLUB_BASE}/?s=${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': CIMACLUB_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${CIMACLUB_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `cimaclub.cc/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveMovizLand(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /movizland/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${MOVIZLAND_BASE}/?s=${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': MOVIZLAND_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${MOVIZLAND_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `movizland.com/search?q=${title}`, category: 'arabic', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveHDFilm(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /hdfilm/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${HDFILM_BASE}/search/${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': HDFILM_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${HDFILM_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `hdfilmcehennemi.sh/search?q=${title}`, category: 'turkish', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveDizipal(tmdbId: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true, source: /dizipal/i });
-  if (existing) return (existing as any).embed_url;
-
-  const title = await getTmdbTitle(tmdbId);
-  if (!title) return null;
-
-  try {
-    const { data } = await axios.get(`${DIZIPAL_BASE}/search/${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': DIZIPAL_BASE }, timeout: 10000,
-    });
-    const href = extractUrl(data);
-    if (href) {
-      const url = href.startsWith('http') ? href : `${DIZIPAL_BASE}${href}`;
-      await LinkModel.updateOne({ embed_url: url }, {
-        $set: { tmdb_id: tmdbId, embed_url: url, source: `dizipal104.vip/search?q=${title}`, category: 'turkish', platform: 'shahid', is_active: true, last_checked: new Date() },
-      }, { upsert: true }).catch(() => {});
-      return url;
-    }
-  } catch {}
-  return null;
-}
-
-export async function resolveProvider(tmdbId: string, provider: string): Promise<string | null> {
-  const LinkModel = await getLinkModel();
-  const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true }).sort({ last_checked: -1 });
-  if (existing) return (existing as any).embed_url;
-
-  switch (provider) {
-    case 'cinemana': return resolveCinemana(tmdbId);
-    case 'hd1': return resolveHd1(tmdbId);
-    case 'anime3rb': return resolveAnime3rb(tmdbId);
-    case 'faselhd': return resolveFaselHD(tmdbId);
-    case 'mycima': return resolveMyCima(tmdbId);
-    case 'arabseed': return resolveArabSeed(tmdbId);
-    case 'egybest': return resolveEgyBest(tmdbId);
-    case 'cimacima': return resolveCimaCima(tmdbId);
-    case 'akwam': return resolveAkwam(tmdbId);
-    case 'cimaclub': return resolveCimaClub(tmdbId);
-    case 'movizland': return resolveMovizLand(tmdbId);
-    case 'hdfilm': return resolveHDFilm(tmdbId);
-    case 'dizipal': return resolveDizipal(tmdbId);
-    default: return null;
   }
+  setCache(cacheKey, embedUrl);
+  await saveToDb(tmdbId, embedUrl, 'hd1.brstej.com', 'arabic');
+  return { url: embedUrl, source: 'hd1.brstej.com' };
 }
+
+async function resolveFaselHD(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  const cacheKey = `${tmdbId}:faselhd`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const domains = ['https://www.faselhd.club', 'https://www.faselhds.com', 'https://www.faselhd.is'];
+  for (const base of domains) {
+    const result = await trySite(tmdbId, title, base, '/?s=', 'faselhd.com', 'arabic');
+    if (result) return result;
+  }
+  return null;
+}
+
+async function resolveMyCima(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  return trySite(tmdbId, title, 'https://mycima.video', '/search/', 'mycima.video', 'arabic');
+}
+
+async function resolveCimaClub(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  return trySite(tmdbId, title, 'https://cimaclub.cc', '/?s=', 'cimaclub.cc', 'arabic');
+}
+
+async function resolveArabSeed(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  const cacheKey = `${tmdbId}:arabseed`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const domains = ['https://arabseed.cam', 'https://web.arabseed.mobi', 'https://abseed.vip'];
+  for (const base of domains) {
+    const result = await trySite(tmdbId, title, base, '/?s=', 'arabseed.cam', 'arabic');
+    if (result) return result;
+  }
+  return null;
+}
+
+async function resolveQissat(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  return trySite(tmdbId, title, 'https://ar.qissat.tv', '/?s=', 'ar.qissat.tv', 'turkish');
+}
+
+async function resolveHDFilm(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  const cacheKey = `${tmdbId}:hdfilm`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const slug = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  const domains = ['https://hdfilmcehennemi.sh', 'https://hdfilmcehennemi.com', 'https://www.hdfilmcehennemi.net'];
+  for (const base of domains) {
+    const result = await trySite(tmdbId, title, base, `/search/${encodeURIComponent(slug)}`, 'hdfilmcehennemi.sh', 'turkish');
+    if (result) return result;
+  }
+  return null;
+}
+
+async function resolveDizipal(tmdbId: string, title: string): Promise<ResolveResult | null> {
+  const cacheKey = `${tmdbId}:dizipal`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const slug = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+  const domains = ['https://dizipal104.vip', 'https://dizipal105.vip', 'https://dizipal106.vip', 'https://dizipal107.vip'];
+  for (const base of domains) {
+    const result = await trySite(tmdbId, title, base, `/search/${encodeURIComponent(slug)}`, 'dizipal', 'turkish');
+    if (result) return result;
+  }
+  return null;
+}
+
+export async function resolveProvider(tmdbId: string, category: string = 'arabic'): Promise<ResolveResult | null> {
+  try {
+    const LinkModel = await getLinkModel();
+    const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true }).sort({ last_checked: -1 });
+    if (existing && (existing as any).embed_url) {
+      return { url: (existing as any).embed_url, source: (existing as any).source || 'db-cache' };
+    }
+  } catch { /* DB unavailable */ }
+
+  const resultKey = `resolved:${tmdbId}`;
+  const cachedResult = resultCache.get(resultKey);
+  if (cachedResult && Date.now() - cachedResult.ts < CACHE_TTL) {
+    return { url: cachedResult.url, source: 'memory-cache' };
+  }
+
+  const title = await getTmdbTitle(tmdbId);
+  if (!title) return null;
+
+  const scrapers = category === 'turkish'
+    ? [resolveQissat, resolveHDFilm, resolveDizipal]
+    : [resolveCinemana, resolveHd1, resolveFaselHD, resolveMyCima, resolveCimaClub, resolveArabSeed];
+
+  const results = await Promise.allSettled(scrapers.map(fn => fn(tmdbId, title)));
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) {
+      resultCache.set(resultKey, { url: r.value.url, ts: Date.now() });
+      return r.value;
+    }
+  }
+  return null;
+}
+
+export function clearCache() { titleCache.clear(); resultCache.clear(); }
+export function getCacheStats() { return { titles: titleCache.size, results: resultCache.size }; }

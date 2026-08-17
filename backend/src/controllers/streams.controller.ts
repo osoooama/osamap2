@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Link from '../models/Link.model';
 import { getAllEmbedSources } from '../services/embed.service';
-import { resolveProvider } from '../services/provider-resolver.service';
+import { resolveProvider, getTmdbTitle } from '../services/provider-resolver.service';
 
 export async function getStreamsByTmdb(req: Request, res: Response) {
   try {
@@ -16,6 +16,34 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
     }
 
     if (category === 'arabic' || category === 'turkish') {
+      const linksByTmdb = await Link.find({ tmdb_id, is_active: true }).sort({ quality: -1, last_checked: -1 }).limit(10);
+      if (linksByTmdb.length > 0) {
+        const streams = linksByTmdb.map(link => ({
+          url: link.embed_url || link.stream_url,
+          source: link.source,
+          quality: link.quality,
+          category: link.category,
+          title: link.title,
+        }));
+        return res.json({ streams, count: streams.length });
+      }
+
+      const title = await getTmdbTitle(tmdb_id);
+      if (title) {
+        const regex = new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        const linksByTitle = await Link.find({ title: regex, is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(10);
+        if (linksByTitle.length > 0) {
+          const streams = linksByTitle.map(link => ({
+            url: link.embed_url || link.stream_url,
+            source: link.source,
+            quality: link.quality,
+            category: link.category,
+            title: link.title,
+          }));
+          return res.json({ streams, count: streams.length });
+        }
+      }
+
       const scraped = await resolveProvider(tmdb_id, category);
       if (scraped) {
         return res.json({ streams: [{ url: scraped.url, source: scraped.source, quality: '720p', category }], count: 1 });
@@ -50,6 +78,35 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
     return res.json({ streams: allStreams, count: allStreams.length });
   } catch (error) {
     console.error('Error fetching streams:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export async function searchStreams(req: Request, res: Response) {
+  try {
+    const query = String(req.query.q || '');
+    const category = (req.query.category as string) || 'arabic';
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+
+    if (!query || query.length < 2) {
+      return res.status(400).json({ error: 'Query must be at least 2 characters' });
+    }
+
+    const regex = new RegExp(query, 'i');
+    const links = await Link.find({ title: regex, is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(limit);
+
+    const streams = links.map(link => ({
+      url: link.embed_url || link.stream_url,
+      source: link.source,
+      quality: link.quality,
+      category: link.category,
+      title: link.title,
+      tmdb_id: link.tmdb_id,
+    }));
+
+    return res.json({ streams, count: streams.length, query });
+  } catch (error) {
+    console.error('Error searching streams:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

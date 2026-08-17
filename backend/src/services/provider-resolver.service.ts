@@ -84,7 +84,7 @@ function findContentLinks(html: string, baseUrl: string): string[] {
   return [...links];
 }
 
-async function getTmdbTitle(tmdbId: string): Promise<string | null> {
+export async function getTmdbTitle(tmdbId: string): Promise<string | null> {
   if (!/^\d+$/.test(tmdbId)) return null;
   const cached = titleCache.get(tmdbId);
   if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.title;

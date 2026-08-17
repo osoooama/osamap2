@@ -86,6 +86,10 @@ export async function getMovieDetails(req: Request, res: Response) {
     const mediaType = (req.query.type as string) || 'movie';
     let movie = await Movie.findOne({ tmdb_id });
 
+    if (movie && movie.media_type !== mediaType) {
+      movie = null;
+    }
+
     if (!movie) {
       try {
         const tmdbData = mediaType === 'tv'

@@ -95,11 +95,14 @@ export default function SmartPlayer({
           const data = await resp.json();
           if (data.streams && data.streams.length > 0) {
             for (const stream of data.streams) {
+              const embedUrl = stream.source && stream.source.startsWith('http') ? stream.source : undefined;
+              const isM3u8 = stream.url && /\.m3u8(\?|$)/i.test(stream.url);
               results.push({
                 ...firstProvider,
                 name: `${firstProvider.name} (${stream.source || 'scraper'})`,
                 displayName: `${firstProvider.displayName} ${stream.source || 'scraper'}`,
-                url: stream.url,
+                url: isM3u8 && embedUrl ? embedUrl : stream.url,
+                directUrl: isM3u8 ? stream.url : undefined,
                 needsResolution: false,
               });
             }

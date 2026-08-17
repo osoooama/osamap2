@@ -27,31 +27,21 @@ const FOREIGN_PROVIDERS: Provider[] = [
   { name: 'AutoEmbed', displayName: 'AutoEmbed', description: 'كشف تلقائي لأفضل مصدر', brandColor: '#8b5cf6', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 6, category: 'foreign' },
   { name: 'VidSrcTo', displayName: 'VidSrc', description: 'مصدر أساسي، موثوق', brandColor: '#d946ef', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidsrc.to/embed/tv/${t}/${s}/${e}` : `https://vidsrc.to/embed/movie/${t}`, priority: 7, category: 'foreign' },
   { name: 'SmashyStream', displayName: 'SmashyStream', description: 'جودات متعددة، سريع', brandColor: '#f97316', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 8, category: 'foreign' },
-  { name: 'VixSrc', displayName: 'VixSrc', description: 'HLS عالي الجودة', brandColor: '#10b981', url: (t, tp, s, e) => `/api/extract/vixsrc/${t}?type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 9, category: 'foreign', needsResolution: true },
-  { name: 'HDbox', displayName: 'HDbox', description: 'مصادر متعددة بالدبلجة', brandColor: '#ef4444', url: (t, tp, s, e) => `/api/extract/hdbox/${t}?type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 10, category: 'foreign', needsResolution: true },
 ];
 
 const ARABIC_PROVIDERS: Provider[] = [
-  { name: 'vidlink', displayName: 'VidLink', description: 'مشغل عام، ترجمة عربية', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'arabic' },
-  { name: 'VidFast', displayName: 'VidFast', description: 'سريع التحميل، جودة عالية', brandColor: '#10b981', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'arabic' },
-  { name: 'AutoEmbed', displayName: 'AutoEmbed', description: 'كشف تلقائي', brandColor: '#8b5cf6', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 3, category: 'arabic' },
-  { name: 'EmbedSu', displayName: 'Embed.su', description: 'سريع ومستقر', brandColor: '#06b6d4', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 4, category: 'arabic' },
-  { name: 'SmashyStream', displayName: 'SmashyStream', description: 'جودات متعددة', brandColor: '#f97316', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 5, category: 'arabic' },
-  { name: 'screenscape', displayName: 'Screenscape', description: 'مصادر متعددة', brandColor: '#3b82f6', url: (t, tp, s, e) => `https://screenscape.me/embed?tmdb=${t}&type=${tp}${s ? `&season=${s}` : ''}${e ? `&episode=${e}` : ''}`, priority: 6, category: 'arabic' },
-  { name: 'FaselHD', displayName: 'فاصل HD', description: 'زاحف عربي متقدم', brandColor: '#10b981', url: (t) => `/api/streams/${t}?category=arabic`, priority: 7, category: 'arabic', needsResolution: true },
-  { name: 'MyCima', displayName: 'ماي سيما', description: 'زاحف عربي متقدم', brandColor: '#3b82f6', url: (t) => `/api/streams/${t}?category=arabic`, priority: 8, category: 'arabic', needsResolution: true },
-  { name: 'Cinemana', displayName: 'سينمانا', description: 'زاحف عربي متقدم', brandColor: '#d946ef', url: (t) => `/api/streams/${t}?category=arabic`, priority: 9, category: 'arabic', needsResolution: true },
-  { name: 'ArabSeed', displayName: 'عرب سيد', description: 'زاحف عربي متقدم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=arabic`, priority: 10, category: 'arabic', needsResolution: true },
+  { name: 'Cinemana', displayName: 'سينمانا', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#d946ef', url: (t) => `/api/streams/${t}?category=arabic`, priority: 1, category: 'arabic', needsResolution: true },
+  { name: 'FaselHD', displayName: 'فاصل HD', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#10b981', url: (t) => `/api/streams/${t}?category=arabic`, priority: 2, category: 'arabic', needsResolution: true },
+  { name: 'MyCima', displayName: 'ماي سيما', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#3b82f6', url: (t) => `/api/streams/${t}?category=arabic`, priority: 3, category: 'arabic', needsResolution: true },
+  { name: 'CimaClub', displayName: 'سيما كلوب', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=arabic`, priority: 4, category: 'arabic', needsResolution: true },
+  { name: 'ArabSeed', displayName: 'عرب سيد', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#ef4444', url: (t) => `/api/streams/${t}?category=arabic`, priority: 5, category: 'arabic', needsResolution: true },
+  { name: 'Hd1', displayName: 'HD1 براستيج', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#8b5cf6', url: (t) => `/api/streams/${t}?category=arabic`, priority: 6, category: 'arabic', needsResolution: true },
 ];
 
 const TURKISH_PROVIDERS: Provider[] = [
-  { name: 'vidlink', displayName: 'VidLink', description: 'مشغل عام، ترجمة تركية', brandColor: '#ffd700', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidlink.pro/tv/${t}/${s}/${e}` : `https://vidlink.pro/movie/${t}`, priority: 1, category: 'turkish' },
-  { name: 'VidFast', displayName: 'VidFast', description: 'سريع التحميل', brandColor: '#10b981', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://vidfast.pro/tv/${t}/${s}/${e}?autoPlay=true` : `https://vidfast.pro/movie/${t}?autoPlay=true`, priority: 2, category: 'turkish' },
-  { name: 'AutoEmbed', displayName: 'AutoEmbed', description: 'كشف تلقائي', brandColor: '#8b5cf6', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://player.autoembed.app/embed/tv/${t}/${s}/${e}` : `https://player.autoembed.app/embed/movie/${t}`, priority: 3, category: 'turkish' },
-  { name: 'EmbedSu', displayName: 'Embed.su', description: 'سريع ومستقر', brandColor: '#06b6d4', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.su/embed/tv/${t}/${s}/${e}` : `https://embed.su/embed/movie/${t}`, priority: 4, category: 'turkish' },
-  { name: 'SmashyStream', displayName: 'SmashyStream', description: 'جودات متعددة', brandColor: '#f97316', url: (t, tp, s, e) => tp === 'tv' && s && e ? `https://embed.smashystream.com/playere.php?tmdb=${t}&season=${s}&episode=${e}` : `https://embed.smashystream.com/playere.php?tmdb=${t}`, priority: 5, category: 'turkish' },
-  { name: 'Qissat', displayName: 'قصة عشق', description: 'زاحف تركي متقدم', brandColor: '#dc2626', url: (t) => `/api/streams/${t}?category=turkish`, priority: 6, category: 'turkish', needsResolution: true },
-  { name: 'HDFilmCehennemi', displayName: 'HD تركي', description: 'زاحف تركي متقدم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=turkish`, priority: 7, category: 'turkish', needsResolution: true },
+  { name: 'Qissat', displayName: 'قصة عشق', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#dc2626', url: (t) => `/api/streams/${t}?category=turkish`, priority: 1, category: 'turkish', needsResolution: true },
+  { name: 'HDFilmCehennemi', displayName: 'HD فيلم جهنم', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=turkish`, priority: 2, category: 'turkish', needsResolution: true },
+  { name: 'Dizipal', displayName: 'Dizipal', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#10b981', url: (t) => `/api/streams/${t}?category=turkish`, priority: 3, category: 'turkish', needsResolution: true },
 ];
 
 const ANIMATION_PROVIDERS: Provider[] = [

@@ -81,21 +81,23 @@ export default function SmartPlayer({
     const scraped = filteredProviders.filter((p: any) => p.needsResolution);
     if (scraped.length === 0 || !tmdbId) return;
     
+    const uniqueUrls = [...new Set(scraped.map((p: any) => String(p.url)))];
+    const firstProvider = scraped[0];
+    
     const fetchScraped = async () => {
       const results: any[] = [];
-      for (const p of scraped) {
+      for (const urlPath of uniqueUrls) {
         try {
-          const apiUrl = String(p.url);
-          const fullUrl = apiUrl.startsWith('http') ? apiUrl : `${process.env.NEXT_PUBLIC_API_URL || 'https://osamap2.onrender.com'}${apiUrl}`;
-          const resp = await fetch(fullUrl, { signal: AbortSignal.timeout(5000) });
+          const fullUrl = urlPath.startsWith('http') ? urlPath : `${process.env.NEXT_PUBLIC_API_URL || 'https://osamap2.onrender.com'}${urlPath}`;
+          const resp = await fetch(fullUrl, { signal: AbortSignal.timeout(30000) });
           if (!resp.ok) continue;
           const data = await resp.json();
           if (data.streams && data.streams.length > 0) {
             for (const stream of data.streams) {
               results.push({
-                ...p,
-                name: `${p.name} (${stream.quality})`,
-                displayName: `${p.displayName} ${stream.quality}`,
+                ...firstProvider,
+                name: `${firstProvider.name} (${stream.source || 'scraper'})`,
+                displayName: `${firstProvider.displayName} ${stream.source || 'scraper'}`,
                 url: stream.url,
                 needsResolution: false,
               });

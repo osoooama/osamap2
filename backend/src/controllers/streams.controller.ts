@@ -15,6 +15,14 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
       return res.status(400).json({ error: 'Invalid TMDB ID' });
     }
 
+    if (category === 'arabic' || category === 'turkish') {
+      const scraped = await resolveProvider(tmdb_id, category);
+      if (scraped) {
+        return res.json({ streams: [{ url: scraped.url, source: scraped.source, quality: '720p', category }], count: 1 });
+      }
+      return res.json({ streams: [], count: 0 });
+    }
+
     const filter: Record<string, unknown> = { tmdb_id, is_active: true };
     if (category) filter.category = category;
 
@@ -30,7 +38,7 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
       last_checked: link.last_checked,
     }));
 
-    const embedSources = await getAllEmbedSources(tmdb_id, mediaType as 'movie' | 'tv', season, episode);
+    const embedSources = await getAllEmbedSources(tmdb_id, mediaType as 'movie' | 'tv', season, episode, category);
 
     const seen = new Set<string>();
     const allStreams = [...dbStreams, ...embedSources].filter(s => {
@@ -38,23 +46,6 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
       seen.add(s.url);
       return true;
     });
-
-    if (allStreams.length === 0) {
-      try {
-        const scraped = await resolveProvider(tmdb_id, category);
-        if (scraped) {
-          allStreams.push({
-            url: scraped.url,
-            source: scraped.source,
-            quality: '720p',
-            category,
-            title: '',
-            type: 'embed' as const,
-            last_checked: new Date(),
-          });
-        }
-      } catch {}
-    }
 
     return res.json({ streams: allStreams, count: allStreams.length });
   } catch (error) {
@@ -66,7 +57,7 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
 export async function resolveStream(req: Request, res: Response) {
   try {
     const tmdb_id = String(req.params.tmdb_id);
-    const category = (req.query.category as string) || (req.query.provider as string) || 'arabic';
+    const category = (req.query.category as string) || 'arabic';
 
     if (!tmdb_id) {
       return res.status(400).json({ error: 'tmdb_id is required' });

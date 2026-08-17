@@ -84,23 +84,36 @@ function findContentLinks(html: string, baseUrl: string): string[] {
   return [...links];
 }
 
-export async function getTmdbTitle(tmdbId: string): Promise<string | null> {
+export async function getTmdbTitle(tmdbId: string, mediaType?: string): Promise<string | null> {
   if (!/^\d+$/.test(tmdbId)) return null;
-  const cached = titleCache.get(tmdbId);
+  const cacheKey = `${tmdbId}:${mediaType || 'auto'}`;
+  const cached = titleCache.get(cacheKey);
   if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.title;
   if (!TMDB_KEY) return null;
 
-  try {
+  const tryTv = async (): Promise<string | null> => {
+    const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdbId}?api_key=${TMDB_KEY}&language=ar`, { timeout: 5000 });
+    const title = data.name || data.original_name || null;
+    if (title) titleCache.set(cacheKey, { title, ts: Date.now() });
+    return title;
+  };
+
+  const tryMovie = async (): Promise<string | null> => {
     const { data } = await axios.get(`${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}&language=ar`, { timeout: 5000 });
     const title = data.title || data.original_title || null;
-    if (title) titleCache.set(tmdbId, { title, ts: Date.now() });
+    if (title) titleCache.set(cacheKey, { title, ts: Date.now() });
     return title;
+  };
+
+  try {
+    if (mediaType === 'tv') return await tryTv();
+    if (mediaType === 'movie') return await tryMovie();
+    return (await tryTv()) || (await tryMovie());
   } catch {
     try {
-      const { data } = await axios.get(`${TMDB_BASE}/tv/${tmdbId}?api_key=${TMDB_KEY}&language=ar`, { timeout: 5000 });
-      const title = data.name || data.original_name || null;
-      if (title) titleCache.set(tmdbId, { title, ts: Date.now() });
-      return title;
+      if (mediaType === 'tv') return await tryMovie();
+      if (mediaType === 'movie') return await tryTv();
+      return (await tryMovie()) || null;
     } catch { return null; }
   }
 }
@@ -291,7 +304,7 @@ async function resolveDizipal(tmdbId: string, title: string): Promise<ResolveRes
   return null;
 }
 
-export async function resolveProvider(tmdbId: string, category: string = 'arabic'): Promise<ResolveResult | null> {
+export async function resolveProvider(tmdbId: string, category: string = 'arabic', mediaType?: string): Promise<ResolveResult | null> {
   try {
     const LinkModel = await getLinkModel();
     const existing = await LinkModel.findOne({ tmdb_id: tmdbId, is_active: true }).sort({ last_checked: -1 });
@@ -306,7 +319,7 @@ export async function resolveProvider(tmdbId: string, category: string = 'arabic
     return { url: cachedResult.url, source: 'memory-cache' };
   }
 
-  const title = await getTmdbTitle(tmdbId);
+  const title = await getTmdbTitle(tmdbId, mediaType);
   if (!title) return null;
 
   const scrapers = category === 'turkish'

@@ -3,6 +3,27 @@ import Link from '../models/Link.model';
 import { getAllEmbedSources } from '../services/embed.service';
 import { resolveProvider, getTmdbTitle } from '../services/provider-resolver.service';
 
+function normalizeArabic(s: string): string {
+  return s
+    .replace(/[\u0622\u0623\u0625\u0649]/g, '\u0627')
+    .replace(/[\u0640\u064B-\u0652\u0670]/g, '')
+    .replace(/[\u0629]/g, '\u0647')
+    .replace(/[\u0643\u06A9]/g, '\u0643')
+    .replace(/[\u062F\u0630]/g, '\u0636')
+    .replace(/[\u0638\u063A]/g, '\u063A')
+    .replace(/[\u0641\u06A1]/g, '\u0641')
+    .replace(/[\u0624]/g, '\u0648')
+    .replace(/[\u0626]/g, '\u064A')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function buildFuzzyRegex(title: string): RegExp {
+  const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(escaped, 'i');
+}
+
 export async function getStreamsByTmdb(req: Request, res: Response) {
   try {
     const tmdb_id = String(req.params.tmdb_id);
@@ -28,9 +49,9 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
         return res.json({ streams, count: streams.length });
       }
 
-      const title = await getTmdbTitle(tmdb_id);
+      const title = await getTmdbTitle(tmdb_id, mediaType);
       if (title) {
-        const regex = new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        const regex = buildFuzzyRegex(title);
         const linksByTitle = await Link.find({ title: regex, is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(10);
         if (linksByTitle.length > 0) {
           const streams = linksByTitle.map(link => ({
@@ -42,9 +63,28 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
           }));
           return res.json({ streams, count: streams.length });
         }
+
+        const normalized = normalizeArabic(title);
+        if (normalized !== title.toLowerCase()) {
+          const linksByNormalized = await Link.find({ is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(500);
+          const matched = linksByNormalized.filter(link => {
+            if (!link.title) return false;
+            return normalizeArabic(link.title).includes(normalized) || normalized.includes(normalizeArabic(link.title));
+          }).slice(0, 10);
+          if (matched.length > 0) {
+            const streams = matched.map(link => ({
+              url: link.embed_url || link.stream_url,
+              source: link.source,
+              quality: link.quality,
+              category: link.category,
+              title: link.title,
+            }));
+            return res.json({ streams, count: streams.length });
+          }
+        }
       }
 
-      const scraped = await resolveProvider(tmdb_id, category);
+      const scraped = await resolveProvider(tmdb_id, category, mediaType);
       if (scraped) {
         return res.json({ streams: [{ url: scraped.url, source: scraped.source, quality: '720p', category }], count: 1 });
       }
@@ -92,8 +132,19 @@ export async function searchStreams(req: Request, res: Response) {
       return res.status(400).json({ error: 'Query must be at least 2 characters' });
     }
 
-    const regex = new RegExp(query, 'i');
-    const links = await Link.find({ title: regex, is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(limit);
+    const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    let links = await Link.find({ title: regex, is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(limit);
+
+    if (links.length === 0 && /[\u0600-\u06FF]/.test(query)) {
+      const normalizedQuery = normalizeArabic(query);
+      const allLinks = await Link.find({ is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(500);
+      const normalizedMatches = allLinks.filter(link => {
+        if (!link.title) return false;
+        const normTitle = normalizeArabic(link.title);
+        return normTitle.includes(normalizedQuery) || normalizedQuery.includes(normTitle);
+      }).slice(0, limit);
+      links = normalizedMatches;
+    }
 
     const streams = links.map(link => ({
       url: link.embed_url || link.stream_url,

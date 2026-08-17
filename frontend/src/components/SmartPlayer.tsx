@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import Hls from 'hls.js';
 import { getProviders, getAnimeProviders } from '@/lib/providers';
 import { trackProviderEvent, getProviderPerf, getProviderScore, type ProviderPerf } from '@/lib/providerPerf';
 import { getSubtitles, type Subtitle } from '@/lib/api';
@@ -157,6 +158,9 @@ export default function SmartPlayer({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const providerCountRef = useRef(allIframeProviders.length);
   const nextEpTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<Hls | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { modeRef.current = mode; }, [mode]);
@@ -307,6 +311,38 @@ export default function SmartPlayer({
   const activeProvider = currentIndex >= 0 ? allIframeProviders[currentIndex] : null;
   const activeUrl = activeProvider ? activeProvider.url : '';
 
+  const isHls = activeUrl && /\.m3u8(\?|$)/i.test(activeUrl);
+
+  useEffect(() => {
+    if (!activeUrl || !isHls || !videoRef.current) return;
+    const video = videoRef.current;
+    const hls = new Hls({
+      enableWorker: true,
+      lowLatencyMode: false,
+      maxBufferLength: 30,
+    });
+    hlsRef.current = hls;
+    hls.loadSource(activeUrl);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.play().catch(() => {});
+      handleLoad();
+    });
+    hls.on(Hls.Events.ERROR, (_event, data) => {
+      if (data.fatal) {
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+          handleError();
+        } else {
+          handleError();
+        }
+      }
+    });
+    return () => {
+      hls.destroy();
+      hlsRef.current = null;
+    };
+  }, [activeUrl, isHls]);
+
   const showEpisodeUI = isAnime || isTV;
 
   const handleFullscreen = useCallback(() => {
@@ -415,7 +451,19 @@ export default function SmartPlayer({
       {/* VIDEO PLAYER CARD */}
       <div ref={containerRef} className="relative w-full aspect-[16/10] sm:aspect-video bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/[0.03]">
         {activeUrl && (() => {
-          const isDirectStream = /\.(m3u8|mp4|mkv|webm)(\?|$)/i.test(activeUrl);
+          const isDirectStream = !isHls && /\.(m3u8|mp4|mkv|webm)(\?|$)/i.test(activeUrl);
+          if (isHls) {
+            return (
+              <video
+                ref={videoRef}
+                key={`${currentIndex}-${tmdbId}-${animeId}-${currentSeason}-${currentEpisode}`}
+                className="w-full h-full object-contain"
+                style={{ opacity: status === 'playing' ? 1 : 0, transition: 'opacity 0.3s' }}
+                controls
+                autoPlay
+              />
+            );
+          }
           if (isDirectStream) {
             return (
               <video

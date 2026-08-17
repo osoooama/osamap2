@@ -24,6 +24,26 @@ function buildFuzzyRegex(title: string): RegExp {
   return new RegExp(escaped, 'i');
 }
 
+function toEmbedUrl(url: string): string {
+  if (!url) return url;
+  if (url.includes('hd1.brstej.com/play.php')) return url.replace('play.php', 'embed.php');
+  return url;
+}
+
+function formatStream(link: any) {
+  const rawUrl = link.embed_url || link.stream_url || '';
+  const sourceUrl = link.source || '';
+  const isM3u8 = /\.m3u8(\?|$)/i.test(rawUrl);
+  const url = isM3u8 ? toEmbedUrl(sourceUrl) || rawUrl : rawUrl;
+  return {
+    url,
+    source: sourceUrl,
+    quality: link.quality,
+    category: link.category,
+    title: link.title,
+  };
+}
+
 export async function getStreamsByTmdb(req: Request, res: Response) {
   try {
     const tmdb_id = String(req.params.tmdb_id);
@@ -39,13 +59,7 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
     if (category === 'arabic' || category === 'turkish') {
       const linksByTmdb = await Link.find({ tmdb_id, is_active: true }).sort({ quality: -1, last_checked: -1 }).limit(10);
       if (linksByTmdb.length > 0) {
-        const streams = linksByTmdb.map(link => ({
-          url: link.embed_url || link.stream_url,
-          source: link.source,
-          quality: link.quality,
-          category: link.category,
-          title: link.title,
-        }));
+        const streams = linksByTmdb.map(formatStream);
         return res.json({ streams, count: streams.length });
       }
 
@@ -54,13 +68,7 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
         const regex = buildFuzzyRegex(title);
         const linksByTitle = await Link.find({ title: regex, is_active: true, category }).sort({ quality: -1, last_checked: -1 }).limit(10);
         if (linksByTitle.length > 0) {
-          const streams = linksByTitle.map(link => ({
-            url: link.embed_url || link.stream_url,
-            source: link.source,
-            quality: link.quality,
-            category: link.category,
-            title: link.title,
-          }));
+          const streams = linksByTitle.map(formatStream);
           return res.json({ streams, count: streams.length });
         }
 
@@ -72,13 +80,7 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
             return normalizeArabic(link.title).includes(normalized) || normalized.includes(normalizeArabic(link.title));
           }).slice(0, 10);
           if (matched.length > 0) {
-            const streams = matched.map(link => ({
-              url: link.embed_url || link.stream_url,
-              source: link.source,
-              quality: link.quality,
-              category: link.category,
-              title: link.title,
-            }));
+            const streams = matched.map(formatStream);
             return res.json({ streams, count: streams.length });
           }
         }
@@ -97,11 +99,7 @@ export async function getStreamsByTmdb(req: Request, res: Response) {
     const links = await Link.find(filter).sort({ quality: -1, last_checked: -1 }).limit(20);
 
     const dbStreams = links.map((link) => ({
-      url: link.stream_url || link.embed_url,
-      source: link.source,
-      quality: link.quality,
-      category: link.category,
-      title: link.title,
+      ...formatStream(link),
       type: 'embed' as const,
       last_checked: link.last_checked,
     }));
@@ -147,11 +145,7 @@ export async function searchStreams(req: Request, res: Response) {
     }
 
     const streams = links.map(link => ({
-      url: link.embed_url || link.stream_url,
-      source: link.source,
-      quality: link.quality,
-      category: link.category,
-      title: link.title,
+      ...formatStream(link),
       tmdb_id: link.tmdb_id,
     }));
 

@@ -30,18 +30,18 @@ const FOREIGN_PROVIDERS: Provider[] = [
 ];
 
 const ARABIC_PROVIDERS: Provider[] = [
-  { name: 'Cinemana', displayName: 'سينمانا', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#d946ef', url: (t) => `/api/streams/${t}?category=arabic`, priority: 1, category: 'arabic', needsResolution: true },
-  { name: 'FaselHD', displayName: 'فاصل HD', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#10b981', url: (t) => `/api/streams/${t}?category=arabic`, priority: 2, category: 'arabic', needsResolution: true },
-  { name: 'MyCima', displayName: 'ماي سيما', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#3b82f6', url: (t) => `/api/streams/${t}?category=arabic`, priority: 3, category: 'arabic', needsResolution: true },
-  { name: 'CimaClub', displayName: 'سيما كلوب', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=arabic`, priority: 4, category: 'arabic', needsResolution: true },
-  { name: 'ArabSeed', displayName: 'عرب سيد', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#ef4444', url: (t) => `/api/streams/${t}?category=arabic`, priority: 5, category: 'arabic', needsResolution: true },
-  { name: 'Hd1', displayName: 'HD1 براستيج', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#8b5cf6', url: (t) => `/api/streams/${t}?category=arabic`, priority: 6, category: 'arabic', needsResolution: true },
+  { name: 'Cinemana', displayName: 'سينمانا', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#d946ef', url: (t, tp) => `/api/streams/${t}?category=arabic&type=${tp}`, priority: 1, category: 'arabic', needsResolution: true },
+  { name: 'FaselHD', displayName: 'فاصل HD', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#10b981', url: (t, tp) => `/api/streams/${t}?category=arabic&type=${tp}`, priority: 2, category: 'arabic', needsResolution: true },
+  { name: 'MyCima', displayName: 'ماي سيما', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#3b82f6', url: (t, tp) => `/api/streams/${t}?category=arabic&type=${tp}`, priority: 3, category: 'arabic', needsResolution: true },
+  { name: 'CimaClub', displayName: 'سيما كلوب', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#f59e0b', url: (t, tp) => `/api/streams/${t}?category=arabic&type=${tp}`, priority: 4, category: 'arabic', needsResolution: true },
+  { name: 'ArabSeed', displayName: 'عرب سيد', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#ef4444', url: (t, tp) => `/api/streams/${t}?category=arabic&type=${tp}`, priority: 5, category: 'arabic', needsResolution: true },
+  { name: 'Hd1', displayName: 'HD1 براستيج', description: 'زاحف عربي — يبحث بالاسم', brandColor: '#8b5cf6', url: (t, tp) => `/api/streams/${t}?category=arabic&type=${tp}`, priority: 6, category: 'arabic', needsResolution: true },
 ];
 
 const TURKISH_PROVIDERS: Provider[] = [
-  { name: 'Qissat', displayName: 'قصة عشق', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#dc2626', url: (t) => `/api/streams/${t}?category=turkish`, priority: 1, category: 'turkish', needsResolution: true },
-  { name: 'HDFilmCehennemi', displayName: 'HD فيلم جهنم', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#f59e0b', url: (t) => `/api/streams/${t}?category=turkish`, priority: 2, category: 'turkish', needsResolution: true },
-  { name: 'Dizipal', displayName: 'Dizipal', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#10b981', url: (t) => `/api/streams/${t}?category=turkish`, priority: 3, category: 'turkish', needsResolution: true },
+  { name: 'Qissat', displayName: 'قصة عشق', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#dc2626', url: (t, tp) => `/api/streams/${t}?category=turkish&type=${tp}`, priority: 1, category: 'turkish', needsResolution: true },
+  { name: 'HDFilmCehennemi', displayName: 'HD فيلم جهنم', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#f59e0b', url: (t, tp) => `/api/streams/${t}?category=turkish&type=${tp}`, priority: 2, category: 'turkish', needsResolution: true },
+  { name: 'Dizipal', displayName: 'Dizipal', description: 'زاحف تركي — يبحث بالاسم', brandColor: '#10b981', url: (t, tp) => `/api/streams/${t}?category=turkish&type=${tp}`, priority: 3, category: 'turkish', needsResolution: true },
 ];
 
 const ANIMATION_PROVIDERS: Provider[] = [

@@ -148,6 +148,7 @@ export default function SmartPlayer({
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [selectedSub, setSelectedSub] = useState<Subtitle | null>(null);
   const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
+  const [showOpenTab, setShowOpenTab] = useState(false);
 
   const modeRef = useRef(mode);
   const currentIndexRef = useRef(currentIndex);
@@ -238,6 +239,9 @@ export default function SmartPlayer({
     nf.add(idx);
     failedRef.current = nf;
     setFailedIndices(new Set(nf));
+    if (nf.size >= allIframeProviders.length) {
+      setShowOpenTab(true);
+    }
     tryNextFrom(idx, nf);
   }, [allIframeProviders, tryNextFrom, cleanup]);
 
@@ -274,6 +278,7 @@ export default function SmartPlayer({
     cleanup();
     failedRef.current = new Set();
     setFailedIndices(new Set());
+    setShowOpenTab(false);
     setMode('manual');
     setCurrentIndex(index);
     setStatus('loading');
@@ -463,9 +468,16 @@ export default function SmartPlayer({
               </div>
               <p className="text-zinc-300 font-semibold text-sm mb-1">جميع السيرفرات غير متاحة</p>
               <p className="text-zinc-600 text-xs mb-4">تم تجربة {allIframeProviders.length} سيرفر — جرب مرة أخرى أو اختر يدوياً</p>
-              <button onClick={switchToAuto} className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold transition-all">
-                إعادة المحاولة
-              </button>
+              <div className="flex gap-2 justify-center">
+                {activeUrl && (
+                  <button onClick={() => window.open(activeUrl, '_blank')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition-all">
+                    افتح المشاهدة
+                  </button>
+                )}
+                <button onClick={switchToAuto} className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold transition-all">
+                  إعادة المحاولة
+                </button>
+              </div>
             </div>
           </div>
         )}

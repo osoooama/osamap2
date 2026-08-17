@@ -92,7 +92,8 @@ export async function getMovieDetails(req: Request, res: Response) {
 
     if (!movie) {
       try {
-        const tmdbData = mediaType === 'tv'
+        const isTv = mediaType === 'tv';
+        const tmdbData = isTv
           ? await tmdb.getTVDetails(tmdb_id)
           : await tmdb.getMovieDetails(tmdb_id);
         movie = await Movie.create({
@@ -101,9 +102,9 @@ export async function getMovieDetails(req: Request, res: Response) {
           overview: tmdbData.overview,
           poster_path: tmdbData.poster_path,
           backdrop_path: tmdbData.backdrop_path,
-          media_type: 'movie',
+          media_type: isTv ? 'tv' : 'movie',
           vote_average: tmdbData.vote_average || 0,
-          release_date: tmdbData.release_date || '',
+          release_date: isTv ? (tmdbData.first_air_date || '') : (tmdbData.release_date || ''),
           genre_ids: tmdbData.genres?.map((g: { id: number }) => g.id) || [],
           original_language: tmdbData.original_language || '',
           popularity: tmdbData.popularity || 0,

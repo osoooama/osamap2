@@ -95,14 +95,11 @@ export default function SmartPlayer({
           const data = await resp.json();
           if (data.streams && data.streams.length > 0) {
             for (const stream of data.streams) {
-              const embedUrl = stream.source && stream.source.startsWith('http') ? stream.source : undefined;
-              const isM3u8 = stream.url && /\.m3u8(\?|$)/i.test(stream.url);
               results.push({
                 ...firstProvider,
                 name: `${firstProvider.name} (${stream.source || 'scraper'})`,
                 displayName: `${firstProvider.displayName} ${stream.source || 'scraper'}`,
-                url: isM3u8 && embedUrl ? embedUrl : stream.url,
-                directUrl: isM3u8 ? stream.url : undefined,
+                url: stream.url,
                 needsResolution: false,
               });
             }
@@ -312,7 +309,33 @@ export default function SmartPlayer({
   }, [tmdbId, mediaType, currentSeason, currentEpisode]);
 
   const activeProvider = currentIndex >= 0 ? allIframeProviders[currentIndex] : null;
-  const activeUrl = activeProvider ? activeProvider.url : '';
+  const rawUrl = activeProvider ? activeProvider.url : '';
+  const activeUrl = useMemo(() => {
+    if (rawUrl && /\.m3u8(\?|$)/i.test(rawUrl)) {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://osamap2.onrender.com';
+      return `${apiBase}/api/proxy?url=${encodeURIComponent(rawUrl)}`;
+    }
+    return rawUrl;
+  }, [rawUrl]);
+
+  const isHlsActiveUrl = activeUrl && /\.m3u8(\?|$)/i.test(activeUrl);
+
+  useEffect(() => {
+    if (!activeUrl || !isHlsActiveUrl || !videoRef.current) return;
+    const video = videoRef.current;
+    if (Hls.isSupported()) {
+      const hls = new Hls({ enableWorker: true, lowLatencyMode: false, maxBufferLength: 30, xhrSetup: (xhr) => { xhr.withCredentials = false; } });
+      hlsRef.current = hls;
+      hls.loadSource(activeUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(() => {}); handleLoad(); });
+      hls.on(Hls.Events.ERROR, (_event, data) => { if (data.fatal) handleError(); });
+      return () => { hls.destroy(); hlsRef.current = null; };
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = activeUrl;
+      video.play().catch(() => {});
+    }
+  }, [activeUrl, isHlsActiveUrl]);
 
   const showEpisodeUI = isAnime || isTV;
 
@@ -422,8 +445,21 @@ export default function SmartPlayer({
       {/* VIDEO PLAYER CARD */}
       <div ref={containerRef} className="relative w-full aspect-[16/10] sm:aspect-video bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/[0.03]">
         {activeUrl && (() => {
-          const isMediaUrl = /\.(m3u8|mp4|mkv|webm)(\?|$)/i.test(activeUrl);
-          if (isMediaUrl) {
+          const isHlsUrl = /\.m3u8(\?|$)/i.test(activeUrl);
+          const isDirectVideo = /\.(mp4|mkv|webm)(\?|$)/i.test(activeUrl);
+          if (isHlsUrl) {
+            return (
+              <video
+                ref={videoRef}
+                key={`${currentIndex}-${tmdbId}-${animeId}-${currentSeason}-${currentEpisode}`}
+                className="w-full h-full object-contain"
+                style={{ opacity: status === 'playing' ? 1 : 0, transition: 'opacity 0.3s' }}
+                controls
+                autoPlay
+              />
+            );
+          }
+          if (isDirectVideo) {
             return (
               <video
                 key={`${currentIndex}-${tmdbId}-${animeId}-${currentSeason}-${currentEpisode}`}

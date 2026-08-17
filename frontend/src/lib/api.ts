@@ -25,8 +25,8 @@ export async function getMovies(category: string, page = 1, type?: string): Prom
   return data;
 }
 
-export async function getMovieDetails(tmdb_id: string): Promise<Record<string, unknown>> {
-  const { data } = await api.get(`/api/movies/details/${tmdb_id}`);
+export async function getMovieDetails(tmdb_id: string, type: string = 'movie'): Promise<Record<string, unknown>> {
+  const { data } = await api.get(`/api/movies/details/${tmdb_id}`, { params: { type } });
   return data;
 }
 

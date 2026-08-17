@@ -29,7 +29,7 @@ function PlayerContent() {
         .catch(() => setLoading(false));
     } else if (tmdbId) {
       setLoading(true);
-      getMovieDetails(tmdbId)
+      getMovieDetails(tmdbId, mediaType)
         .then((data) => setMovie(data))
         .catch(() => {})
         .finally(() => setLoading(false));

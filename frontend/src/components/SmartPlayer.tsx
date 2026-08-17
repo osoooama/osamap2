@@ -239,9 +239,7 @@ export default function SmartPlayer({
     nf.add(idx);
     failedRef.current = nf;
     setFailedIndices(new Set(nf));
-    if (nf.size >= allIframeProviders.length) {
-      setShowOpenTab(true);
-    }
+    setShowOpenTab(true);
     tryNextFrom(idx, nf);
   }, [allIframeProviders, tryNextFrom, cleanup]);
 
@@ -454,6 +452,11 @@ export default function SmartPlayer({
                     </span>
                   )}
                 </p>
+              )}
+              {showOpenTab && activeUrl && (
+                <button onClick={() => window.open(activeUrl, '_blank')} className="mt-3 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all pointer-events-auto shadow-lg shadow-emerald-900/30">
+                  افتح المشاهدة في نافذة جديدة
+                </button>
               )}
             </div>
           </div>

@@ -83,14 +83,17 @@ export async function getMovieDetails(req: Request, res: Response) {
   try {
     const tmdb_id = sanitizeId(req.params.tmdb_id);
     if (!tmdb_id) return res.status(400).json({ error: 'Invalid TMDB ID' });
+    const mediaType = (req.query.type as string) || 'movie';
     let movie = await Movie.findOne({ tmdb_id });
 
     if (!movie) {
       try {
-        const tmdbData = await tmdb.getMovieDetails(tmdb_id);
+        const tmdbData = mediaType === 'tv'
+          ? await tmdb.getTVDetails(tmdb_id)
+          : await tmdb.getMovieDetails(tmdb_id);
         movie = await Movie.create({
           tmdb_id,
-          title: tmdbData.title,
+          title: tmdbData.title || tmdbData.name,
           overview: tmdbData.overview,
           poster_path: tmdbData.poster_path,
           backdrop_path: tmdbData.backdrop_path,

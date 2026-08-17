@@ -309,14 +309,7 @@ export default function SmartPlayer({
   }, [tmdbId, mediaType, currentSeason, currentEpisode]);
 
   const activeProvider = currentIndex >= 0 ? allIframeProviders[currentIndex] : null;
-  const activeUrl = useMemo(() => {
-    const raw = activeProvider ? activeProvider.url : '';
-    if (raw && /\.m3u8(\?|$)/i.test(raw)) {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://osamap2.onrender.com';
-      return `${apiBase}/api/proxy?url=${encodeURIComponent(raw)}`;
-    }
-    return raw;
-  }, [activeProvider]);
+  const activeUrl = activeProvider ? activeProvider.url : '';
 
   const showEpisodeUI = isAnime || isTV;
 

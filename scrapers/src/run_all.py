@@ -15,6 +15,7 @@ from sites.dizipal import crawl as crawl_dizipal
 from sites.turkish_sites import crawl as crawl_turkish_sites
 from sites.subtitles import crawl_subtitles
 from sites.movies123 import crawl as crawl_movies123
+from sites.arabic_sites import crawl as crawl_arabic_sites
 
 CRAWLER_MAP = {
     'streamex.sh': crawl_cineby,
@@ -25,6 +26,11 @@ CRAWLER_MAP = {
     'dizipal104.vip': crawl_dizipal,
     'hdfilmcehennemi.sh': crawl_turkish_sites,
     '123moviesfree.net': crawl_movies123,
+    'eegebest.com': crawl_arabic_sites,
+    'fajer.show': crawl_arabic_sites,
+    '3iskk.xyz': crawl_arabic_sites,
+    '7obtv.co': crawl_arabic_sites,
+    'cinemana.cc': crawl_arabic_sites,
 }
 
 EXTRA_SCRAPERS = [crawl_subtitles]

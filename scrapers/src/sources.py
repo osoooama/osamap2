@@ -7,6 +7,11 @@ SITES = [
     {'name': 'hdfilmcehennemi.sh', 'url': 'https://hdfilmcehennemi.sh', 'category': 'turkish'},
     {'name': 'dizipal104.vip', 'url': 'https://dizipal104.vip', 'category': 'turkish'},
     {'name': '123moviesfree.net', 'url': 'https://ww8.123moviesfree.net', 'category': 'foreign'},
+    {'name': 'eegebest.com', 'url': 'https://eegebest.com', 'category': 'arabic'},
+    {'name': 'fajer.show', 'url': 'https://fajer.show', 'category': 'arabic'},
+    {'name': '3iskk.xyz', 'url': 'https://3iskk.xyz', 'category': 'arabic'},
+    {'name': '7obtv.co', 'url': 'https://7obtv.co', 'category': 'arabic'},
+    {'name': 'cinemana.cc', 'url': 'https://cinemana.cc', 'category': 'arabic'},
 ]
 
 

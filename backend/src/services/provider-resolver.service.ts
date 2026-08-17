@@ -320,6 +320,17 @@ export async function resolveProvider(tmdbId: string, category: string = 'arabic
       return r.value;
     }
   }
+
+  try {
+    const { scrapeWithPlaywright } = await import('./playwright-resolver.service');
+    const pwResult = await scrapeWithPlaywright(title, category);
+    if (pwResult) {
+      resultCache.set(resultKey, { url: pwResult.url, ts: Date.now() });
+      await saveToDb(tmdbId, pwResult.url, 'playwright-scraper', category);
+      return { url: pwResult.url, source: 'playwright-scraper' };
+    }
+  } catch {}
+
   return null;
 }
 

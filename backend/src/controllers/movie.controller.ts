@@ -96,8 +96,7 @@ export async function getMovieDetails(req: Request, res: Response) {
         const tmdbData = isTv
           ? await tmdb.getTVDetails(tmdb_id)
           : await tmdb.getMovieDetails(tmdb_id);
-        movie = await Movie.create({
-          tmdb_id,
+        const doc = {
           title: tmdbData.title || tmdbData.name,
           overview: tmdbData.overview,
           poster_path: tmdbData.poster_path,
@@ -108,12 +107,12 @@ export async function getMovieDetails(req: Request, res: Response) {
           genre_ids: tmdbData.genres?.map((g: { id: number }) => g.id) || [],
           original_language: tmdbData.original_language || '',
           popularity: tmdbData.popularity || 0,
-        });
+        };
+        movie = await Movie.findOneAndUpdate({ tmdb_id }, { $set: doc }, { new: true, upsert: true });
       } catch {
         try {
           const tmdbData = await tmdb.getTVDetails(tmdb_id);
-          movie = await Movie.create({
-            tmdb_id,
+          const doc = {
             title: tmdbData.name,
             overview: tmdbData.overview,
             poster_path: tmdbData.poster_path,
@@ -124,7 +123,8 @@ export async function getMovieDetails(req: Request, res: Response) {
             genre_ids: tmdbData.genres?.map((g: { id: number }) => g.id) || [],
             original_language: tmdbData.original_language || '',
             popularity: tmdbData.popularity || 0,
-          });
+          };
+          movie = await Movie.findOneAndUpdate({ tmdb_id }, { $set: doc }, { new: true, upsert: true });
         } catch {
           return res.status(404).json({ error: 'Content not found' });
         }
@@ -147,6 +147,8 @@ export async function getMovieDetails(req: Request, res: Response) {
         allUrls.add(url);
       }
     }
+
+    if (!movie) return res.status(404).json({ error: 'Content not found' });
 
     const result: Record<string, unknown> = { ...movie.toObject(), links: uniqueSources };
     result.embed_urls = [...allUrls];
